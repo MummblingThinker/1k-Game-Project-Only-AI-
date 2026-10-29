@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const remote = process.env.TEST_BASE_URL?.replace(/\/$/, '');
+if (remote && new URL(remote).protocol !== 'https:') throw new Error('Remote tests require HTTPS');
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -18,12 +20,12 @@ function freePort() {
 }
 
 async function waitForHealth(baseUrl, child) {
-  const deadline = Date.now() + 5000;
+  const deadline = Date.now() + (remote ? 90000 : 5000);
   let lastError;
   while (Date.now() < deadline) {
-    if (child.exitCode !== null) throw new Error(`Static server exited early with code ${child.exitCode}`);
+    if (child && child.exitCode !== null) throw new Error(`Static server exited early with code ${child.exitCode}`);
     try {
-      const response = await fetch(`${baseUrl}/health`);
+      const response = await fetch(`${baseUrl}/health`, { signal: AbortSignal.timeout(remote ? 70000 : 5000) });
       if (response.ok) return await response.json();
       lastError = new Error(`Health endpoint returned HTTP ${response.status}`);
     } catch (error) {
@@ -34,21 +36,22 @@ async function waitForHealth(baseUrl, child) {
   throw new Error(`Static server did not become healthy in time: ${lastError?.message || 'unknown error'}`);
 }
 
-const port = await freePort();
-const child = spawn(process.execPath, [path.join(root, 'server/static-server.mjs')], {
+const port = remote ? null : await freePort();
+const child = remote ? null : spawn(process.execPath, [path.join(root, 'server/static-server.mjs')], {
   cwd: root,
   env: { ...process.env, PORT: String(port) },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
 let logs = '';
-child.stdout.on('data', (chunk) => { logs += chunk.toString(); });
-child.stderr.on('data', (chunk) => { logs += chunk.toString(); });
-const baseUrl = `http://127.0.0.1:${port}`;
+child?.stdout.on('data', (chunk) => { logs += chunk.toString(); });
+child?.stderr.on('data', (chunk) => { logs += chunk.toString(); });
+const baseUrl = remote || `http://127.0.0.1:${port}`;
 
 try {
   const health = await waitForHealth(baseUrl, child);
   assert.equal(health.ok, true, 'health endpoint should report ok');
-  assert.equal(health.multiplayer, false, 'static server must clearly indicate multiplayer is disabled');
+  if (!remote) assert.equal(health.multiplayer, false, 'static server must clearly indicate multiplayer is disabled');
+  else assert.equal(health.service, 'tiny-teamwork-server', 'public service must be the multiplayer server');
 
   const checks = [
     ['/', 'text/html'],
@@ -90,10 +93,12 @@ try {
   if (logs) console.error('\nStatic server logs:\n' + logs);
   process.exitCode = 1;
 } finally {
-  child.kill('SIGTERM');
-  await new Promise((resolve) => {
+  if (child) {
+    child.kill('SIGTERM');
+    await new Promise((resolve) => {
     if (child.exitCode !== null) return resolve();
     child.once('exit', resolve);
     setTimeout(() => { child.kill('SIGKILL'); resolve(); }, 1500).unref();
-  });
+    });
+  }
 }

@@ -6,23 +6,25 @@ import net from 'node:net';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+const remote = process.env.TEST_BASE_URL?.replace(/\/$/, '');
+if (remote && new URL(remote).protocol !== 'https:') throw new Error('Remote tests require HTTPS');
 try { createRequire(import.meta.url).resolve('socket.io'); }
-catch { console.log('SKIP multiplayer: run npm install to enable live server tests. Offline checks remain available.'); process.exit(0); }
+catch { if (!remote) { console.log('SKIP multiplayer: run npm install to enable live server tests. Offline checks remain available.'); process.exit(0); } }
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 async function until(predicate, label, timeout = 6000) {
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) { if (predicate()) return; await sleep(15); }
   throw new Error(`Timed out: ${label}`);
 }
-const port = await new Promise((resolve) => {
+const port = remote ? null : await new Promise((resolve) => {
   const listener = net.createServer();
   listener.listen(0, '127.0.0.1', () => { const p = listener.address().port; listener.close(() => resolve(p)); });
 });
-const base = `http://127.0.0.1:${port}`;
-const child = spawn(process.execPath, ['server/server.js'], { cwd: root, env: { ...process.env, PORT: String(port) }, stdio: ['ignore', 'pipe', 'pipe'] });
+const base = remote || `http://127.0.0.1:${port}`;
+const child = remote ? null : spawn(process.execPath, ['server/server.js'], { cwd: root, env: { ...process.env, PORT: String(port) }, stdio: ['ignore', 'pipe', 'pipe'] });
 let logs = '';
-child.stdout.on('data', (chunk) => { logs += chunk; });
-child.stderr.on('data', (chunk) => { logs += chunk; });
+child?.stdout.on('data', (chunk) => { logs += chunk; });
+child?.stderr.on('data', (chunk) => { logs += chunk; });
 const peers = [];
 
 // Exercise actual Socket.IO over WebSockets without another production/test dependency.
@@ -32,7 +34,7 @@ class Peer extends EventEmitter {
     super();
     this.errors = [];
     this.events = [];
-    this.ws = new WebSocket(`ws://127.0.0.1:${port}/socket.io/?EIO=4&transport=websocket`);
+    this.ws = new WebSocket(`${base.replace(/^http/, 'ws')}/socket.io/?EIO=4&transport=websocket`);
     this.ws.addEventListener('error', () => {});
     this.ws.addEventListener('message', ({ data }) => {
       const frame = String(data);
@@ -72,7 +74,8 @@ async function jumpPit(peer, pit) {
 }
 
 try {
-  await until(() => logs.includes('listening'), 'server startup');
+  if (child) await until(() => logs.includes('listening'), 'server startup');
+  console.log(`Testing multiplayer at ${base} (independent automated clients; not a physical-device test)`);
   assert.equal((await (await fetch(`${base}/health`)).json()).ok, true);
   assert.equal((await fetch(base)).status, 200);
   assert.equal((await fetch(`${base}/socket.io/socket.io.js`)).status, 200);
@@ -160,6 +163,8 @@ try {
   process.exitCode = 1;
 } finally {
   for (const peer of peers) if (peer.ws.readyState < 2) peer.close();
-  child.kill('SIGTERM');
-  await new Promise((resolve) => { if (child.exitCode !== null) resolve(); else child.once('exit', resolve); });
+  if (child) {
+    child.kill('SIGTERM');
+    await new Promise((resolve) => { if (child.exitCode !== null) resolve(); else child.once('exit', resolve); });
+  }
 }
