@@ -2,7 +2,7 @@
   "status": "DRAFT_NOT_READY",
   "title": "Tiny Teamwork: The Last Spark",
   "description": "A cooperative pixel platformer for 2-4 players. Share a room code, jump the ruined city streets, activate a relay to open a shared bridge, and get every survivor to shelter before the giant catches up. The biggest challenge was keeping movement, the relay and victory synchronized; the build uses server-owned state and separate-client tests. This entry is one complete level. Next: teammate rescues and more stages.",
-  "projectUrl": null,
+  "projectUrl": "https://tiny-teamwork-last-spark.onrender.com",
   "coverImage": null,
   "shareToShowcase": true,
   "controls": {
@@ -14,7 +14,7 @@
     "pause": "Solo only. Online Esc releases input while the world continues."
   },
   "verification": {
-    "publicHealthAndAssets": false,
+    "publicHealthAndAssets": true,
     "twoSeparateDevicesAndNetworks": false,
     "externalPlaytestQaEntry": null,
     "humanReviewed": false,

@@ -1,6 +1,31 @@
 # Publish the multiplayer slice
 
-Status: prepared for deployment, not publicly deployed or externally verified.
+Status: deployed on Render on 2026-10-29; physical-device/network acceptance remains unverified.
+
+## Current service
+
+- Public URL: https://tiny-teamwork-last-spark.onrender.com
+- Source: https://github.com/MummblingThinker/1k-Game-Project-Only-AI- (main).
+- Workspace: My Workspace (`tea-dbhakd8u01pc73ap1ou0`).
+- Service: `srv-dbhnfcm1egvs73817n4g`; https://dashboard.render.com/web/srv-dbhnfcm1egvs73817n4g
+- Free Node service, Virginia, one instance, manual deploys. Build `npm ci && npm test`; start `npm start`; Node 24.20.0; NODE_ENV=production. No database or secrets.
+- Initial live deploy: `dep-dbhnfde1egvs73817pj0`, runtime source `269fc0e4384ebd9cf44bdd6cb6caaa81dcc0c776`. Logs confirm assigned PORT=10000.
+- Direct MCP creation uses Render's default TCP readiness checks; its limited tool cannot set `healthCheckPath`. The existing `/health` HTTP endpoint is independently tested below. To enable provider HTTP checks, set `/health` in Dashboard Settings; the supplied Blueprint already requests it.
+
+The repository also contains a Public multiplayer smoke GitHub Actions workflow. It tests this deployed URL from an Ubuntu runner, without a ChatGPT login. It does not replace the physical-device test below.
+
+Full public regression passed: https://github.com/MummblingThinker/1k-Game-Project-Only-AI-/actions/runs/40915358003. Includes HTTP assets/health and actual WSS gameplay through shared victory/replay, isolation and cleanup. See QA_LOG.md for the earlier failures and corrections.
+
+To repeat from a terminal with internet access (PowerShell):
+
+```powershell
+$env:TEST_BASE_URL='https://tiny-teamwork-last-spark.onrender.com'
+npm run smoke
+npm run test:multiplayer
+Remove-Item Env:TEST_BASE_URL
+```
+
+These tests create temporary rooms and exercise gameplay. Remote cleanup checks only their own room codes, preserving unrelated players' rooms. Without TEST_BASE_URL, both scripts retain their local-server behavior. The HTTP test allows for a free-service cold start.
 
 ## Render fallback
 

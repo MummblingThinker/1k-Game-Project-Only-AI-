@@ -10,11 +10,11 @@ Last updated: 2026-10-29
 
 ## Current blocker and next task
 
-MVP-03 remains BLOCKED after the 2026-10-29 connection recheck. Render plugin discovery confirms installed/enabled and tool definitions are exposed, but all three read-only calls (selected workspace, list workspaces, list services) return MCP -32001 Unknown tool. No account/workspace was verified. Browser inventory is empty and the in-app browser is unavailable. No Render CLI or RENDER_API_KEY environment fallback exists. Restore/reconnect the existing Render connection; do not reinstall it. No repository/service was created and no public URL or external-device test exists. Full baseline npm test passed including live WebSocket multiplayer.
+MVP-03 is IMPLEMENTED_UNVERIFIED. Deployed at https://tiny-teamwork-last-spark.onrender.com in Render My Workspace (tea-dbhakd8u01pc73ap1ou0), one free Node instance in Virginia, manual deploys. GitHub authenticated as MummblingThinker with admin/push access; source published to MummblingThinker/1k-Game-Project-Only-AI-. Render reports initial deploy dep-dbhnfde1egvs73817pj0 live; assigned PORT=10000. Hosted HTTPS/assets and full public WSS gameplay regression passed (Actions run 40915358003). Physical-device/network acceptance and current browser smoke remain outstanding. See QA_LOG.md, 2026-10-29 MVP-03 public deployment.
 
-Prepared render.yaml, explicit all-interface PORT binding, deployment instructions and a source ZIP with integrity/hash manifest. Fresh extraction passed offline checks without borrowing installed dependencies. Provider validation, public deployment and external two-device play remain unverified.
+Next single task: complete physical-device/network acceptance in docs/DEPLOYMENT.md. Browser inventory is empty; iab is unavailable. Local outbound HTTPS fails EACCES, so GitHub Actions tests the public service. Default Render TCP readiness is active; the limited MCP tool cannot set the provider HTTP health path, although /health exists and the public smoke passes. No gameplay source changed.
 
-MVP-04 has a draft entry (416-character description) and readiness checker; actual cover, public URL, external evidence and human review/submission are missing. Official rules deadline is October 30 at 11:59pm Pacific, while mission UI says October 31; use the earlier planning target pending clarification.
+MVP-04 has a draft entry (416-character description) and readiness checker; actual cover, external evidence and human review/submission are missing. Official rules deadline is October 30 at 11:59pm Pacific, while mission UI says October 31; use the earlier planning target pending clarification.
 
 UI-001: blurry raster text replaced by native HTML overlays and larger interface fonts. Desktop title/story/pause and phone-emulated title/pause were observed. Latest full browser/co-op and physical-device verification is incomplete; automatic checks pass. No extra levels or optional art overhaul added.
 
@@ -26,7 +26,7 @@ Online Level 1: host-started lobby, four-player cap, fixed-step 60Hz authoritati
 
 ## Limits
 
-Online Level 1 only. Join before start; create a new lobby to add players. Disconnect clears identity; explicitly join a new lobby. ESC releases input, not a shared pause. Rooms are memory-only and require one Node instance; process restart loses them. No public deployment, account system, cloud saves, audio or verified mobile support.
+Online Level 1 only. Join before start; create a new lobby to add players. Disconnect clears identity; explicitly join a new lobby. ESC releases input, not a shared pause. Rooms are memory-only and require one Node instance; process restart loses them. No account system, cloud saves, audio or verified mobile support.
 
 Carry/throw/rescue, movable online crates, advanced robots, later online campaign/story, broad heart/checkpoint/anti-softlock and physical-device tests remain incomplete/unverified. Broader NET/COOP tasks stay open. Temporary art and optional UI polish are deferred behind MVP-03/04.
 

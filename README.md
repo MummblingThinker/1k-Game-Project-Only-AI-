@@ -69,11 +69,11 @@ For a complete hands-on walkthrough, see [`docs/PRACTICE_GUIDE.md`](docs/PRACTIC
 
 The game text now renders as native HTML at display resolution while the world stays pixelated. Interface labels and controls use larger fonts. Desktop/phone-emulated previews were observed, but the latest complete browser/co-op verification was interrupted by a browser connection failure; see UI-001 in QA_LOG.md.
 
-Public deployment is not complete. Render is installed/enabled, with render.yaml and docs/DEPLOYMENT.md prepared. The October 29 recheck exposes Render tools, but all three read-only connection checks return Unknown tool. Browser fallback is unavailable. Reconnect the existing Render integration before resuming deployment. Local npm test passes including live multiplayer; no public URL should be submitted yet.
+MVP-03 is IMPLEMENTED_UNVERIFIED. Deployed at https://tiny-teamwork-last-spark.onrender.com in Render My Workspace (tea-dbhakd8u01pc73ap1ou0), one free Node instance in Virginia, manual deploys. GitHub authenticated as MummblingThinker with admin/push access; source published to MummblingThinker/1k-Game-Project-Only-AI-. Render reports initial deploy dep-dbhnfde1egvs73817pj0 live; assigned PORT=10000. Hosted HTTPS/assets and full public WSS gameplay regression passed (Actions run 40915358003). Physical-device/network acceptance and current browser smoke remain outstanding. See QA_LOG.md, 2026-10-29 MVP-03 public deployment.
 
 The source package is release/TinyTeamwork-source.zip, with hashes in release/source-manifest.json. Rebuild and verify it with `python scripts/package-release.py --verify`. It excludes installed dependencies, local caches and environment files. The fresh extraction check runs offline/client tests; actual live WebSocket integration runs in the installed working copy.
 
-submission/entry.json and submission/README.md contain a 416-character description and the observed contest requirements. Run `npm run check:submission` for remaining items. The public URL, cover screenshot, separate-device/network test and human review/submission are still missing. The official rules give October 30, 2026 at 11:59pm Pacific, while the mission page says October 31; use the earlier date pending clarification.
+submission/entry.json and submission/README.md contain a 416-character description and the observed contest requirements. Run `npm run check:submission` for remaining items. The cover screenshot, separate-device/network test and human review/submission are still missing. The official rules give October 30, 2026 at 11:59pm Pacific, while the mission page says October 31; use the earlier date pending clarification.
 
 ## Known limitations / next tasks for Codex
 

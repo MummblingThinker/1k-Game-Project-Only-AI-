@@ -101,14 +101,16 @@ Result: PASS. `npm run check`, `npm run smoke`, and `npm run verify:board` all p
 
 Scope limitation: this run verifies project checks and static serving only. It does not verify new gameplay behavior, a live Socket.IO session, public hosting, or contest submission readiness. The four MVP release gates remain unchecked until their full acceptance criteria are tested.
 
-Final regression after recording the blocker in TASK_LIST.md and docs/PROJECT_STATUS.md: npm test PASS (exit 0; checks, HTTP smoke, and board guard). The temporary offline server was stopped during handoff cleanup.
+Final regression after recording the blocker in TASK_LIST.md and docs/PROJECT_STATUS.md: npm test PASS (exit 0; checks, HTTP smoke, and board guard). The temporary offline server was stopped during handoff cleanup.
+
 
 ## 2026-10-28 — MVP-01 / resumed implementation and regression checks
 Environment: Windows, Node.js v24.20.0, connected Chrome extension browser 1. User explicitly resumed MVP-01. Earlier browser blocker is resolved: local game title and keyboard movement were observed in Chrome.
 Changes: added a Level 1 victory state with replay/title buttons, keyboard replay/title actions, route progress and clear goal guidance. Kept existing campaign geometry and temporary sprites. No additional levels or optional art pass.
 Commands: node --check public/js/game.js; npm test after victory/UI change; npm test after fixed-step timing change. All PASS (exit 0).
 Browser observations: original simulation advanced very slowly during held keyboard inputs in this browser session; original frame loop discarded elapsed time above 40ms. Changed client simulation to fixed 60Hz steps with bounded 250ms catch-up. New automated regression compares movement and jumping at 5/30/60/120Hz for equal elapsed time and tests bounded recovery from a 60-second suspension. All pass. Static smoke includes the new timing.js module.
-Acceptance status: IN_PROGRESS. Full fresh-load-to-victory/replay flow twice, browser version and final console evidence are still pending. No MVP milestone marked verified.
+Acceptance status: IN_PROGRESS. Full fresh-load-to-victory/replay flow twice, browser version and final console evidence are still pending. No MVP milestone marked verified.
+
 ## 2026-10-28 - MVP-01 / VERIFIED browser acceptance
 
 Environment: Windows; Node v24.20.0; Chrome extension browser 1, Person 1 profile. Installed Google Chrome version 156.0.8078.49 read from chrome.exe file metadata. URL http://localhost:4173/; offline server; one player. Real keyboard and click APIs used; no position injection or victory shortcut.
@@ -229,3 +231,25 @@ Fallbacks: `cua.getState()` returned apps=[], browsers=[]; creating an in-app Re
 MVP-03 remains BLOCKED. Next single task: restore/reconnect existing Render integration, verify a read-only workspace/service call, deploy the prepared free single-instance Node service from an owned source repository, and perform the external two-device/network acceptance procedure. No reinstall request; no optional gameplay or MVP-04 work.
 
 Final session regression: npm test PASS (exit 0) after status/documentation updates, including actual WebSocket multiplayer. Source ZIP refreshed with the current handoff; archive integrity/hash manifest regenerated.
+
+## 2026-10-29 - MVP-03 public deployment / IMPLEMENTED_UNVERIFIED
+
+Acceptance: public HTTPS Node/Express/Socket.IO service and client, provider PORT, healthy /health, no ChatGPT login, separate physical devices/networks completing room/relay/shelter/replay. Read handoff/planning/practice/deployment files; baseline npm test PASS including actual local WebSocket gameplay. No gameplay source changes.
+
+GitHub get_user_login returned MummblingThinker (113700934); get_repo returned push=true/admin=true; collaborator permission returned admin. Destination: https://github.com/MummblingThinker/1k-Game-Project-Only-AI-. Repository was empty. Published 54 allowlisted handoff files through the connector, excluding dependencies/caches/environment files. Runtime source commit: 269fc0e4384ebd9cf44bdd6cb6caaa81dcc0c776. Subsequent commits add tests/docs only. Local folder has no Git checkout; repository operations used the connector.
+
+Render list_workspaces succeeded: My Workspace, tea-dbhakd8u01pc73ap1ou0. Passed workspace ID explicitly on every resource call; initial list_services returned no services. Created one Free Node service srv-dbhnfcm1egvs73817n4g in Virginia, one instance, autoDeploy=no, build npm ci && npm test, start npm start, NODE_ENV=production, NODE_VERSION=24.20.0. No database, paid plan, secret or autoscaling. Dashboard: https://dashboard.render.com/web/srv-dbhnfcm1egvs73817n4g. Deploy dep-dbhnfde1egvs73817pj0 became live 2026-10-29 16:44:26 UTC. Render build log includes full npm test PASS; runtime log confirms assigned PORT=10000. URL: https://tiny-teamwork-last-spark.onrender.com. Limited direct MCP creation cannot set HTTP health path; default Render TCP readiness is active. Existing Blueprint requests /health; HTTP endpoint is checked independently.
+
+Verification limits: cua.getState() returned apps=[], browsers=[]; creating an iab tab failed Browser is not available: iab. Local TEST_BASE_URL remote smoke failed fetch/connect EACCES on outbound HTTPS. Web fetching tool could not access the new onrender URL. Public checks instead use GitHub Actions Ubuntu 24.04.5 / Node 24.22.1 over real HTTPS/WSS, without login/cookies. This is not browser visual or physical-device verification.
+
+Test changes: smoke-test.mjs and multiplayer-test.mjs accept TEST_BASE_URL as an HTTPS origin; default local behavior preserved. HTTP cold-start allowance added. Public multiplayer smoke workflow has contents:read permission and serial execution. Source ZIP allowlist includes workflow.
+
+First hosted run https://github.com/MummblingThinker/1k-Game-Project-Only-AI-/actions/runs/40914786624: /health, main page, CSS/modules, nine PNG sprites and 404 smoke PASS. Actual WSS gameplay reached shared victory/replay and later assertions; final global empty-room assertion FAIL (rooms=1). Corrected public cleanup to inspect only test-created room codes. Second run 40915091775 again passed HTTP/assets and gameplay, but cleanup probe found its full lobby after transport close. Test peers now send the Socket.IO disconnect packet before WebSocket close, allowing reverse-proxy cleanup without transport timeout. Host-departure test retains abrupt close. No server change or gameplay bug fix claimed.
+
+Local npm test PASS after remote support, room-scoped cleanup and graceful test-peer shutdown. Covers physics/clock/gaps, local HTTP/assets, five-entry board guard, membership regression and actual independent WebSocket clients: invalid/full rooms, host-only start/replay, forged/null input, relay once, bridge/gate/victory, isolation, stale input, one death charge, abrupt host transfer, cleanup.
+
+Physical-device/separate-network playtest requested from user with URL and exact steps. Pending: device/browser/network details, create/join, movement/jump, relay/bridge, shelter victory, replay, current browser visual/console smoke. MVP-03 remains unchecked / IMPLEMENTED_UNVERIFIED. No optional gameplay work or contest submission.
+
+PASS - final hosted public regression: https://github.com/MummblingThinker/1k-Game-Project-Only-AI-/actions/runs/40915358003 (job 123594012862, test commit c8b1b5da2d56f8b867271a5e9c7c3b7d13cb6833). Commands: npm ci; TEST_BASE_URL=https://tiny-teamwork-last-spark.onrender.com npm run smoke; same environment npm run test:multiplayer. All steps concluded success. Logs show HTTP/assets PASS, both test room codes removed, unrelated rooms preserved, and full Multiplayer PASS including shared victory/replay, isolation, stale-input/death checks, abrupt host transfer and cleanup. Runtime source remains 269fc0e4384ebd9cf44bdd6cb6caaa81dcc0c776; later commits change tests/docs only. This proves deployed HTTPS/WSS behavior from an external hosted runner; it does not substitute for physical devices or browser visual/console checks.
+
+Final local regression after handoff updates: npm test PASS (exit 0, including actual WebSocket integration). python scripts/package-release.py --verify PASS: 55 allowlisted files, ZIP integrity, fresh sibling extraction/dependency isolation, offline/client tests PASS; live checks explicitly skipped only in the extraction without dependencies. Repacked after this evidence entry; release/source-manifest.json holds the current archive SHA256. README/status/task board/deployment/network/practice notes and draft URL metadata updated; MVP-03 remains IMPLEMENTED_UNVERIFIED pending physical-device acceptance. Service remains on the verified original gameplay runtime; manual deploy prevents documentation commits from interrupting rooms.

@@ -1,6 +1,6 @@
 # How to Practice Playing the Current Prototype
 
-The current project is an early browser prototype. The fastest way to try it is **offline single-player**; that mode needs Node.js but does not need `npm install`. Online co-op supports the verified local Level 1 relay/bridge/shelter slice; public deployment remains unverified.
+The current project is an early browser prototype. The fastest way to try it is **offline single-player**; that mode needs Node.js but does not need `npm install`. Online co-op supports the verified local Level 1 relay/bridge/shelter slice; the public service is deployed at https://tiny-teamwork-last-spark.onrender.com, with physical-device/network acceptance still pending.
 
 ## 1. Start the single-player version
 
