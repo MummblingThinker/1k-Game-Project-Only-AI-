@@ -149,13 +149,30 @@ try {
   await until(() => g.errors.length, 'room-full error');
   assert.match(g.errors.at(-1), /full/i);
   for (const peer of peers) peer.close();
+  await until(() => peers.every((peer) => peer.ws.readyState === WebSocket.CLOSED), 'test sockets closed');
   let health;
-  for (let attempt = 0; attempt < 40; attempt++) {
+  if (remote) {
+    // A public service can contain real players' rooms. Probe only our own codes.
+    const probe = await connect();
+    for (const roomCode of [code, c.state.roomCode]) {
+      const previousErrors = probe.errors.length;
+      probe.send('joinRoom', { roomCode });
+      await until(() => probe.errors.length > previousErrors || probe.id, 'test room removed');
+      assert.equal(probe.id, undefined, 'closed test room must not be joinable');
+      assert.match(probe.errors.at(-1), /not found/i);
+    }
+    probe.close();
     health = await (await fetch(`${base}/health`)).json();
-    if (health.rooms === 0) break;
-    await sleep(50);
+    assert.equal(health.ok, true);
+    console.log('Public cleanup PASS: both test room codes removed; unrelated live rooms preserved.');
+  } else {
+    for (let attempt = 0; attempt < 40; attempt++) {
+      health = await (await fetch(`${base}/health`)).json();
+      if (health.rooms === 0) break;
+      await sleep(50);
+    }
+    assert.equal(health.rooms, 0, 'empty rooms cleaned up');
   }
-  assert.equal(health.rooms, 0, 'empty rooms cleaned up');
   console.log('Multiplayer PASS: actual WebSocket room create/join/errors/capacity, host start, authoritative movement, forged/null input rejection, concurrent relay exactly once, shared bridge/gate/victory/replay, room isolation, stale input stop, one death charge, host handoff, and empty-room cleanup.');
 } catch (error) {
   console.error(error.stack || error);
