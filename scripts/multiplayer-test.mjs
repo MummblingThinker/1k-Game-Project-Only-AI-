@@ -53,7 +53,12 @@ class Peer extends EventEmitter {
     peers.push(this);
   }
   send(event, payload) { this.ws.send(`42${JSON.stringify(payload === undefined ? [event] : [event, payload])}`); }
-  close() { this.ws.close(); }
+  close(abrupt = false) {
+    // Send the Socket.IO disconnect packet before the WebSocket close handshake.
+    // Reverse proxies can otherwise defer the server-side transport-close event.
+    if (!abrupt && this.ws.readyState === WebSocket.OPEN) this.ws.send('41');
+    this.ws.close();
+  }
 }
 async function connect() { const peer = new Peer(); await until(() => peer.connected, 'Socket.IO handshake'); return peer; }
 async function walk(peer, target) {
@@ -139,7 +144,7 @@ try {
   a.send('input', { right: true }); a.send('death', {}); b.send('death', { playerId: a.id });
   await sleep(180);
   assert.equal(a.state.hearts, afterDeath, 'death transition deducts once');
-  a.close();
+  a.close(true);
   await until(() => b.state.hostId === b.id && b.state.players.length === 1, 'host handoff');
   assert.equal(b.state.partySize, 2, 'running geometry preserves original party size');
   const d = await connect(), e = await connect(), f = await connect(), g = await connect();
