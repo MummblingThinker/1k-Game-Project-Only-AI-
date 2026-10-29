@@ -1,0 +1,153 @@
+# Tiny Teamwork: The Last Spark — Master Task List
+
+This is the single source of truth for the remaining build. Codex must update this file whenever it starts, changes, verifies, blocks, or defers a task. The goal is a shippable game, not merely code that compiles.
+
+**Last updated:** 2026-10-29  
+**Current maturity:** Early prototype / playable foundation. Not a finished game.  
+**Release status:** Not ready for release; multiplayer interaction sync, authored levels, and end-to-end playtesting remain incomplete.
+
+## Submission-critical path — do these before optional polish
+
+Follow [`PRIORITY_ROADMAP.md`](PRIORITY_ROADMAP.md) before choosing any other task. The release gates below summarize the required sequence; complete them in order. The full backlog remains below, but it is not a reason to delay a small, playable, public multiplayer entry.
+
+- [x] `MVP-01` · `P0` · Finish one complete playable vertical slice in Level 1. **Acceptance:** fresh load → start/menu → playable controls → one readable obstacle/hazard → reachable goal → clear win state → replay/restart; no blocking browser console errors. Other levels may remain variants. **Verify:** complete the flow twice in a real browser and record browser/version, observations, and any console errors in `QA_LOG.md`. **Status: VERIFIED** - Two fresh-load Chrome win/replay runs, final keyboard/title regression, and npm test passed. Evidence: QA_LOG.md, 2026-10-28 MVP-01 VERIFIED browser acceptance.
+- [x] `MVP-02` · `P0` · Verify a real two-player co-op loop. **Acceptance:** two separate browser sessions join via a random room code, see server-synchronized movement, synchronize one meaningful shared interaction/goal, receive clear invalid-code errors, and remain isolated from a second room. **Verify:** two clients in one room complete the interaction; two different rooms do not receive each other's player/state updates. **Status: VERIFIED** - Two independent local Chrome clients passed shared movement/relay/bridge/victory/replay, invalid code and room isolation; npm test passed. Evidence: QA_LOG.md, 2026-10-28 MVP-02 VERIFIED local browser acceptance. No external-device claim.
+- [ ] `MVP-03` · `P0` · Deploy and test the public multiplayer URL. **Acceptance:** the Node/Express/Socket.IO service and client are hosted on a WebSocket-capable setup, use the provider's `PORT`, serve over HTTPS, expose a healthy `/health` route, and need no ChatGPT login. **Verify:** use a separate device/network to create and join a room and complete a short session; record the exact URL and results. **Status: BLOCKED** - Render is installed/enabled and its tools are listed, but selected-workspace, workspace-list and service-list calls all return MCP -32001 Unknown tool. Browser inventory is empty; in-app browser unavailable. No Render CLI or API-key environment fallback. Baseline npm test passes. No public URL or external-device test. See QA_LOG.md, 2026-10-29 MVP-03 connection recheck.
+- [ ] `MVP-04` · `P0` · Prepare contest submission materials. **Acceptance:** title, concise description, original cover image/screenshot, public playable URL, controls, and a checklist against the current official mission requirements are ready; limitations are stated honestly. **Verify:** open every supplied link and asset, review the submission preview, and have the user perform the final submission. Never claim submission without confirmation. **Status: IMPLEMENTED_UNVERIFIED** - Prepared title, description under 500 characters, controls, verified mission/form requirements and readiness checker. Actual cover, public link, separate-device test and human review/submission pending.
+
+- [ ] `UI-001` - Fix blurry game text. **Acceptance:** title, HUD, story captions, pause/results and controls render at display resolution, readable desktop/narrow sizes, clean browser console, preserved playable/co-op loop. **Status: IMPLEMENTED_UNVERIFIED** - Native-resolution HTML text and larger typography implemented. Desktop title/story/pause and 390px title/pause screenshots observed. Full latest browser/co-op and physical-device verification interrupted by browser connection failure; automatic regression passes. See QA_LOG.md overnight handoff.
+
+### Budget rule
+
+Until `MVP-01` through `MVP-04` are verified, defer the 15-level bespoke campaign, advanced enemies, most cutscene polish, audio, and nonessential refactors. After those gates pass, use the extra-budget tiers in `PRIORITY_ROADMAP.md`: (A) safe death/checkpoint/co-op behavior, (B) authored levels, (C) art/story polish, (D) advanced QA/reliability.
+
+## Rules for saying a task is complete
+
+A task is **complete only when its acceptance criteria pass and verification evidence is recorded in `QA_LOG.md`**. Do not use “done” because code was written, imports pass, or the feature looks plausible in source. If a test could not be run, mark it `IMPLEMENTED_UNVERIFIED`, not `VERIFIED`. For checklist entries, an unchecked box without a status means `OPEN`; when work begins, append `Status: IN_PROGRESS`; after code exists but testing is incomplete, append `Status: IMPLEMENTED_UNVERIFIED`; a blocker must be labelled `Status: BLOCKED — reason`. A verified item must have a checked box and `Status: VERIFIED`.
+
+Every task record must include its task ID, status, the exact checks run, their result, and any limitation. Keep claims scoped: an HTTP 200 proves a page is served, not that the browser renders it correctly; a local two-tab test does not prove internet deployment works.
+
+### Status meanings
+
+- `VERIFIED` — all acceptance criteria passed; evidence is in the QA log.
+- `IMPLEMENTED_UNVERIFIED` — code exists, but acceptance testing is incomplete or inconclusive.
+- `IN_PROGRESS` — actively being built.
+- `OPEN` — not implemented or not meaningfully started.
+- `BLOCKED` — waiting on a specific dependency; state what blocks it.
+
+### Priority meanings
+
+- `P0` — blocks trustworthy core gameplay or causes a run to be impossible/incorrect.
+- `P1` — needed for the intended playable campaign and multiplayer experience.
+- `P2` — polish, accessibility, reliability, or release readiness.
+
+## Verified checks in the current starter
+
+- [x] `QA-001` — **Status: VERIFIED** — Core static checks, campaign metadata checks, gap scaling bounds, world construction basics, and movement-physics smoke assertions pass with `npm run check`.
+- [x] `QA-002` — **Status: VERIFIED** — Offline static server responds successfully for `/`, `/health`, CSS, the JS modules, and all 9 sprite assets; missing files return 404 via `npm run smoke`.
+- [x] `QA-003` — **Status: VERIFIED** — `node --check` succeeds on the current JavaScript modules and scripts.
+
+These checks **do not** prove all mechanics work in a real browser, verify visual timing, or prove online multiplayer. Do not infer those results from this section. Detailed evidence is in `QA_LOG.md`.
+
+---
+
+## Phase 0 — Build hygiene and repeatable verification
+
+- [ ] `SYS-01` · `P0` · Make automated test command reliable. **Acceptance:** `npm test` runs core checks plus server smoke tests from a clean checkout; failures return non-zero; it does not require multiplayer dependencies for offline checks. **Verify:** run `npm test` after deleting generated caches and without `node_modules`.
+- [ ] `SYS-02` · `P1` · Add unit-test coverage for shared pure rules. **Acceptance:** hearts by lobby size, gap scaling bands, region mapping, checkpoint selection/order, and run reset have table-driven tests. **Verify:** unit tests include boundary values and fail if one value is intentionally changed incorrectly.
+- [ ] `SYS-03` · `P1` · Add browser automation or repeatable browser test harness. **Acceptance:** launches the page and asserts the canvas/menu is visible, the selected level is shown, and no console errors occur. **Verify:** run in a clean browser session and record browser/version.
+- [ ] `SYS-04` · `P1` · Maintain regression log. **Acceptance:** every verified task has a task ID, command/manual steps, pass/fail, and date in `QA_LOG.md`. **Verify:** audit all `VERIFIED` entries in this list against the log before release.
+
+## Phase 1 — Playable core loop and controls
+
+- [ ] `CORE-01` · `P0` · Complete the title screen and game-state transitions. **Acceptance:** Title → opening cinematic → gameplay → game over/level completion → replay/menu work without reloads or stuck states. **Verify:** play through each transition twice and inspect console.
+- [ ] `CORE-02` · `P0` · Stabilize horizontal motion, jumping, gravity, landings, and edge collision. **Acceptance:** no falling through platforms, unintended wall clipping, double jumps, or frame-rate-dependent movement. **Verify:** automated physics tests plus browser tests at 30/60/120 Hz if available.
+- [ ] `CORE-03` · `P1` · Tune camera tracking and viewport boundaries. **Acceptance:** player, pits, checkpoints, and threats remain readable; no important route is hidden off-screen. **Verify:** record one normal level and one giant-pursuer encounter.
+- [ ] `CORE-04` · `P1` · Finish mobile and gamepad controls. **Acceptance:** touch controls work with touch cancellation/blur; buttons do not leave movement stuck; gamepad is optional but documented if supported. **Verify:** test on a narrow viewport and at least one physical mobile device before marking mobile verified.
+- [ ] `CORE-05` · `P1` · Add pause/resume/restart safeguards. **Acceptance:** pause freezes enemies and timers; resume restores input; restart clears the previous run state and prevents duplicate listeners. **Verify:** pause during a jump, capture countdown, and chaser pressure.
+- [ ] `CORE-06` · `P1` · Make tutorial/onboarding cues understandable. **Acceptance:** first-time user learns move, jump, interact, and evade without reading source code. **Verify:** ask a tester unfamiliar with the project to complete the first obstacle without coaching.
+
+## Phase 2 — Multiplayer and authoritative server (`P0`)
+
+- [ ] `NET-01` · `P0` · Make room creation/join robust. **Acceptance:** room code is valid, room-full/invalid-code errors are clear, room membership is isolated, and host departure is handled deliberately. **Verify:** create/join/leave four clients and try a fifth.
+- [ ] `NET-02` · `P0` · Implement lobby ready/start flow. **Acceptance:** everyone sees the same roster and ready state; the level begins once with a consistent party size. **Verify:** two to four browser sessions ready in different orders.
+- [ ] `NET-03` · `P0` · Make player state server-authoritative. **Acceptance:** clients send input intentions; server validates and owns position, velocity, collision, alive/dead state, and carry state. Clients cannot submit arbitrary positions or hearts. **Verify:** attempt malformed/forged client messages and confirm server rejects/ignores them.
+- [ ] `NET-04` · `P0` · Synchronize level/world state. **Acceptance:** all clients agree on level ID, platform state, door/switch state, checkpoint state, enemy state, and completion state. **Verify:** two clients interact with every synced object and compare state.
+- [ ] `NET-05` · `P0` · Prevent duplicate heart deductions. **Acceptance:** each fatal state transition consumes exactly one heart, even if multiple clients report/observe the event. **Verify:** concurrent death reports from clients still deduct one heart total.
+- [ ] `NET-06` · `P0` · Implement disconnect/reconnect policy. **Acceptance:** disconnect cannot leave a stuck body blocking the level; reconnect either restores the same participant state or cleanly returns them to lobby according to documented policy. **Verify:** disconnect during jump, grab, death, checkpoint, and transition.
+- [ ] `NET-07` · `P1` · Smooth client rendering and network jitter. **Acceptance:** interpolation avoids obvious teleporting; server remains authoritative; latency does not duplicate jumps, deaths, or interactions. **Verify:** local two-client test plus artificial latency if tooling supports it.
+- [ ] `NET-08` · `P1` · Keep rooms isolated and protect server lifecycle. **Acceptance:** room A never receives room B player/state updates; empty rooms are cleaned up; malformed input cannot crash server. **Verify:** two simultaneous rooms, fuzzed invalid messages, then inspect `/health` room count.
+- [ ] `NET-09` · `P1` · Add online synchronized story and result flow. **Acceptance:** every client changes levels/cutscenes together; late/reconnecting clients receive the current authoritative state. **Verify:** two clients complete a level and compare transition timing.
+
+## Phase 3 — Teamwork interactions (`P0`)
+
+- [ ] `COOP-01` · `P0` · Implement pickup, carry, drop, and throw for teammates. **Acceptance:** only valid nearby living players can be carried; throws use server-calculated velocity; no duplicate or impossible carry states. **Verify:** two-client tests across floor, ledge, moving platform, and pit.
+- [ ] `COOP-02` · `P0` · Implement player stacking/human ladders. **Acceptance:** players can stand/stack predictably, climb to reachable ledges, separate cleanly, and cannot be trapped by collision. **Verify:** test 2, 3, and 4-player stacks; test surviving solo fallback.
+- [ ] `COOP-03` · `P0` · Implement block movement and throw/bridge puzzles. **Acceptance:** blocks can be picked up, dropped/thrown according to design, remain synchronized, and cannot be used to create permanent exploit/softlock states. **Verify:** all authored block puzzles from a clean checkpoint.
+- [ ] `COOP-04` · `P0` · Implement lever/switch interaction. **Acceptance:** proximity, cooldown, ownership, and activation are server-validated; all clients see the same door/bridge state. **Verify:** two clients activate once simultaneously and only one transition occurs.
+- [ ] `COOP-05` · `P0` · Implement grabber rescue. **Acceptance:** robot captures one player, shows a countdown, struggle adds limited time, teammate jump-stun works only during a real grab and forces release, robot recovers, no enemy can be killed/farmed. **Verify:** rescue success, countdown expiry, repeated-stun abuse, disconnect, and duplicate-event cases.
+- [ ] `COOP-06` · `P1` · Add readable player state/UI. **Acceptance:** each player can identify alive/dead/captured/carrying status and team hearts with no ambiguity. **Verify:** four-player screen test at game resolution.
+
+## Phase 4 — Death, hazards, hearts, checkpoints, and anti-softlock (`P0`)
+
+- [ ] `LIFE-01` · `P0` · Centralize fatal event handling. **Acceptance:** pit, grab countdown expiry, instant-kill trigger, bomb blast, and giant contact each mark a player dead and spend exactly one shared heart, once. **Verify:** repeat each lethal event with duplicate callback/client timing.
+- [ ] `LIFE-02` · `P0` · Implement lobby-size starting hearts and cap. **Acceptance:** pools match documented design: 1=3; 2–3=4; 4–5=5; 6–7=6; 8–9=7; 10–11=8; 12–13=9; 14+=10. Initial shipping target remains 2–4 players. **Verify:** automated boundary tests on every range transition.
+- [ ] `LIFE-03` · `P0` · Implement segment-boundary recovery. **Acceptance:** at most one dead player revives per segment, longest-dead-first; if nobody is dead, restore one heart up to the cap; a revive does not also grant a heart. **Verify:** 0/1/multiple dead players and full-cap cases.
+- [ ] `LIFE-04` · `P0` · Implement full-level reset. **Acceptance:** at full level transition all players are active and hearts reset to party-size starting pool; checkpoint transitions do not accidentally perform a full reset. **Verify:** finish level with multiple dead players and compare next-level state.
+- [ ] `LIFE-05` · `P0` · Build all pit variants with fallback routes. **Acceptance:** selected gaps scale by original lobby size; solo jump is possible where designed; group gaps can use stacking/throw/blocks; any remaining solo survivor can finish via a safe fallback. **Verify:** test party sizes 1–4 and a simulated one-survivor case across every required gap.
+- [ ] `LIFE-06` · `P0` · Implement checkpoint room topology and exits. **Acceptance:** room has left, right, and overhead exits plus climbable ladder; ordinary robots cannot enter or attack into room; path-crowding rule always leaves a usable exit. **Verify:** enemies crowd ground and ceiling in separate cases; at least one exit remains reachable each time.
+- [ ] `LIFE-07` · `P0` · Implement giant pursuer death/breach rules. **Acceptance:** giant advances slowly from outside view, kills instantly on contact, can destroy checkpoints, and is not killable; collision and heart cost happen once. **Verify:** test contact during normal play and inside a checkpoint room.
+- [ ] `LIFE-08` · `P1` · Add fairness telemetry for softlocks/deaths. **Acceptance:** a debug overlay/log can report deaths, time to checkpoint, last alive player, heart events, and current route. **Verify:** enable debug mode during a failed pit/revival scenario.
+
+## Phase 5 — Robot enemy set (`P0/P1`)
+
+- [ ] `ENEMY-01` · `P0` · Complete patroller/sentinel AI. **Acceptance:** patrol path and detection/pursuit are deterministic enough to read; players evade rather than damage it. **Verify:** patrol boundary, pursuit start/stop, platform edge, multiplayer synchronization.
+- [ ] `ENEMY-02` · `P0` · Add instant-kill enemy with telegraph. **Acceptance:** clear visual/audio warning occurs before the lethal trigger; no struggle/rescue occurs after the trigger fires. **Verify:** ensure warning is visible before every lethal state.
+- [ ] `ENEMY-03` · `P0` · Add creeper/bomber countdown and blast. **Acceptance:** detection cue, countdown, radius, cover/escape behavior, one heart cost per affected player, no weapon pickup/throw, no double charge. **Verify:** outside/inside radius and two players caught in one blast.
+- [ ] `ENEMY-04` · `P1` · Add flying watchers/scanners. **Acceptance:** readable scan zones and consistent detection logic; counterplay is hiding/timing/evading, not killing. **Verify:** tests for detection, loss of sight, and multiplayer display.
+- [ ] `ENEMY-05` · `P1` · Add memory-fragment/forgotten robot story interactions. **Acceptance:** interactions are optional, reversible when appropriate, and do not contradict indestructible-enemy rule. **Verify:** both main-route and optional-route playthroughs.
+- [ ] `ENEMY-06` · `P1` · Tune enemy density and telegraph readability. **Acceptance:** no required exit can be blocked indefinitely; first encounter teaches each enemy's threat. **Verify:** blind playtest and accessibility review at 320×180 internal resolution.
+
+## Phase 6 — Fifteen authored levels and campaign (`P0/P1`)
+
+- [ ] `LVL-01` · `P0` · Replace reused procedural layout with fifteen authored level maps. **Acceptance:** every level has distinct platforming route, set pieces, obstacle pacing, checkpoint placement, and ending gate; party scaling still works. **Verify:** enter every level individually and complete it in solo and co-op configurations.
+- [ ] `LVL-02` · `P1` · City Arc, Levels 1–5. **Acceptance:** city escape progression grows from streets/subway/rooftops to the city gate; checkpoint rhythm and threat escalation fit the story. **Verify:** complete all five levels with no softlocks and review navigation clarity.
+- [ ] `LVL-03` · `P1` · Forest Arc, Levels 6–10. **Acceptance:** forest traversal has unique streams/ravines/canopy/ranger station set pieces, then leads to the covered walkway. **Verify:** complete Levels 6–10 and test scaled pits.
+- [ ] `LVL-04` · `P1` · Level 10 covered walkway. **Acceptance:** human-only covered walkway prevents regular robots following into it; ~100 flying robots are staged overhead as a frightening visual swarm; route stays playable and readable. **Verify:** performance check with swarm effect enabled and platform collision/camera test.
+- [ ] `LVL-05` · `P1` · Factory Arc, Levels 11–15. **Acceptance:** unique production lines, furnace hall, prototype wing, control foundry, and heart-of-production finale; factory destruction is a playable final objective. **Verify:** full factory playthrough with checkpoint and heart checks.
+- [ ] `LVL-06` · `P1` · Add midpoint checkpoint placement. **Acceptance:** standard levels get one checkpoint near halfway; long levels get checkpoints near 1/3 and 2/3; checkpoint rooms have approved three-way exit topology. **Verify:** automated placement checks plus each route manually.
+- [ ] `LVL-07` · `P1` · Enforce per-level softlock audit. **Acceptance:** puzzle solution documented and a solo survivor can reach every required exit even after teammate deaths/disconnects; big group routes remain rewarding. **Verify:** adversarial playtest each level starting with only one active player.
+- [ ] `LVL-08` · `P1` · Implement shared objective/door completion. **Acceptance:** objective completes once, all clients agree, and cutscene/next-level transition cannot double-trigger. **Verify:** multiple players activate/enter exit at nearly the same time.
+
+## Phase 7 — Pixel-art animation, cutscenes, and audio (`P1`)
+
+- [ ] `ART-01` · `P1` · Replace placeholder motion with sprite-sheet animation. **Acceptance:** survivors have idle/run/jump/fall/carry/throw/hurt/captured/dead poses; robots have patrol/scan/grab/recover/attack tells. All pixels stay crisp at native scale. **Verify:** inspect sprite sheets and animation playback at target resolution.
+- [ ] `ART-02` · `P1` · Author arcade-style story cutscenes. **Acceptance:** all cutscenes use original expressive pixel art, cinematic framing, pans/reveals, caption timing, holds, and retro transitions; do not copy existing TMNT assets or panel layouts. **Verify:** watch all cutscenes end-to-end and review timing/readability.
+- [ ] `ART-03` · `P1` · Finish opening invasion animation. **Acceptance:** humans are visibly fleeing invading robots and story transitions cleanly into Level 1. **Verify:** first-run and replay behavior.
+- [ ] `ART-04` · `P1` · Finish Level 5 forest chase transition. **Acceptance:** robots visibly chase fleeing humans into the forest; palette and setting transition are clear. **Verify:** complete Level 5 and review transition in motion.
+- [ ] `ART-05` · `P1` · Finish Level 10 walkway/factory reveal. **Acceptance:** swarm appears overhead, players enter the facility, slow manufacturing animation is shown while pursuers arrive behind, then gameplay/story advances as specified. **Verify:** full scene timing and game-state sync in multiplayer.
+- [ ] `ART-06` · `P1` · Finish Level 15 tragic ending. **Acceptance:** factory destruction → humans celebrate → robot attack → abrupt cut to black; default ending is not presented as optional. **Verify:** finish campaign and confirm correct order.
+- [ ] `ART-07` · `P2` · Add sound design and options. **Acceptance:** cues for detection, capture countdown, rescue, explosion, checkpoint, chaser, and story transitions; volume/mute toggles work. **Verify:** mute/unmute and headphone/speaker smoke tests.
+- [ ] `ART-08` · `P2` · Add readable options/accessibility settings. **Acceptance:** captions can be read, critical threats are not color-only, motion flashing is restrained, and settings persist locally if persistence is enabled. **Verify:** review with sound off, reduced motion, and high-contrast display.
+
+## Phase 8 — QA, performance, release, and documentation (`P1/P2`)
+
+- [ ] `QA-004` · `P0` · End-to-end one-player campaign verification. **Acceptance:** opening through Level 15 default ending can be completed; all cutscenes appear in correct order; no softlock or console error. **Verify:** record the exact browser/version and completion notes.
+- [ ] `QA-005` · `P0` · End-to-end co-op campaign verification. **Acceptance:** two clients complete at least one full region and repeat with three/four players; deaths, rescues, hearts, checkpoints, and transitions agree. **Verify:** separate browsers/devices, no shared session state.
+- [ ] `QA-006` · `P0` · Test all heart/death/revive edge cases. **Acceptance:** no negative hearts, duplicate deduction, double revive, or heart banking above cap; full-level reset differs from segment recovery. **Verify:** automated boundary scenarios and manual multiplayer run.
+- [ ] `QA-007` · `P0` · Test supported browsers and devices. **Acceptance:** target browsers render canvas/assets, controls operate, and no blocking runtime errors. **Verify:** Chrome and Firefox desktop; Safari and a real mobile device if supported by target scope.
+- [ ] `QA-008` · `P1` · Performance budget and swarm optimization. **Acceptance:** Level 10 swarm and late-game scenes maintain agreed performance target on a representative computer; visual count can be reduced on low-power devices without changing gameplay. **Verify:** profile frame time and memory during stress scenes.
+- [ ] `QA-009` · `P1` · Security and abuse review of multiplayer. **Acceptance:** malformed inputs, invalid room codes, excessive messages, and client-injected state cannot crash the server or set authoritative values. **Verify:** automated negative tests and rate-limit checks.
+- [ ] `QA-010` · `P1` · Public deployment and production smoke test. **Acceptance:** deployed HTTPS URL works, room creation/join works over the internet, all assets load, and server restarts do not leave phantom rooms. **Verify:** external device/network test. Do not call this complete until a real deployed URL is tested.
+- [ ] `QA-011` · `P2` · Finalize player-facing help and project handoff. **Acceptance:** README reflects the exact current controls/features/limitations; task board and QA log agree; Codex instructions remain clear. **Verify:** clean extraction, follow setup from scratch, run tests, and play without outside help.
+
+## Suggested execution order
+
+1. Read `PRIORITY_ROADMAP.md`; run `npm test`; preserve baseline results.
+2. Complete `MVP-01` (one complete level), then verify it in a real browser.
+3. Complete `MVP-02` (two clients, room code, synchronized movement, one shared interaction, room isolation).
+4. Complete `MVP-03` (public HTTPS deployment) and verify it from another device/network.
+5. Complete `MVP-04` (submission materials and official requirement checklist). The user performs final submission.
+6. Only after all four MVP gates are verified, move into Extra tier A, then B, C, and D in `PRIORITY_ROADMAP.md`.
+
+Never mark a gate `VERIFIED` while any acceptance criterion remains untested. Keep the full vision intact, but do not spend scarce work budget on polish while the public multiplayer entry is still blocked.

@@ -1,0 +1,16 @@
+# Full Node service: the static client and Socket.IO share the same HTTPS origin.
+services:
+  - type: web
+    name: tiny-teamwork-last-spark
+    runtime: node
+    plan: free
+    numInstances: 1
+    buildCommand: npm ci && npm test
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 24.20.0

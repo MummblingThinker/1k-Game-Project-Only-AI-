@@ -1,0 +1,45 @@
+{
+  "status": "DRAFT_NOT_READY",
+  "title": "Tiny Teamwork: The Last Spark",
+  "description": "A cooperative pixel platformer for 2-4 players. Share a room code, jump the ruined city streets, activate a relay to open a shared bridge, and get every survivor to shelter before the giant catches up. The biggest challenge was keeping movement, the relay and victory synchronized; the build uses server-owned state and separate-client tests. This entry is one complete level. Next: teammate rescues and more stages.",
+  "projectUrl": null,
+  "coverImage": null,
+  "shareToShowcase": true,
+  "controls": {
+    "move": "A/D or arrow keys",
+    "jump": "Space or Up",
+    "relay": "E near the red switch",
+    "replay": "Host clicks Replay room or presses R after victory",
+    "leave": "Leave button; Enter after victory",
+    "pause": "Solo only. Online Esc releases input while the world continues."
+  },
+  "verification": {
+    "publicHealthAndAssets": false,
+    "twoSeparateDevicesAndNetworks": false,
+    "externalPlaytestQaEntry": null,
+    "humanReviewed": false,
+    "humanSubmitted": false
+  },
+  "sources": {
+    "mission": "https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/mission_step_cmssgy0di000y1ztkbjrpbt5r",
+    "submission": "https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/submit",
+    "rules": "https://go.joinhandshake.com/rs/390-ZTF-353/images/%5BAI_Skills_Studio_Challenge%5D_Contest_Official_Rules.pdf?version=0"
+  },
+  "deadlineDiscrepancy": {
+    "mission": "October 31, 2026 at 11:59pm Pacific",
+    "officialRules": "October 30, 2026 at 11:59pm Pacific",
+    "planningTarget": "Use earlier official-rules date unless organizer confirms otherwise."
+  },
+  "coverRequirements": {
+    "kind": "Screenshot of a key game screen",
+    "minimumWidth": 1200,
+    "recommendedAspect": "3:2"
+  },
+  "limitations": [
+    "One verified introductory level; later online campaign not implemented.",
+    "Local independent-browser verification exists; physical-device/public-network verification still pending.",
+    "Temporary original sprites; no audio; mobile controls have not been verified on a physical device.",
+    "Rooms are held in one server process and are lost on restart.",
+    "Final entry, eligibility, disclosures and publication require human review."
+  ]
+}

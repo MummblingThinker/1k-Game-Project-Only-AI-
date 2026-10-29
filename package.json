@@ -1,0 +1,26 @@
+{
+  "name": "tiny-teamwork-last-spark",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playable pixel-art browser prototype and multiplayer starter for Tiny Teamwork: The Last Spark.",
+  "type": "module",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "check": "node scripts/check-project.mjs",
+    "offline": "node server/static-server.mjs",
+    "smoke": "node scripts/smoke-test.mjs",
+    "test": "npm run check && npm run smoke && npm run verify:board && npm run test:client && npm run test:multiplayer",
+    "verify:board": "node scripts/verify-task-board.mjs",
+    "test:multiplayer": "node scripts/multiplayer-test.mjs",
+    "test:client": "node scripts/network-client-test.mjs",
+    "check:submission": "node scripts/check-submission.mjs"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

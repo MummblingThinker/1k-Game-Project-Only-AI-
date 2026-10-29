@@ -1,0 +1,231 @@
+# QA Log — Tiny Teamwork: The Last Spark
+
+## 2026-10-28 — MVP-01 / baseline inspection and browser verification blocker
+
+Environment: Windows PowerShell; Node.js v24.20.0; project extracted under `TinyTeamwork_Project_Download/Tiny_Teamwork_The_Last_Spark`. No gameplay code changed.
+
+Commands and results:
+- `npm test`: PASS (exit 0). Campaign/region/gap/world/movement checks, static HTTP smoke tests (health, HTML/CSS/JS, nine sprites, 404), and board evidence guard passed.
+- `npm run offline`: server started at `http://localhost:4173`.
+- `Invoke-RestMethod -Uri 'http://localhost:4173/health' | ConvertTo-Json -Compress`: PASS; returned `{"ok":true,"service":"tiny-teamwork-static","multiplayer":false}`.
+- Read required instructions, canonical task board, prior QA log, practice guide, and project status; inspected index.html, game.js, world.js, physics.js, and package.json. Source inspection shows ordinary level completion advances directly to the next level; this does not verify a clear Level 1 win/replay flow.
+
+Required acceptance: fresh load, start/menu, keyboard movement, readable obstacle, reachable goal, clear victory, and replay/restart twice in a real browser with browser/version and console observations.
+
+Actual result: BLOCKED before gameplay edits. `cua.createBrowserTab("chrome", "http://localhost:4173", {sessionName:"🎮 Tiny Teamwork QA"})` returned `Browser is not available: chrome`; `cua.getState()` returned `{"apps":[],"browsers":[]}`. Native computer APIs are disabled in this session. No browser playthrough, screenshot, browser version, or console check could be obtained. HTTP and automated checks do not substitute for that evidence.
+
+Follow-up: enable/connect a supported browser surface accessible to this session, then explicitly authorize resuming MVP-01. MVP-01 remains unchecked/BLOCKED; MVP-02 through MVP-04 were not started. No public deployment or submission is claimed. Work stopped at the user's blocker boundary.
+
+This is the evidence record that supports claims in `TASK_LIST.md`. Update it whenever tests are run for a task, including failures. Do not erase failures; append a later pass entry with the fix noted.
+
+## 2026-10-28 — Starter baseline in current working package
+
+### Environment
+
+- Node.js: `v22.16.0`
+- Multiplayer dependencies: not installed in the working folder (`node_modules` absent at the time of the check).
+- Browser-based visual/manual QA: not performed as part of this command-line run.
+
+### PASS — `QA-001` / baseline project checks
+
+Command: `npm run check`
+
+Result: PASS. Existing assertions report `campaign, region mapping, gap scaling, level construction, and movement physics` passed.
+
+Scope limitation: this is a small deterministic check set; it does not prove all in-game flows, multiplayer state, cutscene visuals, or all softlock routes.
+
+### PASS — `QA-002` / offline static server smoke tests
+
+Command: `npm run smoke`
+
+Result: PASS. Automated smoke test starts `server/static-server.mjs` on a free local port and verifies:
+
+- `/health` returns successful JSON and clearly reports multiplayer is disabled in static mode;
+- `/` serves HTML;
+- `/style.css` serves CSS;
+- client JavaScript modules return HTTP 200 with JavaScript content types;
+- all 9 PNG sprite assets return HTTP 200 with `image/png` content type and non-empty bodies;
+- a nonexistent file returns HTTP 404.
+
+Scope limitation: HTTP checks establish that files are served, not that every feature renders or behaves correctly in a browser.
+
+### PASS — `QA-003` / JavaScript syntax checks
+
+Command: `node --check` on `public/js/art.js`, `campaign.js`, `game.js`, `network.js`, `physics.js`, `world.js`, `server/server.js`, `server/static-server.mjs`, `scripts/check-project.mjs`, and `scripts/smoke-test.mjs`.
+
+Result: PASS. No syntax errors reported.
+
+### Overall assessment
+
+`npm test` passes on the current starter. The offline server and static assets are available for local practice. The Socket.IO multiplayer server was not started or verified in this run because `node_modules` was absent. Full two-player play, complete campaign completion, visual cutscene timing, every pit fallback, and all enemy/checkpoint edge cases remain unverified; use the open tasks in `TASK_LIST.md` to drive the next work.
+
+---
+
+## Future run template
+
+Append a new section for each QA session; do not overwrite the earlier record.
+
+```text
+## YYYY-MM-DD — TASK-ID / concise check name
+Environment: OS, browser/version or Node version, party size, commit/hash if available
+Command or steps: exact command(s) and manual procedure
+Expected result: ...
+Actual result: PASS / FAIL / PARTIAL, with observations
+Artifacts: screenshots/log paths, if any
+Follow-up: bug/task IDs created
+```
+
+### PASS — task-board evidence guard
+
+Command: `npm run verify:board`
+
+Result: PASS. The script confirms every checked task is labelled `Status: VERIFIED` and has a task-ID reference in this QA log. This is a lightweight evidence-presence guard; reviewers still need to inspect that the evidence truly covers the acceptance criteria.
+
+### PASS — packaged handoff validation
+
+Command/steps: created `Tiny_Teamwork_The_Last_Spark_Codex_Starter.zip`, ran `unzip -t`, extracted it into a fresh temporary directory without `node_modules`, and ran `npm test` inside the extracted project.
+
+Result: PASS. Archive integrity reported no errors; `npm run check`, `npm run smoke`, and `npm run verify:board` all passed in the extracted copy.
+
+Scope limitation: this validates archive integrity and repeatable command-line checks, not manual visual gameplay or online multiplayer.
+
+## 2026-10-28 — Budget-conscious task prioritization update
+
+### PASS — project regression checks after roadmap/documentation updates
+
+Environment: Node.js in the current working package; multiplayer dependencies not required for this check; no browser session used.
+
+Command: `npm test`
+
+Result: PASS. `npm run check`, `npm run smoke`, and `npm run verify:board` all passed after adding `PRIORITY_ROADMAP.md` and updating the Codex instructions/task sequencing.
+
+Scope limitation: this run verifies project checks and static serving only. It does not verify new gameplay behavior, a live Socket.IO session, public hosting, or contest submission readiness. The four MVP release gates remain unchecked until their full acceptance criteria are tested.
+
+Final regression after recording the blocker in TASK_LIST.md and docs/PROJECT_STATUS.md: npm test PASS (exit 0; checks, HTTP smoke, and board guard). The temporary offline server was stopped during handoff cleanup.
+
+## 2026-10-28 — MVP-01 / resumed implementation and regression checks
+Environment: Windows, Node.js v24.20.0, connected Chrome extension browser 1. User explicitly resumed MVP-01. Earlier browser blocker is resolved: local game title and keyboard movement were observed in Chrome.
+Changes: added a Level 1 victory state with replay/title buttons, keyboard replay/title actions, route progress and clear goal guidance. Kept existing campaign geometry and temporary sprites. No additional levels or optional art pass.
+Commands: node --check public/js/game.js; npm test after victory/UI change; npm test after fixed-step timing change. All PASS (exit 0).
+Browser observations: original simulation advanced very slowly during held keyboard inputs in this browser session; original frame loop discarded elapsed time above 40ms. Changed client simulation to fixed 60Hz steps with bounded 250ms catch-up. New automated regression compares movement and jumping at 5/30/60/120Hz for equal elapsed time and tests bounded recovery from a 60-second suspension. All pass. Static smoke includes the new timing.js module.
+Acceptance status: IN_PROGRESS. Full fresh-load-to-victory/replay flow twice, browser version and final console evidence are still pending. No MVP milestone marked verified.
+## 2026-10-28 - MVP-01 / VERIFIED browser acceptance
+
+Environment: Windows; Node v24.20.0; Chrome extension browser 1, Person 1 profile. Installed Google Chrome version 156.0.8078.49 read from chrome.exe file metadata. URL http://localhost:4173/; offline server; one player. Real keyboard and click APIs used; no position injection or victory shortcut.
+
+Final changes: short Level 1 with two pits, crate, switch, checkpoint, shelter and giant pursuer. Capture patrols remain in later prototypes. Switch chooses a pit ahead. Added victory/replay/title UI, R replay, Enter title, route progress, goal guidance and visible focus. Temporary art remains. Fixed 60Hz physics; catch-up initially 250ms, then raised to 1000ms to handle slow browser rendering, bounded to 60 ticks after suspension. Jump speed -5.2, no air-jumps. Read-only canvas data attributes provide position/state evidence. Repeated Escape does not toggle pause rapidly; Enter suppresses native button activation when returning to title.
+
+Failed observations preserved: on the original layout a jump landed short and a later attempt was captured by the first patrol. On the shorter layout an early takeoff fell into the first pit and showed RUN OVER with two hearts. These were not counted as passes. Sub-second inputs were sometimes unsampled during slow rendering; final inspections waited for canvas data-state paused/playing. Performance and the full campaign remain unverified.
+
+PASS - fresh-load run A:
+1. Reload; title, controls and goal visible. Click Load Selected Level; pause: x=26, y=129, hearts=3.
+2. Resume; Right about 2900ms; pause and wait for canvas[data-state="paused"]: x=256.40, y=129. Right+Space 1000ms, pause: x=333.20, y=129, alive=true, past first pit (280..314).
+3. Right 2500ms, E 600ms, pause: x=563.60, hearts=3, checkpoint/breach messages. Left 300ms, E 350ms, Right 350ms, Right+Space 1100ms, pause: x=645.43, y=129, alive=true, SWITCH ACTIVATED message, past second pit (586..632).
+4. Right 3400ms: heading You made it out. visible, progress=100%, state=victory, x=877.11, y=129, hearts=3. Click Replay Level 1 then pause: overlay hidden, x=26.00, y=129, hearts=3. Console error query returned [].
+
+PASS - fresh-load run B:
+1. Reload; click Start Story; Space advances three opening panels; pause at x=26.00. Right 2900ms: x=256.40, y=129. Right+Space 1000ms: x=347.28, y=129, alive=true.
+2. Pass checkpoint. E outside switch range did not activate it. Advance with position inspections to x=579.88, y=129. Right+Space 1000ms: x=658.88, y=129, alive=true. This run used no switch bridge, verifying the fallback route.
+3. Right 3300ms: victory heading visible, state=victory, x=877.39, hearts=3. R then pause: x=26.00, hearts=3. Console errors=[].
+
+PASS - final regression after Enter fix: reload; Load Selected Level; real Right/Right+Space through both pits. Takeoff/landing x=256.04 -> 335.04 and x=569.83 -> 648.83. Continue to visible victory. Full-page victory screenshot emitted in browser transcript. Return then wait for canvas[data-state="title"]: title/READY visible, result hidden, console errors=[]. No accidental native button restart.
+
+Automated commands: npm test after every coherent change (victory UI, timing, jump/tests, introductory layout, catch-up cap, evidence hooks, keyboard safeguards): all PASS. Includes campaign/region/gap/world/physics, equal physics at 1/5/30/60/120Hz, bounded catch-up, every solo Level 1 pit, rejected air-jump, static HTTP/assets/404 smoke including timing.js, and board guard. node --check public/js/game.js passed. Final pre-handoff npm test result follows below.
+
+Scope: MVP-01 acceptance passes. Broader CORE-01/02/03 criteria, multiplayer, public hosting, external networks, mobile and submission remain unverified. No public URL exists.
+
+## 2026-10-28 - MVP-02 / BLOCKED dependency installation
+
+Command: npm install --no-audit --no-fund --cache .npm-cache --fetch-retries=0 --fetch-timeout=15000
+
+FAIL (exit 1): fetching https://registry.npmjs.org/express failed with FetchError/EACCES. Npm reported an operating-system rejection. This session restricts network access; the output does not establish a need for administrator rights. No Express/Socket.IO installation or live multiplayer launch was verified.
+
+Evidence: .npm-cache/_logs/2026-10-29T00_02_27_552Z-debug-0.log (UTC filename; local date October 28).
+
+User action: run npm install in this project directory from a normal local terminal with registry access, then explicitly authorize resuming MVP-02. Work stops at this blocker; MVP-03 and MVP-04 stay open. Offline serving is not multiplayer.
+
+
+Final handoff regression: npm test PASS (exit 0) after task/status/README updates; fixed-step and solo-gap assertions, HTTP/assets smoke, and evidence guard all passed. Guard now reports four checked tasks with VERIFIED status and matching QA references. No optional art tasks started. Local offline server and game tab are left available for the user; this URL is not public.
+
+
+## 2026-10-28 - MVP-02 / resumed baseline and implementation
+User installed dependencies and explicitly resumed. npm ls --depth=0 confirms express@5.3.0 and socket.io@4.8.4. Baseline npm test PASS; npm start with PORT=4174 launches the existing multiplayer server and Chrome opens the main page. Browser opening was unusually delayed; no gameplay claim is based on that load.
+Acceptance target: random six-character room code, independent browser clients, authoritative movement, shared relay/bridge/gate, readable invalid-code error, and isolation of a second room. No optional art work.
+Implementation: server owns lobby/start/replay, 60Hz movement, switch proximity/cooldown/one-time activation, bridge, shelter lock and shared victory; clients render snapshots and send intentions. Running party geometry does not reset on departure; host transfers. Client disconnect clears room identity; reconnect returns to a new lobby. Added input release/heartbeat independent of draw cadence.
+Checks after server change: node --check server/server.js and npm test PASS. Checks after client change: node --check public/js/game.js, node --check public/js/network.js, npm test PASS. These checks were syntax/offline only; multiplayer regression and real-browser acceptance are pending. A misplaced keydown condition found during source review was removed before interactive testing.
+Status IN_PROGRESS; no MVP-02 verification claim yet.
+
+
+MVP-02 live regression follow-up: npm run test:multiplayer initially FAILed at stale input stop (x continued 123.00 -> 138.36 after the expected timeout). Earlier actual WebSocket assertions had passed shared start/movement/relay/bridge/gate/victory/replay and room isolation. Fixed server timer drift by using the existing elapsed-time fixed-step helper instead of assuming every setInterval callback equals one 60Hz tick. npm test then PASSed including the complete multiplayer regression: invalid/full rooms, forged/null input, concurrent one-time relay, shared victory/replay, isolation, stale input stop, death deduplication, host handoff, and empty-room cleanup. No new dependency was added for the tests; they use Node WebSocket to exercise actual Socket.IO wire frames. npm test explicitly skips live checks when multiplayer dependencies are absent so offline practice remains dependency-free.
+Client focus follows a shared start so typing a room code does not retain keyboard focus during play. Reconnect is explicit and returns to a new lobby; no automatic restoration is claimed. Real browser acceptance still pending.
+
+## 2026-10-28 - MVP-02 / VERIFIED local browser acceptance
+
+Environment: Windows; Node v24.20.0; Express 5.3.0; Socket.IO 4.8.4; connected Chrome (installed version previously recorded as 156.0.8078.49). Client A http://localhost:4174/ and B http://127.0.0.1:4174/ are separate origins/pages with independent Socket.IO sessions. They are not separate physical devices or browser profiles; this is not public internet verification.
+
+PASS - automated checks: npm test after timing correction, then again after client focus/reconnect and late/foreign snapshot protection. Includes physics/clock/gaps, static HTTP/assets, board guard, network-client-test.mjs and actual WebSocket integration in multiplayer-test.mjs. Live assertions cover random codes, invalid/full rooms, host-only start/replay, authoritative movement, forged coordinates/hearts/distant activation, null messages, concurrent relay exactly once, one bridge, shared gate/victory/replay, isolation, stale input, one death charge, host transfer and cleanup. No new dependency added for test clients. When dependencies are absent live tests explicitly skip, preserving offline checks. node --check passed server/server.js, public/js/game.js and public/js/network.js during implementation. Earlier failed timing check is recorded above.
+
+PASS - real browser steps and observations:
+1. A clicks Create Room: server generated 62MUAX. B enters XXXXXX and clicks Join Room: readable error "That room code was not found. Ask the host to create a room again." B enters 62MUAX and joins. Both rosters show two distinct survivors and correct YOU/host labels.
+2. Host clicks Start co-op run; both enter playing with four hearts. Real Right inputs (A 2900ms, B 2700ms) give matching snapshots: A x=250.64, B x=251.36, y=129, alive=true. IDs A=hhBTJPVlqF9ZN9NHAAAA and B=rskPPqsc4kzjv_JmAAAB.
+3. Right+Space 1000ms separately in each client crosses the first pit: A x=330.92, B x=330.36, both alive. Screenshot captured both avatars in the same world.
+4. A holds Right 2600ms then E 250ms near relay. Both show "Relay ON / Bridge open. All living survivors must reach the shelter gate." Both report relay=true and objective-version=1; A x=532.79, B x=333.84. B did not press E; one server-owned interaction affected both clients.
+5. A Right 5000ms then B Right 8000ms across the shared bridge: both show You made it out., state=victory, hearts=4, A x=920.27 and B x=877.84, y=129, alive=true. Victory screenshot captured in browser transcript. No state injection or shortcut used.
+6. Host clicks Replay room / R: both return to playing with relay off, A=27, B=44 and four hearts in the same room.
+7. B leaves, creates room 7L2CAB, starts alone, crosses first pit (Right 2900ms, Right+Space 1000ms), approaches relay (Right 2600ms), E 250ms. Simultaneous comparison: A/62MUAX has only A at x=27, relay=false, version=0; B/7L2CAB has only B at x=534.35, relay=true, version=1. No player or relay-state leakage. This supplements automated packet-isolation assertions.
+8. Console error queries return [] for both sessions. Both click Leave and return to title. Invoke-RestMethod http://localhost:4174/health returns {"ok":true,"service":"tiny-teamwork-server","rooms":0}; Invoke-WebRequest -UseBasicParsing http://localhost:4174/ returns 200. Assigned PORT=4174 is honored.
+
+Scope: MVP-02 is VERIFIED locally. Online slice is Level 1 only. ESC releases input without pausing the shared world. Started rooms reject new joins; create a new lobby. Host transfers on departure; disconnect clears identity. Rooms are memory-only in one Node process; restart loses rooms. Later online campaign/story, carry/throw/rescue, movable crates, mobile and broad checkpoint/heart cases remain unverified. No broader NET/COOP task is inferred complete. Temporary art unchanged. Final regression after task/docs updates follows below.
+
+## 2026-10-28 - MVP-03 / BLOCKED hosting connection
+
+Read-only discovery found no installed Node-hosting CLI or configured project Git repository. Sites runs Cloudflare Workers, so deploying this persistent Node/Express/Socket.IO server there would require a runtime/networking migration; none attempted. Plugin search found Railway and Render available but not installed. Railway was suggested; that does not install/connect it. No confirmed hosting account/destination is accessible in this session. No public deployment or URL exists.
+
+User action: install Railway and complete its account connection, then explicitly authorize resuming MVP-03. A real HTTPS deployment and separate-device/network playtest are still required. Work stops at this connection blocker; no optional work or MVP-04 work started.
+
+Final handoff: npm test PASS (exit 0) after task/docs/runtime metadata updates. Board guard reports five checked tasks with matching evidence. Client session and full live WebSocket integration PASS. Final fresh-browser create/join/leave test used room WW2TPK: correct two-player roster, both returned to title, errors=[] on both. Final /health reports ok=true and rooms=0. Local co-op server remains available on port 4174; no public URL exists. Work stopped at MVP-03 hosting connection.
+
+
+## 2026-10-28 - UI-001 / text readability implementation
+User explicitly requested all blurry game text fixed. Baseline npm test PASS including live WebSocket tests. Source inspection found 5-8px Canvas text enlarged with the 320x180 bitmap plus 8-11px HTML labels. Migrated title/HUD/story/capture/lobby/pause/game-over/ending text to native HTML overlays and increased surrounding controls/help typography. Canvas is now artwork only (no fillText calls remain). Added text-ui.js to static HTTP smoke checks.
+Commands: node --check public/js/game.js, art.js, text-ui.js PASS; npm test after implementation PASS including client and actual multiplayer regression. Initial browser title and opening-story screenshots show native text and full captions. Pause check timed out and one browser click hit a CDP input timeout; UI state was stale while synchronous keyboard notices updated. No game-source exception was found; one retained console error came from the previously visited Handshake page. Cached text overlay updates to avoid repeating identical DOM mutations; full interactive verification is still pending. No UI-001 completion claim yet.
+
+## 2026-10-28 - MVP-03/MVP-04 / workaround and official requirements research
+Railway official status (https://status.railway.com/, October 28 15:27 UTC update) confirms new signups paused during recovery. Render official docs confirm Node/Express web services with public HTTPS and WebSockets; Free service sleeps after 15 minutes without traffic and may take about one minute to resume. Render plugin was found available but not installed; suggested it, without creating an account/service. Sources: https://render.com/docs/web-services, /docs/websocket, /docs/free, /docs/blueprint-spec.
+User authorized independent release preparation while hosting is blocked and supplied the Handshake mission URL. Read Start, Build, publishing instructions and Submit form in the authenticated browser without changing checkboxes, filling fields or publishing. Requirements: two players on separate devices; understandable rules; reachable public link. Actual form requires title, game URL, cover screenshot (3:2 recommended, at least 1200px wide), description capped at 500 characters; Share to Showcase must be enabled for challenge entry.
+Mission page says October 31 at 11:59pm PT. Linked official rules PDF page 1 says October 30, 2026 at 11:59pm PT. Treat earlier deadline as planning target until organizer clarifies. Rules source: https://go.joinhandshake.com/rs/390-ZTF-353/images/%5BAI_Skills_Studio_Challenge%5D_Contest_Official_Rules.pdf?version=0. Mission source: https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/mission_step_cmssgy0di000y1ztkbjrpbt5r. Submit source: same mission /submit. No entry submitted; human review/submission remains required.
+
+
+## 2026-10-29 - Overnight handoff / release preparation and limits
+Latest user instruction: work for eight hours, starting 2026-10-29 02:08:50 UTC, cutoff 10:08:50 UTC (06:08:50 America/New_York). This superseded the approximate 6 AM cutoff.
+
+UI-001 implemented: all title/HUD/story/capture/lobby/pause/game-over/ending text moved out of the 320x180 bitmap to native HTML; larger controls/help/labels, higher contrast and phone-width layout. Canvas now renders only original pixel artwork. Text/UI panel updates are cached; native state feedback also updates immediately on input/snapshots instead of waiting for drawing. Real screenshots verified title, opening caption and pause at desktop; title and pause were also observed at 390px phone-emulated width. Physical-device testing and a complete browser co-op recheck of this last text revision remain unverified. UI-001 stays IMPLEMENTED_UNVERIFIED, not checked.
+
+Automated verification: repeated npm test PASS through the text and deployment changes, including actual WebSocket relay/victory/room isolation tests. Morning final npm test PASS (exit 0). node --check PASS for game.js, text-ui.js, art.js, server.js and check-submission.mjs. Manual local HTTP check after wake returned /health ok=true, rooms=0 and main page HTTP 200 on port 4174.
+
+Release preparation: render.yaml targets a free single-instance Node Web Service, npm ci && npm test, npm start, /health, Node 24.20.0 and manual redeploys. Server explicitly binds 0.0.0.0 and assigned PORT. Platform-side Blueprint validation and real deployment are not verified. docs/DEPLOYMENT.md records setup, cold-start/room-loss limits and external two-device acceptance steps.
+
+python scripts/package-release.py --verify PASS: ZIP integrity and explicit file allowlist; fresh sibling extraction has no node_modules and require.resolve('socket.io') fails, proving it did not borrow this checkout's installed dependencies. npm test in that clean extraction PASSes offline/client checks and explicitly skips live tests. Full live checks pass in the installed working copy. release/source-manifest.json records per-file hashes and the ZIP SHA256. Rebuilt final source package after this handoff update; final artifact hash is in that manifest.
+
+MVP-04 partial: submission/entry.json contains title, 416-character description, controls, source URLs and actual form requirements. npm run check:submission intentionally reports DRAFT / NOT SUBMISSION-READY (exit 1): public URL, actual cover screenshot, public health/assets, separate-device/network test, QA evidence and human review still missing. No contest form fields/checkboxes were changed; no entry submitted. Earlier deadline discrepancy remains: official rules October 30 11:59pm Pacific versus mission page October 31; plan for the earlier date pending organizer clarification.
+
+Deployment blocker update: user confirmed Render setup; plugin discovery confirms installed=true. Render MCP tools still are not exposed to this chat. Read Render deployment/access skills; no host creation attempted. A browser request to bind the existing Render Dashboard tab remained blocked for 28372 seconds (about 7h53m), then returned 'native pipe is closed'. No independent coding could occur while that tool call was pending. This consumed most of the overnight window; it must not be represented as productive coding time. Browser account/workspace access was never verified. A GitHub new-repository form was inspected, but no repository was created or source uploaded. No Render service, public URL or external playtest exists.
+
+Next concrete task: restore browser access or start a fresh project chat with Render attached so its tools are available, then deploy the tested Node service from a source repository and perform the external two-device test. Render is already installed; do not ask the user to install it again. MVP-01/02 retain their previously scoped verification; MVP-03 remains BLOCKED; MVP-04 and UI-001 remain unverified.
+
+Final release verification at handoff: python scripts/package-release.py --verify PASS with 54 allowlisted files, ZIP CRC integrity, isolated extraction and offline/client checks; live integration explicitly skipped in extraction and PASSed in the installed working copy. Final ZIP SHA256: 6c59e4f30596d359e0487f6f35f75a4311bf45c4a0951662b2bc34979d7411d1. Archive includes all original design/support docs. Current code and deliverables saved; no public deployment or contest submission occurred. Work stops at the user-requested eight-hour cutoff; objective is incomplete and remains paused pending restored Render/browser access and external verification.
+
+
+## 2026-10-29 - MVP-03 connection recheck / BLOCKED
+
+User requested: check Render connection, then resume MVP-03. Read AGENTS.md, PRIORITY_ROADMAP.md, TASK_LIST.md, QA_LOG.md, docs/PRACTICE_GUIDE.md and deployment/access guidance. Acceptance remains public HTTPS Node/Socket.IO service, assigned PORT, healthy /health, no ChatGPT login, and successful multiplayer play from separate devices/networks.
+
+Environment: Windows PowerShell, installed working copy. Baseline `npm test` PASS (exit 0): project physics/clock/gaps, static health/assets/404, five verified board entries, client membership regression, actual WebSocket create/join/invalid code/capacity/start/movement/relay/bridge/gate/victory/replay/room isolation/death deduplication/host handoff/cleanup. No gameplay changes made.
+
+Render plugin discovery: installed=true, status=ENABLED. Tool definitions are listed, but get_selected_workspace, list_workspaces and list_services each return MCP error -32001 Unknown tool for render.<operation>. This is a connector dispatch failure, not evidence of a valid account or an empty workspace. Official current reference https://render.com/docs/mcp-server read via HTML after Markdown fetch was rejected by the fetching tool.
+
+Fallbacks: `cua.getState()` returned apps=[], browsers=[]; creating an in-app Render Dashboard tab returned Browser is not available: iab. `Get-Command render,gh -ErrorAction SilentlyContinue` found neither CLI; RENDER_API_KEY environment presence check=false (no credential values read or logged). No browser/account access, repository upload, Render service creation, deployment or external playtest occurred.
+
+MVP-03 remains BLOCKED. Next single task: restore/reconnect existing Render integration, verify a read-only workspace/service call, deploy the prepared free single-instance Node service from an owned source repository, and perform the external two-device/network acceptance procedure. No reinstall request; no optional gameplay or MVP-04 work.
+
+Final session regression: npm test PASS (exit 0) after status/documentation updates, including actual WebSocket multiplayer. Source ZIP refreshed with the current handoff; archive integrity/hash manifest regenerated.

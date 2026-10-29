@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#101827" />
+  <meta name="description" content="Tiny Teamwork: The Last Spark — a cooperative pixel-art platformer prototype." />
+  <title>Tiny Teamwork: The Last Spark</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="top-bar">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <p class="eyebrow">A CO-OP PIXEL PLATFORMER</p>
+          <h1>Tiny Teamwork <span>／</span> The Last Spark</h1>
+        </div>
+      </div>
+      <div class="build-tag">PROTOTYPE 0.1</div>
+    </header>
+
+    <section class="game-layout">
+      <div class="game-column">
+        <div class="screen-frame">
+          <canvas tabindex="0" id="game" width="320" height="180" aria-label="Tiny Teamwork game canvas"></canvas>
+          <div id="game-hud" class="game-hud" hidden><span id="hud-level"></span><span id="hud-hearts"></span></div>
+          <section id="scene-panel" class="scene-panel" data-mode="title" aria-labelledby="scene-title">
+            <p id="scene-kicker" class="panel-kicker">A CO-OP PIXEL PLATFORMER</p>
+            <h2 id="scene-title">Tiny Teamwork</h2>
+            <p id="scene-subtitle">The Last Spark</p>
+            <p id="scene-body">Outrun the machines. Reach shelter together.</p>
+            <p id="scene-hint">Press Enter or choose Start Story</p>
+          </section>
+          <div id="story-panel" class="story-panel" hidden>
+            <h2 id="story-heading"></h2><p id="story-caption"></p><span class="story-skip">Space to skip panel</span>
+          </div>
+          <section id="capture-panel" class="capture-panel" hidden aria-labelledby="capture-heading">
+            <h2 id="capture-heading"></h2><progress id="capture-time" value="3.2" max="3.2" aria-label="Time until capture"></progress>
+            <p>Alternate A / D to buy time. A teammate must rescue you.</p>
+          </section>
+          <div id="result-panel" class="result-panel" hidden role="region" aria-labelledby="result-title">
+            <p class="panel-kicker">LEVEL 01 COMPLETE</p>
+            <h2 id="result-title">You made it out.</h2>
+            <p>The shelter gate is reached. The last spark is still alive.</p>
+            <button id="replay-level" class="primary-button">Replay Level 1 / R</button>
+            <button id="result-menu" class="secondary-button">Return to title / Enter</button>
+          </div>
+          <div class="screen-vignette" aria-hidden="true"></div>
+        </div>
+        <div id="live-status" class="screen-status" aria-live="polite">READY / PRESS START</div>
+        <div class="route-readout"><span id="route-label">Reach the shelter gate. Jump the gaps. Evade the robots.</span><progress id="route-progress" max="100" value="0" aria-label="Route to shelter gate"></progress></div>
+        <div class="quick-controls">
+          <span><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd> Move</span>
+          <span><kbd>SPACE</kbd> Jump</span>
+          <span><kbd>E</kbd> Grab / Throw / Use</span>
+          <span><kbd>ESC</kbd> Pause</span>
+        </div>
+        <div class="mobile-controls" aria-label="Touch controls">
+          <div class="mobile-group">
+            <button data-control="left" aria-label="Move left">◀</button>
+            <button data-control="right" aria-label="Move right">▶</button>
+          </div>
+          <div class="mobile-group">
+            <button data-control="interact" aria-label="Interact">E</button>
+            <button data-control="jump" aria-label="Jump">JUMP</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+        <section class="panel-card story-card">
+          <p class="panel-kicker">THE MISSION</p>
+          <h2 id="mission-title">The City Falls</h2>
+          <p id="mission-copy">The machines built to protect humanity have turned against it. Get out together.</p>
+          <div class="mission-meta"><span id="region-badge">CITY · LEVEL 01</span><span id="heart-readout">♥ ♥ ♥</span></div>
+        </section>
+
+        <section class="panel-card">
+          <div class="panel-heading"><h2>Start a run</h2><span class="status-dot"></span></div>
+          <button id="start-story" class="primary-button">▶ Start Story</button>
+          <div class="form-row">
+            <label for="level-select">Test a level</label>
+            <select id="level-select">
+              <option value="1">01 · Broken Boulevard</option>
+              <option value="2">02 · Subway Shadows</option>
+              <option value="3">03 · Rooftop Run</option>
+              <option value="4">04 · The Siren District</option>
+              <option value="5">05 · City Gate</option>
+              <option value="6">06 · Mosslight Trail</option>
+              <option value="7">07 · River of Sparks</option>
+              <option value="8">08 · Watcher Canopy</option>
+              <option value="9">09 · The Old Ranger Station</option>
+              <option value="10">10 · The Covered Way</option>
+              <option value="11">11 · Assembly Line A</option>
+              <option value="12">12 · Furnace Hall</option>
+              <option value="13">13 · Prototype Wing</option>
+              <option value="14">14 · The Control Foundry</option>
+              <option value="15">15 · Heart of Production</option>
+            </select>
+          </div>
+          <button id="play-selected" class="secondary-button">Load Selected Level</button>
+          <p class="microcopy">Level 1: reach the shelter gate to win, then replay. Jump gaps and evade robots. Story beats trigger after Levels 5, 10, and 15. The opening intro plays once per story run.</p>
+        </section>
+
+        <section class="panel-card co-op-card">
+          <div class="panel-heading"><h2>Co-op room</h2><span id="network-pill" class="network-pill offline">OFFLINE</span></div>
+          <p class="microcopy">Create a room and share its six-character code with another player. Join before the host starts. Activate the relay with E to open the shared bridge and gate, then get every survivor to the shelter.</p>
+          <button id="create-room" class="secondary-button">＋ Create Room</button>
+          <div class="form-row join-row">
+            <label for="room-code">Room code</label>
+            <input id="room-code" maxlength="6" placeholder="E.G. K7P4QX" autocomplete="off" spellcheck="false" />
+          </div>
+          <button id="join-room" class="secondary-button">Join Room</button>
+          <p id="objective-status" class="microcopy" aria-live="polite">Create or join a room to play Level 1 together.</p>
+          <p id="room-roster" class="microcopy" aria-label="Room players"></p>
+          <div class="room-line"><span id="room-status">No room connected.</span><button id="leave-room" class="text-button" disabled>Leave</button></div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="lower-grid">
+      <article class="lower-card">
+        <p class="panel-kicker">WHAT'S PLAYABLE</p>
+        <h3>A small first slice, not just a mockup</h3>
+        <p>Movement, jumping, scaled gaps, crates, levers, patrolling robots, checkpoint rooms, a looming pursuer, level transitions, and retro-style story panels are wired together in this starter build.</p>
+      </article>
+      <article class="lower-card">
+        <p class="panel-kicker">ART DIRECTION</p>
+        <h3>Arcade pixel storytelling</h3>
+        <p>Chunky silhouettes, expressive tiny survivors, limited palettes, dramatic framing, letterboxed cutscenes, and original sprite art inspired by classic arcade presentation—without copying characters or assets.</p>
+      </article>
+      <article class="lower-card">
+        <p class="panel-kicker">NEXT BUILD TARGET</p>
+        <h3>Finish the co-op systems</h3>
+        <p>Make grabs, rescue stuns, carried teammates, block physics, shared heart deductions, checkpoint revivals, enemy states, and level transitions fully authoritative on the server.</p>
+      </article>
+    </section>
+
+    <footer class="footer-line"><span>Original prototype assets · No external artwork required</span><span>Use <code>npm install</code> then <code>npm start</code></span></footer>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/game.js"></script>
+</body>
+</html>
