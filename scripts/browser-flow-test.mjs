@@ -42,7 +42,8 @@ try{
     assert.equal((await snapshot()).hearts,0);
     const frame=await page.locator('.screen-frame').boundingBox(),actions=await page.locator('#scene-actions').boundingBox();
     assert.ok(actions.y>=frame.y&&actions.y+actions.height<=frame.y+frame.height,'game-over controls fit the game frame');
-    await page.screenshot({path:`artifacts/flow/gameover-${cycle}.png`});
+    const gameoverImage=await page.screenshot({path:`artifacts/flow/gameover-${cycle}.jpg`,type:'jpeg',quality:80});
+    if(cycle===2)console.log('FLOW_BASE64_BEGIN'+gameoverImage.toString('base64')+'FLOW_BASE64_END');
     await page.locator('#scene-retry').click();await phase('playing');
     assert.equal((await snapshot()).hearts,3);assert.ok((await snapshot()).players.every(p=>p.alive));
     await clearTutorial();

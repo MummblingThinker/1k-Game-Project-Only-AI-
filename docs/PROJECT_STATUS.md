@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated October 30, 2026, 05:15 UTC.
+Updated October 30, 2026, 05:45 UTC.
 
 GitHub: MummblingThinker, repository write access verified. Render: My Workspace (tea-dbhakd8u01pc73ap1ou0), service srv-dbhnfcm1egvs73817n4g. Public game: https://tiny-teamwork-last-spark.onrender.com.
 
@@ -12,14 +12,16 @@ Includes 15 authored stages, 3x normal maps, 5.5/6/6.5x milestones, normal 120-s
 
 ## Current work
 
-Main c1879f8b19fb8ddc3685e97c6793ec1b7be923a3 adds optional ?debug=1 stage reports. Local npm passes. CI 41006497341 passed npm/adversarial/Firefox/WebKit but failed jitter release: walking away left a valid crate weight on the plate. Driver now clears all weight; three local repeats pass. No failing revision deployed.
+Main 506d80bf79692ff5f44f03138f37ef311c031c63 includes optional stage reports, saved motion/effects options, corrected party gap bands, cached original survivor animation frames and visible retry/title controls. Latest flow/animation browser checks pending; no failing bundle deployed.
 
-Local visual options persist motion/effects preferences. Fixed reduced-motion CSS skipping straight to final blackout; story timing preserved. Fewer decorative drones/debris is visual only. Local npm passes; browser checks pending. LIFE-08, ART-08 and QA-005 active. Full Chromium campaign workflow added at 2/3/4 isolated contexts; test controller anticipates narrow-stone landings through ordinary buffered jump input.
+Full browser campaign run 41008565895 on 408dfc84: two, three and four isolated Chromium 156.0.8078.4 contexts PASS all 15 levels and timed default stories. Jobs 123908986326 / 123908986624 / 123908986592. Solo job 123908986500 also PASS opening/all 15/default ending; QA-004 VERIFIED. Previous three/four-controller losses are retained in QA_LOG.md.
+
+Latest 7e8d4c0a CI 41009564011 Firefox/WebKit PASS; Chromium passed sheet tile/frame checks then stopped at a raised tutorial stepping stone. Smoke driver now jumps it, matching the successful full-campaign controller. New CORE-01 browser-flow job repeats death/retry/victory/replay/title twice without reload, including narrow layout. Local npm test PASS artifacts/flow-controls-test.log.
 
 ## Test handles
 
-- ACTIVE 78169: one-hour local soak, eight rooms/32 clients, artifacts/soak-chain-8-3600.log, started about 05:00 UTC. No invariant failure through 12 minutes. Do not restart.
-- ACTIVE 61726: focused four-client Level 14 with anticipatory landing input, artifacts/level14-landing-buffer.log.
+- ACTIVE 78169: one-hour local soak, eight rooms/32 clients, artifacts/soak-chain-8-3600.log, started about 05:00 UTC. No invariant failure through 40 minutes. Do not restart.
+- COMPLETE 61726: focused four-client Level 14 PASS in 42 seconds/two hearts, artifacts/level14-landing-buffer.log.
 - COMPLETE 34841: latest two-client chain campaign/default stories PASS, 787 seconds, artifacts/live-sequence-2-chain-settle.log.
 - COMPLETE 29013: four-client chain run passed 1-13, failed 14 after pit/blast losses. artifacts/live-sequence-4-chain-settle.log. Earlier pre-crate full four-client run passed 847 seconds.
 - COMPLETE 40132: three-client pre-chain crate campaign/default stories PASS, 831 seconds, artifacts/live-sequence-3-crates.log.
@@ -27,6 +29,6 @@ Local visual options persist motion/effects preferences. Fixed reduced-motion CS
 
 ## Next and limits
 
-Publish visual options/jitter correction/browser campaign harness, wait for checks, deploy passing bundle and rerun corresponding public smoke. Inspect report download/full campaigns; refresh cover/archive after final UI. Continue until 06:00 America/New_York October 30 (10:00 UTC), then save handoff and stop.
+Wait for 506d80bf regression/flow checks, fix any failures, deploy passing bundle and rerun public smoke. Inspect diagnostics revival and flow screenshots; refresh cover/archive after final UI. Continue until 06:00 America/New_York October 30 (10:00 UTC), then save handoff and stop.
 
 MVP-03/MVP-04 physical-device/network acceptance and human submission review remain deferred. Nothing submitted. One Node process, rooms 1-4, join before start; disconnect clears identity/new lobby, no cloud save or persistent reconnect. Automated bots are not human difficulty or physical mobile/audio evidence. TASK_LIST.md is canonical; QA_LOG.md records evidence.
