@@ -30,7 +30,7 @@ try{
     const warning=await snapshot(),enemy=warning.world.enemies[0];
     assert.ok(enemy.timer>=(kind==='creeper'?110:80),'warning observed near its beginning');
     assert.equal(warning.hearts,3);
-    await page.waitForFunction(text=>document.querySelector('#objective-status').textContent.includes(text),tell);
+    await page.waitForFunction(text=>document.querySelector('#tactical-status').textContent.includes(text),tell,{timeout:1000});
     const shot=await page.locator('.screen-frame').screenshot({path:`artifacts/hazards/${kind}-warning.jpg`,type:'jpeg',quality:85});
     console.log(kind.toUpperCase()+'_BASE64_BEGIN'+shot.toString('base64')+kind.toUpperCase()+'_BASE64_END');
     // Bombers mark a radius around themselves. Step into it deliberately using
