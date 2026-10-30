@@ -483,3 +483,10 @@ Evidence: local npm test artifacts/gap-band-test-2.log; clean extraction artifac
 
 - Command: TEST_PARTY=1 node scripts/browser-campaign-test.mjs in GitHub Actions Ubuntu/Chromium 156.0.8078.4, 408dfc84, run 41008565895, job 123908986500. PASS opening at default timing, all 15 stages, after5/after10/after15 and default ending; zero console/page errors. Started 05:28:12, ending 05:43:36 UTC. Level 6 used a normal heart/retry and completed; no softlock. Inputs were real keyboard/UI with read-only detached debug snapshots, no authority mutation. QA-004 VERIFIED. All four matrix jobs now PASS.
 - Targeted browser rescue test added to distinguish capture, teammate jump release, unchanged hearts and robot recovery in two independent contexts. Execution pending.
+
+## 2026-10-30 CORE-01 / LIFE-08 verified
+
+- CORE-01: node scripts/browser-flow-test.mjs, Ubuntu/Chromium 156.0.8078.4, 506d80bf run 41010015167 job 123913551627 PASS two opening/game-over/retry/victory/replay/title cycles, one navigation total, zero console/page errors. Second cycle 390px; controls fit frame. Repeat 15d45dee job 123914456680 PASS; artifacts/flow-mobile.jpg inspected with readable retry/title buttons. CORE-01 VERIFIED.
+- LIFE-08: npm test stage-report tests and 506d80bf main Chromium job 123913551383 PASS actual pit death, own-room report download, detached snapshot immutability, shelter revival event, camera/spectator return. All three browser engines PASS run 41010015167. LIFE-08 VERIFIED. Reports remain optional, bounded and never auto-uploaded.
+- Targeted rescue first attempt failed its test observer at lobby join: initial packets can use HTTP polling before WebSocket upgrade, though both clients joined on server. Wait for native lobby UI before observing periodic gameplay WebSocket states. No game change for this correction.
+- Art follow-up: added carry-run/throw-run to preserve moving legs, 15-pose cached sheet; separated overlapping player-number labels; water ripples and conveyor treads/arrows respect reduced decorative motion. Syntax PASS; updated browser fixtures pending.

@@ -121,12 +121,13 @@ try {
     for(let y=0;y<sheet.height;y++)for(let x=0;x<sheet.width;x++){
       if((x%40===0||x%40===39||y%40===0||y%40===39)&&pixels[(y*sheet.width+x)*4+3])throw Error('Sprite frame spills outside tile');
     }
-    for(const pose of ['run','throw','idle']){
+    for(const pose of ['run','carry-run','throw-run','throw','idle']){
       const start=SURVIVOR_POSES.indexOf(pose)*160;
       const a=ctx.getImageData(start,0,40,40).data,b=ctx.getImageData(start+(pose==='idle'?80:40),0,40,40).data;
       if(a.every((v,i)=>v===b[i]))throw Error('Missing animated frame for '+pose);
     }
     if(survivorPose({alive:true,onGround:false,vy:-3,carryId:'box'})!=='carry-jump')throw Error('Airborne carry pose missing');
+    if(survivorPose({alive:true,onGround:true,vx:1.28,carryId:'box'})!=='carry-run')throw Error('Running carry pose missing');
     return sheet.toDataURL('image/png').split(',')[1];
   });
   await writeFile('artifacts/survivor-sheet.png',Buffer.from(sheet,'base64'));
@@ -148,6 +149,15 @@ try {
       drawGame(ctx, world, player, [], Math.max(0, focus - 160), { clock: 1400, tick: 0, state: 'playing' });
     }
     const { drawSurvivor, buildLevel, createPlayer, drawGame } = window.renderTools;
+    for(const level of [6,11,12]){
+      const world=buildLevel(level),terrain=world.terrain[0],figure=document.createElement('figure'),label=document.createElement('figcaption'),canvas=document.createElement('canvas');
+      label.textContent='TERRAIN FIXTURE / '+terrain.kind+' / direction '+(terrain.direction||0);
+      canvas.width=320;canvas.height=180;figure.append(label,canvas);document.body.append(figure);
+      const player=createPlayer('terrain',terrain.x+40,129);player.onGround=true;player.slot=0;
+      const peer=createPlayer('nearby',terrain.x+49,129);peer.onGround=true;peer.slot=1;
+      const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
+      drawGame(ctx,world,player,[peer],terrain.x-65,{clock:1400,tick:0,state:'playing'});
+    }
     const poses = document.createElement('figure'), label = document.createElement('figcaption'), canvas = document.createElement('canvas');
     label.textContent = 'POSE FIXTURE / idle, run, jump, fall, carry, throw, captured, hurt, down'; canvas.width=320; canvas.height=180; poses.append(label,canvas); document.body.append(poses);
     const ctx=canvas.getContext('2d'); ctx.fillStyle='#203345'; ctx.fillRect(0,0,320,180);

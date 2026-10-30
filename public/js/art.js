@@ -139,7 +139,7 @@ function drawStageScenery(ctx, world, cameraX, clock) {
   }
 }
 
-function drawFloor(ctx, world, cameraX) {
+function drawFloor(ctx, world, cameraX, clock=0) {
   const p = palettes[world.region] || palettes.city;
   for (const terrain of world.terrain || []) {
     const x = terrain.x - cameraX;
@@ -188,10 +188,24 @@ function drawFloor(ctx, world, cameraX) {
     if (x > 330 || x + terrain.w < 0) continue;
     if (terrain.kind === 'water') {
       RECT(ctx, x, 145, terrain.w, 6, '#376f83');
-      for (let i = 0; i < terrain.w; i += 12) RECT(ctx, x + i, 145 + (i % 2), 7, 1, '#9bd6d5');
+      const drift=Math.floor(clock/260)%12;
+      for (let i = 0; i < terrain.w; i += 12) {
+        const ripple=(i+drift)%terrain.w;
+        RECT(ctx,x+ripple,145+(Math.floor(i/12)%2),Math.min(7,terrain.w-ripple),1,'#9bd6d5');
+      }
     } else {
-      RECT(ctx, x, 149, terrain.w, 3, '#e7b568');
-      for (let i = 0; i < terrain.w; i += 12) RECT(ctx, x + i, 149, 3, 2, '#302d40');
+      RECT(ctx, x, 147, terrain.w, 5, '#e7b568');
+      const direction=terrain.direction||1,drift=((Math.floor(clock/110)*direction)%12+12)%12;
+      for (let i = 0; i < terrain.w; i += 12) {
+        const tread=(i+drift)%terrain.w;
+        RECT(ctx,x+tread,150,Math.min(3,terrain.w-tread),2,'#302d40');
+      }
+      // Fixed arrows retain the direction cue when decorative motion is reduced.
+      for(let i=20;i<terrain.w-10;i+=36){
+        RECT(ctx,x+i,143,8,1,'#e7b568');
+        const tip=x+i+(direction>0?7:0);
+        RECT(ctx,tip,142,1,3,'#e7b568');RECT(ctx,tip-direction,141,1,5,'#e7b568');
+      }
     }
   }
 }
@@ -298,15 +312,16 @@ function drawSurvivorPixels(ctx, p, x, clock = 0) {
   ctx.restore();
 }
 
-export const SURVIVOR_POSES=['idle','run','jump','fall','carry','carry-jump','carry-fall','throw','throw-jump','throw-fall','captured','hurt','down'];
+export const SURVIVOR_POSES=['idle','run','jump','fall','carry','carry-run','carry-jump','carry-fall','throw','throw-run','throw-jump','throw-fall','captured','hurt','down'];
 const SURVIVOR_TILE=40;
 let survivorSheet;
 export function survivorPose(p) {
   if(!p.alive)return p.hitTicks>0?'hurt':'down';
   if(p.capture)return 'captured';
   const air=p.onGround?'':p.vy<0?'-jump':'-fall';
-  if(p.carryId)return 'carry'+air;
-  if(p.gestureTicks>0)return 'throw'+air;
+  const motion=air||(Math.abs(p.vx||0)>.1?'-run':'');
+  if(p.carryId)return 'carry'+motion;
+  if(p.gestureTicks>0)return 'throw'+motion;
   if(air)return p.vy<0?'jump':'fall';
   return Math.abs(p.vx||0)>.1?'run':'idle';
 }
@@ -316,7 +331,7 @@ export function getSurvivorSheet() {
   const context=sheet.getContext('2d');context.imageSmoothingEnabled=false;
   for(let slot=0;slot<4;slot++)for(let pose=0;pose<SURVIVOR_POSES.length;pose++)for(let frame=0;frame<4;frame++){
     const name=SURVIVOR_POSES[pose],p={slot,w:12,h:22,y:slot*SURVIVOR_TILE+6,face:1,alive:true,onGround:true,vx:0,vy:0};
-    if(name==='run')p.vx=1.28;
+    if(name.endsWith('run'))p.vx=1.28;
     if(name.includes('jump')){p.onGround=false;p.vy=-3;}
     if(name.includes('fall')){p.onGround=false;p.vy=3;}
     if(name.startsWith('carry'))p.carryId='fixture';
@@ -416,7 +431,10 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
     if(x<-24||x>335) continue;
     drawSurvivor(ctx, p, x, runClock,gameState.reducedMotion);
     if (p.capture) outlinedText(ctx, `HELP ${Math.max(0, p.capture.remaining).toFixed(1)}`, x - 12, p.y - 8, '#ffcc8a');
-    else if (all.length > 1) outlinedText(ctx, `P${(p.slot ?? 0) + 1}${p.alive ? '' : ' DOWN'}`, x - 2, Math.min(168,p.y - 8), p.id === player.id ? '#fff0c6' : '#bdd7df');
+    else if (all.length > 1) {
+      const labelLane=all.filter(q=>(q.slot??0)<(p.slot??0)&&Math.abs(q.x-p.x)<25&&Math.abs(q.y-p.y)<14).length;
+      outlinedText(ctx, `P${(p.slot ?? 0) + 1}${p.alive ? '' : ' DOWN'}`, x - 2, Math.max(8,Math.min(168,p.y-8)-labelLane*9), p.id === player.id ? '#fff0c6' : '#bdd7df');
+    }
     if (!p.alive) continue;
     if(p.id===player.id) {
       RECT(ctx,x+3,p.y-5,7,1,'#ffe9a8'); RECT(ctx,x+5,p.y-4,3,1,'#ffe9a8');
@@ -453,7 +471,7 @@ export function drawGame(ctx, world, player, peerPlayers, cameraX, state) {
   drawBackground(ctx,world,cameraX,sceneryClock);
   drawStageScenery(ctx,world,cameraX,sceneryClock);
   drawEncounter(ctx,world,cameraX,sceneryClock,state.reducedEffects);
-  drawFloor(ctx,world,cameraX);
+  drawFloor(ctx,world,cameraX,sceneryClock);
   // Checkpoint's interior is safe from ordinary enemies, but not from the giant pursuer.
   drawSprites(ctx,world,player,peerPlayers,cameraX,state);
   for (const effect of state.reducedEffects?[]:world.breakEffects || []) {

@@ -34,9 +34,12 @@ try{
     await page.goto(base);
   }
   const [victim,rescuer]=peers;
-  await victim.page.locator('#create-room').click();await until(()=>victim.state?.roomCode,'created');
-  await rescuer.page.locator('#room-code').fill(victim.state.roomCode);await rescuer.page.locator('#join-room').click();
-  await until(()=>rescuer.state?.players.length===2,'joined');
+  await victim.page.locator('#create-room').click();
+  await victim.page.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);
+  const roomCode=await victim.page.locator('#game').getAttribute('data-room');
+  await rescuer.page.locator('#room-code').fill(roomCode);await rescuer.page.locator('#join-room').click();
+  // Lobby packets can arrive over polling before the WebSocket upgrade.
+  await rescuer.page.waitForFunction(()=>JSON.parse(document.querySelector('#game').dataset.players).length===2);
   await victim.page.locator('#level-select').selectOption('2');await rescuer.page.locator('#room-ready').click();
   await victim.page.locator('#start-story').click();await until(()=>peers.every(p=>p.state?.phase==='playing'),'start');
   for(const peer of peers)await peer.page.locator('#game').focus();
@@ -70,5 +73,5 @@ try{
   await writeFile('artifacts/rescue/result.json',JSON.stringify({browser:browser.version(),hearts,clients:peers.map(p=>({captured:p.captured,stunned:p.stunned,recovered:p.recovered})),errors},null,2));
   console.log('Browser rescue PASS: separate contexts agree on capture, teammate jump release, unchanged hearts and robot recovery.');
   await Promise.all(peers.map(p=>p.page.locator('#leave-room').click()));
-}catch(error){for(let i=0;i<peers.length;i++){await peers[i].page.screenshot({path:`artifacts/rescue/failure-${i}.png`}).catch(()=>{});await writeFile(`artifacts/rescue/state-${i}.json`,JSON.stringify(peers[i].state,null,2)||'null');}throw error;}
+}catch(error){for(let i=0;i<peers.length;i++){const s=peers[i].state;console.error('RESCUE STATE',i,JSON.stringify({phase:s?.phase,hearts:s?.hearts,players:s?.players,enemies:s?.world?.enemies}));await peers[i].page.screenshot({path:`artifacts/rescue/failure-${i}.png`}).catch(()=>{});await writeFile(`artifacts/rescue/state-${i}.json`,JSON.stringify(s,null,2)||'null');}throw error;}
 finally{await browser?.close();server.kill('SIGTERM');}
