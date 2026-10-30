@@ -10,7 +10,7 @@ export function createPlayer(id = 'local', x = 26, y = 110, colorIndex = 0) {
     onGround: false, alive: true, colorIndex, face: 1, carryId: null,
     heartsLost: 0, timeDead: 0, lastJump: false, invulnerability: 0,
     coyoteTicks: 0, jumpBufferTicks: 0,
-    gestureTicks: 0, hitTicks: 0,
+    gestureTicks: 0, hitTicks: 0, climbing: null,
   };
 }
 
@@ -45,6 +45,30 @@ export function stepPlayer(player, input, world, dt = 1) {
   const left = !!input.left;
   const right = !!input.right;
   const jump = !!input.jump;
+  p.ladderBlocked=false;
+
+  if(p.climbing!=null){
+    const shelter=(world.checkpoints||[]).find(c=>c.x===p.climbing&&!c.destroyed);
+    const roof=shelter&&world.platforms.find(s=>s.kind==='shelter-roof'&&s.shelterX===shelter.x);
+    if(!roof||left!==right||p.carryId||p.throwTicks>0){
+      // A sideways cancellation inside the hatch returns below its solid lip.
+      if(roof&&p.y<roof.y+roof.h&&p.y+p.h>roof.y)p.y=roof.y+roof.h;
+      p.climbing=null;p.vy=0;
+    }else{
+      const next={...p,x:shelter.x+shelter.w/2-p.w/2,y:Math.max(roof.y-p.h,p.y-1.2*dt)};
+      const obstacles=[...world.platforms.filter(s=>s!==roof&&s.kind!=='teammate'),...(world.crates||[]).filter(c=>!c.used&&!c.carriedBy)];
+      if(obstacles.some(s=>overlaps(next,s))){
+        p.ladderBlocked=true;
+        p.climbing=null;p.y=Math.max(p.y,roof.y+roof.h);p.vy=0;p.onGround=false;
+        return p;
+      }
+      p.x=next.x;p.y=next.y;p.vx=p.vy=0;p.onGround=false;
+      p.lastJump=jump;p.coyoteTicks=0;p.jumpBufferTicks=0;
+      if(p.y===roof.y-p.h){p.climbing=null;p.onGround=true;}
+      if(p.invulnerability>0)p.invulnerability=Math.max(0,p.invulnerability-dt);
+      return p;
+    }
+  }
 
   if (p.throwTicks > 0) {
     p.vx = p.throwVx;

@@ -5,6 +5,9 @@ on:
     paths:
       - scripts/browser-campaign-test.mjs
       - scripts/route-driver.mjs
+      - public/js/physics.js
+      - public/js/simulation.js
+      - public/js/world.js
       - .github/workflows/browser-campaign.yml
 permissions:
   contents: read

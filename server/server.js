@@ -65,7 +65,7 @@ function publicPlayer(p) {
   return {
     id: p.id, x: p.x, y: p.y, vx: p.vx, vy: p.vy, w: p.w, h: p.h,
     alive: p.alive, colorIndex: p.colorIndex, face: p.face, ready: !!p.ready, gestureTicks: p.gestureTicks || 0, hitTicks: p.hitTicks || 0,
-    capture: p.capture, carriedBy: p.carriedBy, invulnerability: p.invulnerability, onGround: p.onGround, carryId: p.carryId, timeDead: p.timeDead || 0, slot: p.slot,
+    capture: p.capture, carriedBy: p.carriedBy, invulnerability: p.invulnerability, onGround: p.onGround, carryId: p.carryId, timeDead: p.timeDead || 0, slot: p.slot, climbing:p.climbing??null,
   };
 }
 

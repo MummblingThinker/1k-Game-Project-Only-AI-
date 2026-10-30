@@ -8,6 +8,63 @@ const runAt = (level = 2, count = 2) => {
   startLevel(run, level, true); return run;
 };
 const check = (label, fn) => { fn(); console.log('Systems PASS: ' + label); };
+check('shelter ladder reaches its roof, cancels safely and disappears on breach',()=>{
+  for(const direction of [-1,1]){
+    const r=runAt(1,1),p=r.players.get('p0'),cp=r.world.checkpoints[0];
+    Object.assign(p,{x:cp.x+cp.w/2-p.w/2,y:129,onGround:true,input:{}});
+    assert.equal(interactRun(r,p.id),true);assert.equal(p.climbing,cp.x);
+    for(let i=0;i<34;i++)stepRun(r);
+    const roof=r.world.platforms.find(s=>s.kind==='shelter-roof');
+    assert.equal(p.climbing,null);assert.equal(p.y+p.h,roof.y);assert.equal(p.onGround,true);
+    assert.equal(overlaps(p,roof),false);
+    p.input={left:direction<0,right:direction>0};for(let i=0;i<60;i++)stepRun(r);
+    assert.ok(p.alive);assert.ok(direction<0?p.x<cp.x:p.x>cp.x+cp.w,'roof has both usable exits');
+  }
+  const r=runAt(1,1),p=r.players.get('p0'),cp=r.world.checkpoints[0];
+  Object.assign(p,{x:cp.x+cp.w/2-p.w/2,y:129,onGround:true,input:{}});
+  interactRun(r,p.id);for(let i=0;i<15;i++)stepRun(r);
+  p.input={right:true};stepRun(r);assert.equal(p.climbing,null);
+  assert.ok(p.y>=118,'sideways cancellation cannot embed player in roof');
+  for(let i=0;i<12;i++)stepRun(r);
+  p.x=cp.x+cp.w/2-p.w/2;p.y=129;p.onGround=true;p.input={};
+  assert.equal(interactRun(r,p.id),true);
+  r.world.giant.x=cp.x+30;const hearts=r.hearts;stepRun(r);
+  assert.equal(cp.destroyed,true);assert.equal(r.hearts,hearts-1);
+  assert.equal(p.climbing,null);assert.ok(!r.world.platforms.some(s=>s.shelterX===cp.x));
+});
+check('ladder requires a grounded nearby empty-handed survivor and releases ownership',()=>{
+  for(const invalid of ['distant','airborne','destroyed']){
+    const r=runAt(1,2),p=r.players.get('p0'),cp=r.world.checkpoints[0];
+    Object.assign(p,{x:cp.x+cp.w/2-p.w/2,y:129,onGround:true,input:{}});
+    if(invalid==='distant')p.x=50;
+    if(invalid==='airborne'){p.y=95;p.onGround=false;}
+    if(invalid==='destroyed')cp.destroyed=true;
+    assert.equal(interactRun(r,p.id),false,invalid);assert.equal(p.climbing,null);
+  }
+  const r=runAt(1,2),[p,q]=[...r.players.values()],cp=r.world.checkpoints[0];
+  Object.assign(p,{x:cp.x+cp.w/2-p.w/2,y:129,onGround:true,input:{}});q.x=p.x+5;q.y=p.y;
+  interactRun(r,p.id);assert.equal(interactRun(r,q.id,'carry'),false,'cannot carry someone through the hatch');
+  releaseParticipant(r,p);assert.equal(p.climbing,null);
+});
+check('every authored shelter ladder reaches its intact roof',()=>{
+  for(let level=1;level<=15;level++)for(let index=0;index<runAt(level,1).world.checkpoints.length;index++){
+    const r=runAt(level,1),p=r.players.get('p0'),cp=r.world.checkpoints[index];
+    Object.assign(p,{x:cp.x+cp.w/2-p.w/2,y:129,onGround:true,input:{}});
+    assert.equal(interactRun(r,p.id),true,`ladder entry ${level}/${index}`);
+    for(let tick=0;tick<35;tick++)stepRun(r);
+    assert.equal(p.y,91,`ladder roof ${level}/${index}`);assert.ok(p.alive);
+  }
+});
+check('a crate blocking the ladder hatch cannot embed a climbing survivor',()=>{
+  const r=runAt(1,1),p=r.players.get('p0'),cp=r.world.checkpoints[0],crate=r.world.crates[0];
+  Object.assign(p,{x:cp.x+cp.w/2-p.w/2,y:129,onGround:true,input:{}});
+  Object.assign(crate,{x:p.x,y:113-crate.h,vx:0,vy:0});
+  interactRun(r,p.id);for(let i=0;i<35;i++)stepRun(r);
+  assert.equal(p.climbing,null);assert.ok(p.y>=118);assert.equal(overlaps(p,crate),false);
+  assert.match(r.notice,/Ladder hatch blocked/);
+  p.input={left:true};for(let i=0;i<55;i++)stepRun(r);
+  assert.ok(p.x<cp.x&&p.alive,'ground exit remains usable when hatch is blocked');
+});
 check('capture expiry spends once and a real jump rescue releases without killing robot', () => {
   const r = runAt(), [a, b] = [...r.players.values()], e = r.world.enemies.find(e => e.kind === 'grabber');
   e.x = e.minX = e.maxX = 920;

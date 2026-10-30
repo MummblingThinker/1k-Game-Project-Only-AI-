@@ -17,7 +17,7 @@ Join before the run begins. To add someone later, leave and create a fresh lobby
 | --- | --- |
 | Move | A/D or Left/Right |
 | Jump / struggle while grabbed | Space or Up |
-| Interact with relay, beacon or memory | E |
+| Interact with relay, beacon, memory or shelter ladder | E |
 | Pick up / throw teammate or crate | F |
 | Drop carried teammate or crate | Q |
 | Break free from being carried | Jump |

@@ -54,6 +54,7 @@ export function releaseParticipant(run, player) {
   }
   for (const enemy of run.world.enemies) if (enemy.grabbedId === player.id) enemy.grabbedId = null;
   player.capture = null;
+  player.climbing = null;
 }
 
 export function killPlayer(run, player, cause, unavoidable = false) {
@@ -107,7 +108,7 @@ function openRelay(run, sw) {
 
 export function interactRun(run, id, action = 'use') {
   const p = run.players.get(id);
-  if (!p?.alive || p.carriedBy || p.capture || run.phase !== 'playing') return false;
+  if (!p?.alive || p.carriedBy || p.capture || p.climbing!=null || run.phase !== 'playing') return false;
   if (run.tick - (p.lastInteractionTick ?? -60) < 12) return false;
   p.lastInteractionTick = run.tick;
   if (p.carryId) { detach(run, p, action !== 'drop'); run.notice = action === 'drop' ? 'Set down safely.' : 'Thrown. Watch the landing!'; return true; }
@@ -144,8 +145,13 @@ export function interactRun(run, id, action = 'use') {
       run.notice = ['MEMORY: We were told protecting you meant keeping you here.', 'MEMORY: The factory still remembers the people who built it.', 'MEMORY: A machine can obey and still remember kindness.'][Math.floor((run.level - 1) / 5)];
       return true;
     }
+    const shelter=run.world.checkpoints.find(c=>!c.destroyed&&Math.abs(p.x+p.w/2-(c.x+c.w/2))<=9&&p.y>=118&&p.onGround);
+    if(shelter&&run.world.platforms.some(s=>s.kind==='shelter-roof'&&s.shelterX===shelter.x)){
+      p.climbing=shelter.x;p.vx=p.vy=0;
+      run.notice='Climbing the shelter ladder. Move sideways to step off.';return true;
+    }
   }
-  const teammate = action === 'carry' && playersOf(run).find(other => other.id !== id && other.alive && !other.capture && !other.carriedBy && !other.carryId && near(p, other, 25));
+  const teammate = action === 'carry' && playersOf(run).find(other => other.id !== id && other.alive && !other.capture && other.climbing==null && !other.carriedBy && !other.carryId && near(p, other, 25));
   const crate = run.world.crates.find(c => !c.used && !c.carriedBy && near(p, c, 25));
   const object = teammate || crate;
   if (object) { object.carriedBy = id; p.carryId = object.id; run.notice = teammate ? 'Carrying teammate. F throws, Q drops; teammate can jump free.' : 'Crate picked up. E throws; Q drops.'; return true; }
@@ -279,6 +285,7 @@ export function stepRun(run) {
       if (t.kind === 'conveyor') playerWorld.groundDrift = t.direction * .45;
     }
     stepPlayer(p, p.input || {}, playerWorld);
+    if(p.ladderBlocked)run.notice='Ladder hatch blocked. Move the crate or use a ground exit.';
     if (world.boss && world.boss.phase !== 'waiting' && !world.boss.solved) p.x = Math.max(world.boss.x, p.x);
     for (const cp of world.checkpoints) if (!cp.active && !cp.destroyed && previousX + p.w < cp.x && p.x + p.w >= cp.x) recover(run, cp);
     if (p.y > world.height - 6) killPlayer(run, p, 'Fell into a pit', true);
@@ -344,6 +351,8 @@ export function objectiveText(run) {
   const hazard = w.enemies.find(e => ['warning','attack'].includes(e.phase) && playersOf(run).some(p => p.alive && Math.abs(p.x-e.targetX)<100));
   if (hazard) return hazard.kind === 'scanner' ? 'SCANNER: leave the marked column before it fires.' : `${hazard.kind === 'creeper' ? 'BLAST' : 'GROUND STRIKE'}: jump or move beyond the marked strip. Machines cannot be destroyed.`;
   if (!b || b.phase === 'waiting') {
+    if(playersOf(run).some(p=>p.alive&&p.climbing!=null))return 'SHELTER LADDER: climbing to the roof. Move sideways to step off.';
+    if(w.checkpoints.some(c=>!c.destroyed&&playersOf(run).some(p=>p.alive&&!p.capture&&p.y>=118&&Math.abs(p.x+p.w/2-(c.x+c.w/2))<20)))return 'SHELTER: E at the central ladder climbs to the roof. Ground exits remain open.';
     if (playersOf(run).some(p=>p.alive&&p.carryId)) return `RELAYS ${done}/${w.switches.length} • CARRYING: F throws forward / Q drops gently`;
     if (w.crates.some(c=>!c.used&&!c.carriedBy&&playersOf(run).some(p=>p.alive&&!p.capture&&Math.abs(p.x-c.x)<35&&Math.abs(p.y-c.y)<30))) return `RELAYS ${done}/${w.switches.length} • CRATE: push, jump onto it, or E to lift / Q to drop`;
   }

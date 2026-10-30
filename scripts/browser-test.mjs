@@ -121,7 +121,7 @@ try {
     for(let y=0;y<sheet.height;y++)for(let x=0;x<sheet.width;x++){
       if((x%40===0||x%40===39||y%40===0||y%40===39)&&pixels[(y*sheet.width+x)*4+3])throw Error('Sprite frame spills outside tile');
     }
-    for(const pose of ['run','carry-run','throw-run','throw','idle']){
+    for(const pose of ['run','carry-run','throw-run','throw','climb','idle']){
       const start=SURVIVOR_POSES.indexOf(pose)*160;
       const a=ctx.getImageData(start,0,40,40).data,b=ctx.getImageData(start+(pose==='idle'?80:40),0,40,40).data;
       if(a.every((v,i)=>v===b[i]))throw Error('Missing animated frame for '+pose);
@@ -283,6 +283,16 @@ try {
   await d.waitForFunction(()=>document.querySelector('#game').dataset.alive==='true');
   await d.waitForFunction(()=>{try{return JSON.parse(document.querySelector('#debug-report').value).events.some(e=>e.type==='checkpoint-revive');}catch{return false;}});
   assert.equal(await d.locator('#spectator-status').isVisible(),false,'revival returns camera to own survivor');
+  await walk(b,491);
+  const climberId=JSON.parse(await b.locator('#game').getAttribute('data-players'))[0].id;
+  await b.keyboard.press('e');
+  await Promise.all([
+    b.waitForFunction(()=>Number(document.querySelector('#game').dataset.playerY)===91),
+    d.waitForFunction(async id=>{const s=(await import('/js/game.js')).readDebugSnapshot();return s?.players.find(p=>p.id===id)?.y===91;},climberId)
+  ]);
+  assert.equal(await b.locator('#game').getAttribute('data-alive'),'true','ladder reaches shelter roof alive');
+  const ladderImage=await b.screenshot({path:'artifacts/ladder.jpg',type:'jpeg',quality:80});
+  console.log('LADDER_BASE64_BEGIN'+ladderImage.toString('base64')+'LADDER_BASE64_END');
   await Promise.all([a,b,c,d].map(p=>p.locator('#leave-room').click()));
   await cContext.close();await dContext.close();
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });

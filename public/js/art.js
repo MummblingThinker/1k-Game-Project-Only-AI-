@@ -290,7 +290,11 @@ function drawSurvivorPixels(ctx, p, x, clock = 0) {
   // Scarf streams behind running/jumping survivors.
   RECT(ctx,3,8+torso,7,2,coat);
   if (walking || airborne) RECT(ctx,-2,9+torso+(frame%2),5,2,coat);
-  if (p.capture || p.carryId) {
+  if(p.climbing!=null){
+    const reach=frame%2?3:0;
+    RECT(ctx,0,4+reach,3,8,coat);RECT(ctx,10,7-reach,3,8,coat);
+    RECT(ctx,0,2+reach,3,3,skin);RECT(ctx,10,5-reach,3,3,skin);
+  } else if (p.capture || p.carryId) {
     RECT(ctx,0,5+torso,3,7,coat); RECT(ctx,10,5+torso,3,7,coat);
     RECT(ctx,0,3+torso,3,3,skin); RECT(ctx,10,3+torso,3,3,skin);
   } else if (p.gestureTicks > 0) {
@@ -305,19 +309,20 @@ function drawSurvivorPixels(ctx, p, x, clock = 0) {
     RECT(ctx,1,10+torso+swing,3,5,coat); RECT(ctx,10,10+torso-swing,2,5,coat);
     RECT(ctx,1,14+torso+swing,3,2,skin); RECT(ctx,10,14+torso-swing,2,2,skin);
   }
-  const stride = walking ? [-2,0,2,0][frame] : 0;
+  const stride = p.climbing!=null?[-1,1,-1,1][frame]:walking ? [-2,0,2,0][frame] : 0;
   const raised = airborne && p.vy < 0 ? 2 : 0;
   RECT(ctx,3+stride,17,3,5-raised,'#36445b'); RECT(ctx,7-stride,17,3,5,'#273748');
   RECT(ctx,2+stride,21-raised,4,1,'#d0b38a'); RECT(ctx,7-stride,21,4,1,'#d0b38a');
   ctx.restore();
 }
 
-export const SURVIVOR_POSES=['idle','run','jump','fall','carry','carry-run','carry-jump','carry-fall','throw','throw-run','throw-jump','throw-fall','captured','hurt','down'];
+export const SURVIVOR_POSES=['idle','run','jump','fall','carry','carry-run','carry-jump','carry-fall','throw','throw-run','throw-jump','throw-fall','climb','captured','hurt','down'];
 const SURVIVOR_TILE=40;
 let survivorSheet;
 export function survivorPose(p) {
   if(!p.alive)return p.hitTicks>0?'hurt':'down';
   if(p.capture)return 'captured';
+  if(p.climbing!=null)return 'climb';
   const air=p.onGround?'':p.vy<0?'-jump':'-fall';
   const motion=air||(Math.abs(p.vx||0)>.1?'-run':'');
   if(p.carryId)return 'carry'+motion;
@@ -336,6 +341,7 @@ export function getSurvivorSheet() {
     if(name.includes('fall')){p.onGround=false;p.vy=3;}
     if(name.startsWith('carry'))p.carryId='fixture';
     if(name.startsWith('throw'))p.gestureTicks=18;
+    if(name==='climb'){p.climbing=0;p.onGround=false;p.vy=-1.2;}
     if(name==='captured')p.capture={remaining:2};
     if(name==='hurt'){p.alive=false;p.hitTicks=14;}
     if(name==='down')p.alive=false;
@@ -368,7 +374,10 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
     RECT(ctx,x+2,cp.y+20,38,2,'#a9c6a0');
     // left/right exits and overhead escape ladder
     RECT(ctx,x-2,cp.y+12,4,9,'#d2b56f'); RECT(ctx,x+40,cp.y+12,4,9,'#d2b56f');
-    RECT(ctx,x+21,cp.y-8,2,8,'#d2b56f'); RECT(ctx,x+17,cp.y-5,10,1,'#d2b56f');
+    const ladderX=x+cp.w/2;
+    RECT(ctx,ladderX-5,109,1,39,'#d2b56f');RECT(ctx,ladderX+5,109,1,39,'#d2b56f');
+    for(let y=112;y<149;y+=6)RECT(ctx,ladderX-4,y,9,1,'#d2b56f');
+    if(Math.abs(player.x+player.w/2-(cp.x+cp.w/2))<22&&player.y>=118)outlinedText(ctx,'CLIMB / E',ladderX-22,104,'#f5dfa1');
     if(cp.active) RECT(ctx,x+14,cp.y+2,14,2,'#b9db9b');
   }
   for(const plate of world.plates || []) {

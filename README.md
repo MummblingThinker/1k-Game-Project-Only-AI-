@@ -43,6 +43,8 @@ Robots are indestructible. Jump onto a grabber only while it holds a teammate to
 
 Shared hearts start at three solo, four for two/three players and five for four. Each fatal transition charges once. A checkpoint revives the longest-dead survivor OR restores one heart if everyone is alive. Full stage transitions reset the original party's life pool. Carry/throw, stacking and fallback stepping stones support teamwork. See [campaign rules](docs/CAMPAIGN_BUILD.md).
 
+Shelters have two ground exits and an overhead ladder. Stand at the central ladder and use E (Interact on touch) to climb to the roof; move sideways to step off. Put carried objects down first. The roaming giant can destroy the shelter and its ladder.
+
 ## Verification and limits
 
 `npm test` covers shared systems, 60 deterministic stage traversals (15 stages at 1–4 players), HTTP/assets, board evidence, client sessions and real Socket.IO integration. `npm run test:live-campaign` drives two socket clients through Level 15 and its shared ending. CI installs Playwright temporarily for `npm run test:browser`.

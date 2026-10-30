@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated October 30, 2026, 05:45 UTC.
+Updated October 30, 2026, 06:00 UTC.
 
 GitHub: MummblingThinker, repository write access verified. Render: My Workspace (tea-dbhakd8u01pc73ap1ou0), service srv-dbhnfcm1egvs73817n4g. Public game: https://tiny-teamwork-last-spark.onrender.com.
 
@@ -12,7 +12,7 @@ Includes 15 authored stages, 3x normal maps, 5.5/6/6.5x milestones, normal 120-s
 
 ## Current work
 
-Main 506d80bf79692ff5f44f03138f37ef311c031c63 includes optional stage reports, saved motion/effects options, corrected party gap bands, cached original survivor animation frames and visible retry/title controls. Latest flow/animation browser checks pending; no failing bundle deployed.
+Main aaf051753f05bd7e23c13e3bdbef2f7cca34f7b8 includes optional stage reports, saved motion/effects options, corrected party gap bands, cached original survivor animation frames and visible retry/title controls. All five CI jobs PASS run 41011064436, including targeted rescue and repeated flow. Deploy dep-dbi34qm1egvs73ep4cvg started 06:00:10 UTC; awaiting live confirmation.
 
 Full browser campaign run 41008565895 on 408dfc84: two, three and four isolated Chromium 156.0.8078.4 contexts PASS all 15 levels and timed default stories. Jobs 123908986326 / 123908986624 / 123908986592. Solo job 123908986500 also PASS opening/all 15/default ending; QA-004 VERIFIED. Previous three/four-controller losses are retained in QA_LOG.md.
 
@@ -20,7 +20,7 @@ Latest 7e8d4c0a CI 41009564011 Firefox/WebKit PASS; Chromium passed sheet tile/f
 
 ## Test handles
 
-- ACTIVE 78169: one-hour local soak, eight rooms/32 clients, artifacts/soak-chain-8-3600.log, started about 05:00 UTC. No invariant failure through 40 minutes. Do not restart.
+- COMPLETE 78169: one-hour local soak PASS, eight rooms/32 clients, 265080 checks/688 resets, peak RSS 195.04 MiB; cleanup zero rooms. artifacts/soak-8-3600.json.
 - COMPLETE 61726: focused four-client Level 14 PASS in 42 seconds/two hearts, artifacts/level14-landing-buffer.log.
 - COMPLETE 34841: latest two-client chain campaign/default stories PASS, 787 seconds, artifacts/live-sequence-2-chain-settle.log.
 - COMPLETE 29013: four-client chain run passed 1-13, failed 14 after pit/blast losses. artifacts/live-sequence-4-chain-settle.log. Earlier pre-crate full four-client run passed 847 seconds.
@@ -29,6 +29,6 @@ Latest 7e8d4c0a CI 41009564011 Firefox/WebKit PASS; Chromium passed sheet tile/f
 
 ## Next and limits
 
-Wait for 506d80bf regression/flow checks, fix any failures, deploy passing bundle and rerun public smoke. Inspect diagnostics revival and flow screenshots; refresh cover/archive after final UI. Continue until 06:00 America/New_York October 30 (10:00 UTC), then save handoff and stop.
+Confirm aaf05175 deployment/public smoke. Local functional shelter ladder adds authoritative E climb, safe cancellation/blocked-hatch handling and climb animation; npm and all-shelter unit tests pass. Publish ladder and run full browser matrix. Refresh cover/archive after final UI. Continue until 06:00 America/New_York October 30 (10:00 UTC), then save handoff and stop.
 
 MVP-03/MVP-04 physical-device/network acceptance and human submission review remain deferred. Nothing submitted. One Node process, rooms 1-4, join before start; disconnect clears identity/new lobby, no cloud save or persistent reconnect. Automated bots are not human difficulty or physical mobile/audio evidence. TASK_LIST.md is canonical; QA_LOG.md records evidence.
