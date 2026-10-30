@@ -49,6 +49,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node scripts/browser-flow-test.mjs
       - run: node scripts/browser-cadence-test.mjs
+      - run: node scripts/browser-performance-test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -56,6 +57,7 @@ jobs:
           path: |
             artifacts/flow/
             artifacts/cadence/
+            artifacts/performance/
   rescue:
     runs-on: ubuntu-latest
     timeout-minutes: 6

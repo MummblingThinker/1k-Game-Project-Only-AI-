@@ -326,10 +326,13 @@ try {
   await d.waitForFunction(()=>document.querySelector('#game').dataset.alive==='true');
   await d.waitForFunction(()=>{try{return JSON.parse(document.querySelector('#debug-report').value).events.some(e=>e.type==='checkpoint-revive');}catch{return false;}});
   assert.equal(await d.locator('#spectator-status').isVisible(),false,'revival returns camera to own survivor');
+  await walk(d,518); // Clear the hatch so this test measures climbing, not a human stack.
   await walk(b,491);
   // A remote server may process release after the snapshot that reached the
   // target. Settle with short input pulses before testing the narrow hatch.
   await align(b,489);
+  await b.waitForFunction(()=>Number(document.querySelector('#game').dataset.playerY)>=118);
+  assert.ok(Number(await b.locator('#game').getAttribute('data-player-y'))>=118,'ladder ascent starts below its roof');
   const climberId=JSON.parse(await b.locator('#game').getAttribute('data-players'))[0].id;
   await d.evaluate(async()=>{window.readQaState=(await import('/js/game.js')).readDebugSnapshot;});
   await b.keyboard.press('e');

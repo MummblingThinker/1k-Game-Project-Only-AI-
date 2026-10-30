@@ -559,3 +559,44 @@ Evidence: local npm test artifacts/gap-band-test-2.log; clean extraction artifac
 
 - Extended run completed PASS: 1200 seeded cases / 5,074,324 simulation ticks, valid carry/capture ownership, finite positions, bounded hearts and unique fatal events. npm test also PASS after mixed-input correction, artifacts/mixed-input-test.log.
 - Public browser rerun 41017210822 job 123936155668 failed earlier at the short driver's relay wait (line 270), so it did not verify the ladder alignment correction. Added settled alignment at the relay and failure position diagnostics. Full public campaigns 41017210764 are running on live 1f92e662; hold deployment until those rooms finish.
+
+## 2026-10-30 SYS-04 evidence audit
+
+Audited all 28 previously checked tasks against their dated PASS records. The index below names the command/procedure and supporting result; it does not upgrade deferred physical/human acceptance. Failed runs remain preserved. SYS-04 VERIFIED after this audit and npm run verify:board. Future verified tasks must add dated evidence.
+
+| Task | Date | Procedure and PASS evidence |
+| --- | --- | --- |
+| MVP-01 | 2026-10-28 | Two fresh-load Chrome 156.0.8078.49 keyboard/click victories, replay/title and console inspection; detailed MVP-01 browser acceptance above. |
+| MVP-02 | 2026-10-28 | Two independent Chrome sessions, shared relay/bridge/victory/replay, invalid code and second-room isolation; detailed MVP-02 acceptance above. |
+| UI-001 | 2026-10-30 | node scripts/browser-test.mjs; desktop/narrow native captions/HUD inspected, 8e54252c job 123928251198. |
+| QA-001 | 2026-10-30 | npm run check in npm test, artifacts/mixed-input-test.log. |
+| QA-002 | 2026-10-30 | npm run smoke in npm test; HTTP/modules/11 bundled image assets/404 PASS, same log. |
+| QA-003 | 2026-10-30 | node --check on all 45 JS/MJS files under public/js, server and scripts; exit 0. |
+| SYS-01 | 2026-10-30 | python scripts/package-release.py --verify; 94-file clean extraction without node_modules PASS, artifacts/release-verify-0708.log. Multiplayer explicitly skipped without dependencies. |
+| SYS-02 | 2026-10-30 | npm run test:rules and isolated rules-mutation-test.mjs; explicit boundaries PASS and intentionally wrong solo heart value fails. |
+| SYS-03 | 2026-10-30 | Browser harness/compatibility scripts on clean Chromium 156, Firefox 157 and WebKit 27.2; 8e54252c run 41014693950 all five jobs PASS. |
+| CORE-01 | 2026-10-30 | browser-flow-test.mjs two opening/death/retry/victory/replay/title loops; jobs 123913551627 and 123928251384 PASS. |
+| CORE-02 | 2026-10-30 | npm test collision/fixed-step checks plus browser-cadence-test.mjs; job 123928251384 emulated 30/60/120 callback rates PASS. |
+| NET-01 | 2026-10-30 | multiplayer-test.mjs four clients/fifth rejection, invalid code, room isolation and host transfer; local/current public WSS PASS. |
+| NET-02 | 2026-10-30 | multiplayer-test.mjs ready/start-once plus browser-test.mjs two/four-context ready flow; run 41014693950 PASS. |
+| NET-03 | 2026-10-30 | multiplayer-test.mjs forged/null intentions and abuse-test.mjs state injection; artifacts/mixed-input-test.log and abuse-test.log PASS. |
+| NET-05 | 2026-10-30 | multiplayer-test.mjs one actual death charge despite invented reports; rules/system deduplication PASS in npm test. |
+| NET-06 | 2026-10-30 | disconnect-test.mjs jump/capture/death/checkpoint/transition, cleanup/new identity; artifacts/disconnect-test.log and job 123928251198 PASS. |
+| NET-08 | 2026-10-30 | multiplayer-test.mjs separate rooms/cleanup plus abuse-test.mjs isolated oversized sender; local/public WSS PASS. |
+| COOP-04 | 2026-10-30 | multiplayer-test.mjs simultaneous E, range rejection and one shared bridge transition; local/public PASS. |
+| COOP-05 | 2026-10-30 | systems-test.mjs expiry/cap/no-free-stun, disconnect-test.mjs and browser-rescue-test.mjs; jobs 123916811942 / 123928251006 PASS. |
+| LIFE-02 | 2026-10-30 | rules-test.mjs explicit every-range heart table and campaign-test.mjs counts 1-16 PASS. |
+| LIFE-03 | 2026-10-30 | rules-test.mjs and systems-test.mjs zero/one/multiple dead, oldest-first, one benefit and cap PASS. |
+| LIFE-04 | 2026-10-30 | rules-test.mjs original-party reset plus full browser matrix 41013264131 stage revival/hearts PASS. |
+| LIFE-06 | 2026-10-30 | systems-test.mjs every ladder/crowded exits/blocked hatch/breach; browser own/peer roof assertion job 123928251198 PASS. Public short-driver timing failures remain separate and unresolved. |
+| LIFE-08 | 2026-10-30 | systems-test.mjs report isolation and browser-test.mjs actual pit death/download/revival/spectator return; job 123913551383 PASS. |
+| QA-004 | 2026-10-30 | TEST_PARTY=1 browser-campaign-test.mjs opening/all 15/default ending; jobs 123908986500 and 123923702930 PASS. |
+| QA-005 | 2026-10-30 | TEST_PARTY=2/3/4 browser-campaign-test.mjs all 15/default stories plus targeted actual rescue/revival; run 41013264131 PASS. |
+| QA-009 | 2026-10-30 | abuse-test.mjs rate/size/creation limits and malformed isolation; artifacts/abuse-test.log PASS, exact cases above. |
+| EXTRA-02 | 2026-10-30 | check-project.mjs invalid/blocked storage, browser/compatibility reload-resume full hearts; run 41014693950 PASS. |
+
+Fresh archive SHA256 e3f8a38c0d756800972ef7a829582e0f0cc73453116cb33310271d69b451d334. This snapshot predates later handoff/test updates and will be refreshed before cutoff.
+
+## 2026-10-30 QA-008 renderer profiling started
+
+Added browser-performance-test.mjs: 240 measured native-canvas frames after warmup for Levels 10/12/14/15, four survivors, full/reduced effects, forced raster readback, renderer median/p95 and actual requestAnimationFrame intervals. Working target is a 60fps desktop presentation; CI rejects a renderer p95 over the 30fps CPU floor (33.34ms). This measures a headless CI runner, not representative physical hardware or full GPU presentation. Profile execution pending; QA-008 remains IN_PROGRESS.
