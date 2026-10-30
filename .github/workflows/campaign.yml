@@ -26,6 +26,7 @@ jobs:
       - run: npm run test:jitter
       - run: npm run test:live-campaign
       - run: npm run test:disconnect
+      - run: npm run test:abuse
       - run: npm install --no-save --package-lock=false playwright
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser

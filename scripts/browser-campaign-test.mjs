@@ -6,9 +6,9 @@ import {routeIntent} from './route-driver.mjs';
 
 const party=Number(process.env.TEST_PARTY||2),first=Number(process.env.TEST_FIRST_LEVEL||1),last=Number(process.env.TEST_LAST_LEVEL||15);
 assert.ok([1,2,3,4].includes(party)&&first>=1&&last<=15&&first<=last);
-const base='http://127.0.0.1:4198',sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const server=spawn(process.execPath,['server/server.js'],{env:{...process.env,PORT:'4198'},stdio:'inherit'});
-let browser;const peers=[],errors=[],results=[],losses=[];
+const base=process.env.BROWSER_BASE_URL||'http://127.0.0.1:4198',sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const server=process.env.BROWSER_BASE_URL?null:spawn(process.execPath,['server/server.js'],{env:{...process.env,PORT:'4198'},stdio:'inherit'});
+let browser,createdRoom;const peers=[],errors=[],results=[],losses=[];
 async function until(test,label,timeout=10000){const end=Date.now()+timeout;while(Date.now()<end){if(await test())return;await sleep(40);}throw Error('Timed out: '+label);}
 async function input(peer,intent){
   const mapping={left:'ArrowLeft',right:'ArrowRight',jump:'Space'};
@@ -23,16 +23,17 @@ try {
   await mkdir('artifacts/browser-campaign',{recursive:true});
   await until(async()=>{try{return(await fetch(base+'/health')).ok;}catch{return false;}},'server');
   browser=await chromium.launch({headless:true});
-  console.log('Full campaign browser:',browser.version(),'independent contexts:',party);
+  console.log('Full campaign browser:',browser.version(),'independent contexts:',party,'origin:',base);
   for(let i=0;i<party;i++){
     const context=await browser.newContext({viewport:{width:1280,height:900}});
-    const page=await context.newPage(),peer={context,page,held:{}};peers.push(peer);
+    const page=await context.newPage(),peer={context,page,held:{},roomErrors:[]};peers.push(peer);
     page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
     page.on('websocket',socket=>socket.on('framereceived',({payload})=>{
       const frame=String(payload);if(!frame.startsWith('42'))return;
       const [event,value]=JSON.parse(frame.slice(2));
       if(event==='roomState')peer.state=value;
       if(event==='roomJoined')peer.state=value.state;
+      if(event==='roomError')peer.roomErrors.push(value);
     }));
     await page.goto(base+(i===0?'/?debug=1':''));
   }
@@ -49,6 +50,7 @@ try {
     await host.page.locator('#create-room').click();
   await host.page.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);
   const code=await host.page.locator('#game').getAttribute('data-room');
+  createdRoom=code;
   for(const peer of peers.slice(1)){
     await peer.page.locator('#room-code').fill(code);await peer.page.locator('#join-room').click();
     await peer.page.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);
@@ -102,8 +104,15 @@ try {
   }
   if(last===15)assert.ok(peers.every(p=>p.state.phase==='ending'),'shared default ending');
   if(party>1)await Promise.all(peers.map(p=>p.page.locator('#leave-room').click()));
-  await until(async()=> (await(await fetch(base+'/health')).json()).rooms===0,'cleanup');
-  await writeFile('artifacts/browser-campaign/result.json',JSON.stringify({browser:browser.version(),party,results,losses,seconds:Math.round((Date.now()-started)/1000),errors},null,2));
+  if(server)await until(async()=> (await(await fetch(base+'/health')).json()).rooms===0,'cleanup');
+  else if(createdRoom){
+    await Promise.all(peers.map(p=>p.page.waitForFunction(()=>document.querySelector('#game').dataset.room==='')));
+    await host.page.locator('#room-code').fill(createdRoom);await host.page.locator('#join-room').click();
+    await until(()=>host.roomErrors.some(e=>/not found/i.test(e)),'own public room removed');
+    assert.equal(await host.page.locator('#game').getAttribute('data-room'),'');
+    console.log('Public campaign cleanup PASS: own room removed; other rooms preserved.');
+  }
+  await writeFile('artifacts/browser-campaign/result.json',JSON.stringify({browser:browser.version(),origin:base,party,results,losses,seconds:Math.round((Date.now()-started)/1000),errors},null,2));
   console.log('Browser campaign PASS:',party,'independent contexts; actual UI/keyboard and observed WebSocket snapshots; no state mutation; stages',first,'through',last);
 }catch(error){
   console.error(error);
@@ -112,4 +121,4 @@ try {
     await writeFile('artifacts/browser-campaign/state-'+i+'.json',JSON.stringify(peers[i].state,null,2)||'null');
   }
   await writeFile('artifacts/browser-campaign/partial.json',JSON.stringify({results,losses,errors},null,2));process.exitCode=1;
-}finally{await browser?.close();server.kill('SIGTERM');}
+}finally{await browser?.close();server?.kill('SIGTERM');}

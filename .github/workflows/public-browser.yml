@@ -1,4 +1,5 @@
 name: Public browser acceptance
+# Live 1f92e662 includes robot frames and the remote ladder alignment check.
 on:
   workflow_dispatch:
   push:

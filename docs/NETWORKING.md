@@ -1,21 +1,28 @@
 # Networking notes
 
-## Verified local slice
+Express serves the client and Socket.IO owns separate in-memory rooms. Random six-character codes, four-player cap, no login. Join in the lobby; every guest marks Ready before the host starts. Host controls practice-stage selection, replay, Continue and shared story skip. Host transfers on departure. Empty rooms are removed; a server restart clears rooms. There is no persistent reconnect identity: a disconnected player joins a new lobby.
 
-Express serves the client; Socket.IO owns independent rooms. Random six-character codes; four-player cap. Join while in the lobby. Host starts/replays Level 1. Host transfers on departure; empty rooms are removed. Running geometry/heart cap retain original party size.
+## Authority and shared state
 
-Elapsed-time fixed steps advance physics at 60Hz, with snapshots near 20Hz. Clients send boolean movement/jump and interact/start/replay intentions, never trusted positions/hearts. Server validates relay proximity/cooldown/one-time activation, opens the bridge/gate, and completes only when every living survivor reaches the shelter. Snapshots include giant/checkpoint/platform/relay state. Death deducts on one alive-to-dead transition; broader recovery semantics remain unverified.
+One simulation owns movement, collision, carried players/crates, rescue, enemies, shelters, ladders, pressure bridges, route relays, boss phases, hearts, revival and completion. Clients send intentions only. Running geometry and heart cap retain the original lobby size when somebody leaves. A full stage transition revives everyone and restores that cap; a checkpoint grants one oldest-dead revival OR one heart, once.
 
-Input heartbeat is independent of drawing. Key-up/blur releases movement; server stops stale input after 90 ticks. ESC does not pause online. Disconnect clears identity; join a new lobby. Late/foreign room snapshots are ignored.
+Physics advances at 60 fixed steps per second; snapshots normally arrive at 20Hz. Input heartbeat is independent of drawing. Release/blur clears movement; stale input expires after 90 simulation ticks. Escape releases online input and does not pause the shared world. Remote visual interpolation is bounded; death, teleports, run changes and long stalls reset it. It never changes authoritative collision.
 
-GET /health reports status and room count. Hosting needs one persistent Node instance with WebSockets and assigned PORT. Memory-only rooms disappear on restart. Public service: https://tiny-teamwork-last-spark.onrender.com. Hosted HTTPS/assets checks passed; physical-device/network acceptance remains MVP-03, IMPLEMENTED_UNVERIFIED.
+Public game: https://tiny-teamwork-last-spark.onrender.com. Render My Workspace, one free Node instance, HTTPS/WSS, assigned PORT, manual deploys. /health reports readiness and room count. No database, cloud save or multi-instance room routing is configured. Solo stage progress and sound/visual preferences are local browser storage.
 
-## Evidence
+## Bounds and diagnostics
 
-npm test includes network-client-test.mjs and multiplayer-test.mjs. The latter starts a real server on a free port and tests actual independent WebSocket sessions: lifecycle/errors/capacity, forged/null inputs, shared relay/bridge/gate/victory/replay, isolation, stale movement, one death charge, host transfer and cleanup. Without TEST_BASE_URL it explicitly skips when Socket.IO is absent, preserving offline checks. Set TEST_BASE_URL to the public HTTPS origin to test actual WSS sessions without starting a local server. Remote cleanup probes only test-created room codes.
+Each socket is limited to 120 input packets and 20 other actions per second. Creating rooms is limited to eight per minute per socket and 200 active rooms globally. Packets over 4096 bytes are rejected by Socket.IO. Boolean/range/ownership validation ignores forged authoritative fields. These bounds are basic protection, not a claim of resistance to distributed attacks.
 
-Chrome clients at localhost and 127.0.0.1 completed co-op victory/replay, then verified separate room states and clean consoles. These are local sessions, not public internet proof. See the MVP-02 entry in QA_LOG.md.
+Optional ?debug=1 reports contain a bounded stage-event history and no participant/session identifiers. Own-room report requests have a separate 900ms limit. Reports stay local unless a player chooses to share a download.
 
-## Deferred
+## Verification
 
-Later campaign/story synchronization, carry/throw/rescue, movable crates, advanced enemies, identity restoration, latency smoothing, broad checkpoint cases and physical-device/network tests.
+- npm test: physics/rules, 60 routes, 45 unchanged co-op routes with one remaining survivor, HTTP/assets, network-client cleanup/interpolation, and actual independent WebSocket lifecycle/relay/victory/room isolation.
+- npm run test:disconnect: jump, capture, death, checkpoint and stage-transition departures; fresh identity and cleanup.
+- npm run test:jitter: real TCP delays of 60-140ms each direction, input release/shared state/host handoff.
+- npm run test:abuse: isolated local server creation/action/input budgets, oversized sender isolation, malformed/forged fields and cleanup. Never aims abuse traffic at production.
+- Browser workflows exercise isolated Chromium sessions, Firefox/WebKit compatibility, actual rescue/revival/ladder, repeated retry/title flows and full campaigns. Public workflows use the deployed origin and check only their own room cleanup.
+- Long local soaks exercise eight rooms/32 clients. These are local stability measurements, not Render capacity guarantees.
+
+Exact source revisions, results and failed runs are in QA_LOG.md; current deployment is in PROJECT_STATUS.md. Physical-device/network acceptance and human balance/audio review remain deferred. An external CI browser is not a physical phone test.
