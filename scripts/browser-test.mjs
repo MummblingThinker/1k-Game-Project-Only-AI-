@@ -226,7 +226,7 @@ try {
   // Party-scaled shelter moved its exit step; jump it before approaching the relay.
   await Promise.all([walk(a,509),walk(b,509)]);
   await Promise.all([jump(a),jump(b)]);
-  await Promise.all([walk(a, 530), walk(b, 520)]);
+  await Promise.all([walk(a, 550), walk(b, 560)]);
   await a.keyboard.press('e');
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.switchActive === 'true')));
   const cover = await a.screenshot({ path: 'artifacts/cover.jpg', type: 'jpeg', quality: 78 });
