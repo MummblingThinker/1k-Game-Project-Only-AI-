@@ -95,6 +95,14 @@ try {
   await solo.keyboard.press('Escape');await solo.waitForTimeout(300);
   await solo.keyboard.up('ArrowRight');await solo.keyboard.up('Space');
   assert.ok(Math.abs(await x(solo)-pausedX)<1,'resume clears held input');
+  // One JS task recreates an interaction press immediately followed by focus
+  // loss before the next frame. Neither the room nor game state is modified.
+  await solo.evaluate(()=>{
+    document.querySelector('#game').dispatchEvent(new KeyboardEvent('keydown',{code:'KeyE',bubbles:true}));
+    window.dispatchEvent(new Event('blur'));
+  });
+  await solo.waitForTimeout(150);
+  assert.ok(!JSON.parse(await solo.locator('#game').getAttribute('data-players'))[0].carryId,'blur discards an unprocessed interaction press');
   await solo.keyboard.press('f');
   await solo.waitForFunction(()=>!!JSON.parse(document.querySelector('#game').dataset.players)[0].carryId);
   await solo.keyboard.press('q');

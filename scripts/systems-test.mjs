@@ -8,6 +8,41 @@ const runAt = (level = 2, count = 2) => {
   startLevel(run, level, true); return run;
 };
 const check = (label, fn) => { fn(); console.log('Systems PASS: ' + label); };
+check('all authored robot patrols remain on their floor and outside protected zones',()=>{
+  let observed=0;
+  for(let level=2;level<=15;level++){
+    const r=runAt(level,2);r.world.giant.wakeTicks=100000;
+    const identities=r.world.enemies.map(e=>e.id);
+    for(let tick=0;tick<1200;tick++){
+      stepRun(r);
+      for(const e of r.world.enemies){
+        assert.ok(e.x>=e.minX&&e.x<=e.maxX,`patrol bounds ${level}/${e.id}`);
+        assert.ok(r.world.floors.some(f=>e.x>=f.x&&e.x+e.w<=f.x+f.w),`solid ground ${level}/${e.id}`);
+        assert.ok(!r.world.checkpoints.some(c=>e.x+e.w>c.x&&e.x<c.x+c.w));
+        if(r.world.boss)assert.ok(e.x+e.w<r.world.boss.x);
+        if(r.world.coveredWay)assert.ok(e.x+e.w<r.world.coveredWay.x);
+        assert.equal(e.phase,'patrol');assert.ok(!e.dead);assert.equal(e.stunned,0);
+      }
+    }
+    assert.deepEqual(r.world.enemies.map(e=>e.id),identities);observed+=identities.length;
+  }
+  assert.ok(observed>30);
+});
+check('sentinel scanner and bomber complete their full warning before a lethal phase',()=>{
+  for(const kind of ['sentinel','scanner','creeper']){
+    const r=runAt(2,2),[a,b]=[...r.players.values()];
+    Object.assign(a,{x:920,y:129,onGround:true});Object.assign(b,{x:1100,y:129,onGround:true});
+    const e={id:'tell',kind,x:920,y:kind==='scanner'?75:123,w:20,h:28,minX:920,maxX:920,dir:1,speed:0,phase:'patrol',timer:0,stunned:0};
+    r.world.enemies=[e];const hearts=r.hearts,duration=kind==='creeper'?120:90;
+    stepRun(r);assert.equal(e.phase,'warning');assert.equal(e.timer,duration);
+    for(let t=0;t<duration;t++){assert.equal(r.hearts,hearts);assert.equal(a.capture??null,null);stepRun(r);}
+    assert.equal(e.phase,'attack');assert.ok(a.alive,'warning transition itself grants the final tick');
+    stepRun(r);assert.equal(a.alive,false);assert.equal(r.hearts,hearts-1);
+    for(let t=0;t<24;t++)stepRun(r);
+    assert.equal(r.hearts,hearts-1);assert.equal(e.phase,'recover');assert.ok(!e.dead);
+    assert.equal(b.alive,true);assert.equal(a.capture??null,null);
+  }
+});
 check('later robots observe deaths earlier in the same tick',()=>{
   for(const overlap of [false,true]){
     const r=runAt(4,2),[a,b]=[...r.players.values()];

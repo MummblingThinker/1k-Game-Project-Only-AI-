@@ -486,14 +486,14 @@ window.addEventListener('keydown', (event) => {
   syncTextUI();
 });
 window.addEventListener('keyup', (event) => { keys.delete(event.code); sendNetworkInput(); });
-window.addEventListener('blur', () => { keys.clear(); touchInput.left=false; touchInput.right=false; touchInput.jump=false; touchInput.interact=false; sendNetworkInput(); });
+window.addEventListener('blur', () => { keys.clear(); justPressed.clear(); touchInput.left=false; touchInput.right=false; touchInput.jump=false; touchInput.interact=false; sendNetworkInput(); });
 
 $('continue-level').addEventListener('click', nextLevel);
 $('watch-player').addEventListener('click', watchNextPlayer);
 $('story-next').addEventListener('click', advanceCutscene);
 $('pause-game').addEventListener('click', () => {
   if (network.inRoom) {
-    keys.clear(); touchInput.left = touchInput.right = touchInput.jump = false;
+    keys.clear(); justPressed.clear(); touchInput.left = touchInput.right = touchInput.jump = false;
     network.sendInput({}, true); announce('ONLINE RUN KEEPS GOING / INPUT RELEASED');
   } else if (gameState === 'playing' || gameState === 'paused') {
     keys.clear();justPressed.clear();touchInput.left=touchInput.right=touchInput.jump=false;
