@@ -45,7 +45,11 @@ try{
   for(const peer of peers)await peer.page.locator('#game').focus();
   // Drive the authored route to just beyond its second pit, with ordinary jumps.
   await until(async()=>{
-    for(const peer of peers){const p=peer.state.you;await input(peer,p.x<830?routeIntent(peer.state).input:{});}
+    for(const peer of peers){
+      const p=peer.state.you,intent=p.x<830?routeIntent(peer.state):{input:{}};
+      await input(peer,intent.input);
+      if(intent.interact&&Date.now()-(peer.lastUse||0)>230){peer.lastUse=Date.now();await peer.page.keyboard.press('e');}
+    }
     return peers.every(p=>p.state.you.x>=830&&p.state.you.onGround);
   },'approach grabber',35000);
   await until(async()=>{
