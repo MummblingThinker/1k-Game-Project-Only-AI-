@@ -19,6 +19,15 @@ try{
  const a=new Peer(0),b=new Peer(1);await until(()=>a.connected&&b.connected,'handshake');a.send('createRoom');await until(()=>a.id,'create');b.send('joinRoom',{roomCode:a.state.roomCode});await until(()=>b.id&&a.state.players.length===2,'join');b.send('ready',{ready:true});await until(()=>a.state.players.every(p=>p.ready),'ready');a.send('startRun');await until(()=>a.state.phase==='playing'&&b.state.phase==='playing','start');
  assert.equal(a.state.world.revision,2);b.send('input',{x:999999,y:-999,left:false,right:false,jump:false});await sleep(100);assert.ok(b.state.you.x<100,'forged position ignored');
  const deadline=Date.now()+90000;let ladderVerified=false;
+ // Walking in front of the facade is now valid, so do not assume the general
+ // campaign controller happens to climb it. Deliberately exercise W here.
+ const firstLadder=a.state.world.ladders[0];
+ await until(()=>{
+   const p=a.state.you,dx=firstLadder.x-p.x;
+   if(p.climbing&&p.y<a.state.world.floorY-44)return true;
+   a.send('input',{left:dx<-5,right:dx>5,up:Math.abs(dx)<12});
+   return false;
+ },'deliberate network ladder approach',12000);
  while(Date.now()<deadline&&a.state.phase==='playing'){
    if(!ladderVerified&&a.state.you.climbing&&a.state.you.y<a.state.world.floorY-44){
      for(const p of peers)p.send('input',{});await sleep(150);const heldY=a.state.you.y;

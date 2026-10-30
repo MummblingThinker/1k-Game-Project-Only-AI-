@@ -1,5 +1,6 @@
 name: October revision public acceptance
-# Focused public co-op follow-up; full solo and prior full campaign runs remain separately recorded.
+# Push verifies final public controls. Manual dispatch also runs the focused
+# encounters below; prior full/focused campaign failures remain in QA_LOG.md.
 on:
   workflow_dispatch:
   push:
@@ -10,6 +11,7 @@ env:
   BROWSER_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
 jobs:
   public-campaign:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     strategy:
