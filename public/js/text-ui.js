@@ -23,7 +23,7 @@ export function createTextUI() {
       lobby: ['YOUR CO-OP ROOM', roomCode || '', 'Share the code with your team.', 'Everyone joins before the host starts the run.', isHost ? 'Choose Start co-op run or press Enter' : 'Waiting for the host to start'],
       paused: ['TAKE A BREATHER', 'Paused', '', 'Your solo run is paused.', 'Esc to resume / R to restart'],
       gameover: ['THE MACHINES ARE STILL OUT THERE', 'Run over', '', 'Your team is down. Try the escape again.', roomCode ? (isHost ? 'R to restart the room / Enter to leave' : 'Wait for the host to restart / Enter to leave') : 'R to try again / Enter for title'],
-      ending: ['THE LAST SPARK', 'The factory is silent.', '', 'But red lights still glow in the dark. A new journey will be needed.', 'Press Enter to return to title'],
+        ending: ['THE LAST SPARK', 'The factory is silent.', '', 'The survivors never see the red lights awaken behind them. Then, darkness.', 'Press Enter to return to title'],
     }[state];
     if (copy) {
       ['scene-kicker', 'scene-title', 'scene-subtitle', 'scene-body', 'scene-hint'].forEach((id, index) => text(id, copy[index]));
@@ -40,10 +40,29 @@ export function createTextUI() {
         const quadrant = ['forestChase', 'gate'].includes(visual) ? 'forest'
           : ['swarm', 'factoryDoor', 'assemblyReveal'].includes(visual) ? 'factory'
           : ['celebration', 'darkTwist'].includes(visual) ? 'ending' : 'city';
+          const notes = {
+            invasion: ['Built to protect.', 'Ordered to obey.', 'Now, run.'],
+            chase: ['Do not look back.', 'They are gaining.', 'Keep moving!'],
+            survivors: ['One small spark.', 'A hand to hold.', 'Stay together.'],
+            gate: ['The barricade falls.', 'Beyond the city.', 'Into the trees.'],
+            forestChase: ['Branches break.', 'Red lights follow.', 'The hunt continues.'],
+            swarm: ['A hundred eyes.', 'Stay beneath the roof.', 'No room for machines.'],
+            factoryDoor: ['The door gives way.', 'Something is moving.', 'Listen.'],
+            assemblyReveal: ['Another chassis.', 'Another awakening.', 'They never stop.'],
+            celebration: ['The core is dark.', 'We made it.', 'For one breath.'],
+            darkTwist: ['A light behind them.', 'Too late to turn.', 'Silence.'],
+          }[visual] || ['', '', ''];
         const cells = Array.from({ length: 3 }, (_, index) => {
           const cell = document.createElement('div');
-          cell.className = `comic-cell comic-${quadrant}`;
+            cell.className = 'comic-cell';
           cell.style.setProperty('--panel', index);
+            const art = document.createElement('div');
+            art.className = `comic-art comic-${quadrant}`;
+            art.setAttribute('aria-hidden', 'true');
+            const caption = document.createElement('span');
+            caption.className = 'comic-note';
+            caption.textContent = notes[index];
+            cell.append(art, caption);
           return cell;
         });
         $('comic-panels').replaceChildren(...cells);

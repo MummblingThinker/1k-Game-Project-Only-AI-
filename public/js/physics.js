@@ -41,7 +41,7 @@ export function stepPlayer(player, input, world, dt = 1) {
   p.vy = Math.min(5.1, p.vy + GRAVITY * dt);
 
   const oldX = p.x;
-  p.x += p.vx * dt;
+  p.x += (p.vx * (world.moveScale ?? 1) + (world.groundDrift ?? 0)) * dt;
   p.x = Math.max(0, Math.min(world.width - p.w, p.x));
 
   // Wall/block contacts do not let the player clip through crate-sized props.
@@ -53,6 +53,7 @@ export function stepPlayer(player, input, world, dt = 1) {
     }
   }
 
+  const previousTop = p.y;
   const previousBottom = p.y + p.h;
   p.y += p.vy * dt;
   p.onGround = false;
@@ -67,7 +68,7 @@ export function stepPlayer(player, input, world, dt = 1) {
       p.y = solid.y - p.h;
       p.vy = 0;
       p.onGround = true;
-    } else if (horizontally && p.vy < 0 && p.y <= solid.y + solid.h && previousBottom > solid.y + solid.h) {
+    } else if (horizontally && p.vy < 0 && p.y <= solid.y + solid.h && previousTop >= solid.y + solid.h) {
       p.y = solid.y + solid.h;
       p.vy = 0;
     }

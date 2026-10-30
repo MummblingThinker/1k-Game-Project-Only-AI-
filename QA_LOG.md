@@ -278,3 +278,19 @@ Status: IN_PROGRESS; automated evidence does not substitute for full human campa
 - Local `node scripts/live-campaign-test.mjs` exited 0 at 02:17 UTC: real two-client room, host-only stage selection, full Level 15 input-only route, three background-boss core cycles, pursuer exclusion, shared victory/story/ending, guest authority rejection. Output saved artifacts/live-campaign.log. Added standalone npm command and CI step; not added to Render's fast build check.
 - Local server now limits message bursts and room creation; shared action notices update HUD. These changes await published CI/deployment.
 - Submission draft now describes the campaign and references the real cover. Physical-device/network evidence, eligibility and human preview/submission remain pending; no contest submission attempted.
+
+## 2026-10-30 CAMP-01 shelter and action corrections
+
+Status: IN_PROGRESS. New source fixes, supported by focused shared-engine tests and complete local npm test PASS.
+
+- Drop with empty hands no longer picks up a crate; carry/drop no longer activate boss pylons. Use cannot start a boss before all living players enter. Jump input now gives bounded edge-triggered capture struggle, sharing the existing four-extension cap with direction changes.
+- The stricter boss-entry rule exposed players previously trapped by shelter geometry. Removed overlapping nearby ledges and left a full player-width gap between roof and side steps. Giant breach now removes the shelter's physical roof/steps.
+- Conveyor motion previously applied after collision and could embed players inside a step. Water/conveyor motion now runs through player collision resolution. Upward head collision now checks the previous head position, avoiding downward ejection when already overlapping a side edge.
+- Added direct movement checks for both exits and roof access at every expanded shelter. All pass. Added conveyor wall and head-crossing regressions; all pass.
+- Updated route bots to retain dodge movement through the attack and choose direction from the marked impact location (previous direction reversed near the right arena edge). No world positions are injected during campaign traversal. All 60 routes pass again; Level 15 party-three completes with four hearts in this deterministic formation.
+- `npm test` PASS including shared systems, campaign, HTTP/assets, board, network-client and real WebSocket integration. Real-client finale rerun pending completion before publication.
+- Published previous hardening/materials commit 5add33b892afd8fce4b7d7956229441b9df3a874; Actions 40991256223 passed all npm tests, live finale and Chromium browser checks.
+- Hosted campaign HTTP/WSS regression rerun 40984883623 (job 123854312747) completed success against live 9b3097d, including assets and full multiplayer regression. Physical devices remain untested.
+- Rendered story screenshot from job 123853949710 inspected: text is sharp and panels reveal, but repeated full-frame atlas crops distort illustration proportions. Next visual refinement will preserve aspect ratio and use focused crops with captions inside each panel.
+
+Follow-up: real-client Level 15 rerun PASS after shelter/input/terrain fixes (npm run test:live-campaign, local Node 24.20.0, two actual WebSocket clients). Comic art now preserves its 3:2 quadrant proportions inside cropped cells and includes native-text captions per cell. End card aligned with the established tragic ending. Browser visual recheck queued for the new source.

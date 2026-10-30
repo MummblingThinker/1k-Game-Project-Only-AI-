@@ -160,8 +160,11 @@ export function buildLevel(levelId = 1, partySize = 1) {
     while (world.pits.some(p => x + 64 > p.x && x - 50 < p.x + p.w)) x += 90;
     const cp = { x: Math.round(x), y: 125, w: 48, h: 26, active: false, destroyed: false };
     world.checkpoints.push(cp);
-    world.platforms.push({ x: cp.x, y: 113, w: 48, h: 5, kind: 'shelter-roof' },
-      { x: cp.x - 19, y: 132, w: 15, h: 5, kind: 'step' }, { x: cp.x + 52, y: 132, w: 15, h: 5, kind: 'step' });
+    // Leave a full player-width of head clearance between roof and side steps.
+    // Nearby decorative ledges must not form an inescapable low ceiling.
+    world.platforms = world.platforms.filter(p => p.kind === 'stone' || p.x + p.w < cp.x - 50 || p.x > cp.x + cp.w + 50);
+    world.platforms.push({ x: cp.x, y: 113, w: 48, h: 5, kind: 'shelter-roof', shelterX: cp.x },
+      { x: cp.x - 31, y: 132, w: 15, h: 5, kind: 'step', shelterX: cp.x }, { x: cp.x + 64, y: 132, w: 15, h: 5, kind: 'step', shelterX: cp.x });
   }
   const bossX = milestone ? width - 690 : width;
   const switchXs = milestone ? [600, 1800, 3000] : [560, 1160, 2280];

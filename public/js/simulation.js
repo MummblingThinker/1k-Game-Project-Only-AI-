@@ -98,8 +98,10 @@ export function interactRun(run, id, action = 'use') {
   if (run.tick - (p.lastInteractionTick ?? -60) < 12) return false;
   p.lastInteractionTick = run.tick;
   if (p.carryId) { detach(run, p, action !== 'drop'); run.notice = action === 'drop' ? 'Set down safely.' : 'Thrown. Watch the landing!'; return true; }
+  if (action === 'drop') return false;
   const boss = run.world.boss;
-  if (boss && !boss.solved && p.x >= boss.x) {
+  if (action === 'use' && boss && !boss.solved && p.x >= boss.x) {
+    if (boss.phase === 'waiting') { run.notice = 'Wait for every living survivor to enter the blast door.'; return false; }
     const target = boss.pylons.find(s => !s.active && near(p, s));
     if (target) {
       if (boss.kind === 'gatewarden' && (boss.phase !== 'exposed' || target.order !== [1, 0, 2][boss.activeRelay])) {
@@ -155,10 +157,12 @@ function updateEnemies(run) {
       victim.x = e.x + 4; victim.y = world.floorY - victim.h;
       victim.capture.remaining -= 1 / 60;
       const dir = victim.input?.left ? -1 : victim.input?.right ? 1 : 0;
-      if (dir && dir !== victim.capture.lastDirection) {
+      const jump = !!victim.input?.jump;
+      if ((dir && dir !== victim.capture.lastDirection) || (jump && !victim.capture.lastJump)) {
         if (victim.capture.struggle < 4) { victim.capture.remaining += .12; victim.capture.struggle++; }
-        victim.capture.lastDirection = dir;
       }
+      if (dir) victim.capture.lastDirection = dir;
+      victim.capture.lastJump = jump;
       if (victim.capture.remaining <= 0) killPlayer(run, victim, 'Capture timer expired');
       continue;
     }
@@ -225,12 +229,12 @@ export function stepRun(run) {
     const previousX = p.x;
     const supports = participants.filter(o => o.id !== p.id && o.alive && !o.carriedBy && !o.capture && p.y + p.h <= o.y + 3).map(o => ({ x: o.x, y: o.y, w: o.w, h: 2, kind: 'teammate' }));
     const playerWorld = { ...world, platforms: [...world.platforms, ...supports] };
+    for (const t of world.terrain || []) if (p.onGround && p.x + p.w > t.x && p.x < t.x + t.w) {
+      if (t.kind === 'water') playerWorld.moveScale = .65;
+      if (t.kind === 'conveyor') playerWorld.groundDrift = t.direction * .45;
+    }
     stepPlayer(p, p.input || {}, playerWorld);
     if (world.boss && world.boss.phase !== 'waiting' && !world.boss.solved) p.x = Math.max(world.boss.x, p.x);
-    for (const t of world.terrain || []) if (p.x + p.w > t.x && p.x < t.x + t.w && p.onGround) {
-      if (t.kind === 'water') p.x -= p.vx * .35;
-      if (t.kind === 'conveyor') p.x += t.direction * .45;
-    }
     for (const cp of world.checkpoints) if (!cp.active && !cp.destroyed && previousX + p.w < cp.x && p.x + p.w >= cp.x) recover(run, cp);
     if (p.y > world.height - 6) killPlayer(run, p, 'Fell into a pit', true);
     p.lastX = previousX;
@@ -252,7 +256,10 @@ export function stepRun(run) {
   }
   // Absolute, fixed-speed pursuit: no rubber-band or player-position catch-up.
   world.giant.x = Math.min(b ? b.x - 48 : world.width, world.giant.x + world.giant.speed);
-  for (const cp of world.checkpoints) if (world.giant.x + 35 >= cp.x) { cp.destroyed = true; }
+  for (const cp of world.checkpoints) if (!cp.destroyed && world.giant.x + 35 >= cp.x) {
+    cp.destroyed = true;
+    world.platforms = world.platforms.filter(p => p.shelterX !== cp.x);
+  }
   for (const p of participants) if (p.alive && (!b || p.x < b.x) && world.giant.x + 44 > p.x + 4) killPlayer(run, p, 'The pursuer caught you', true);
   if (run.phase !== 'playing') return;
   const alive = participants.filter(p => p.alive);

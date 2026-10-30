@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createPlayer } from '../public/js/physics.js';
+import { createPlayer, stepPlayer } from '../public/js/physics.js';
 import { startLevel, stepRun, interactRun, killPlayer, releaseParticipant, safeFromOrdinary } from '../public/js/simulation.js';
 const runAt = (level = 2, count = 2) => {
   const run = { players: new Map(Array.from({ length: count }, (_, slot) => [`p${slot}`, { ...createPlayer(`p${slot}`), slot }])) };
@@ -43,6 +43,7 @@ check('safe shelter blocks ordinary attacks; giant still breaches and kills inst
   stepRun(r); assert.ok(a.alive && b.alive);
   a.invulnerability = 90; r.world.giant.x = a.x - 35;
   stepRun(r); assert.ok(cp.destroyed); assert.equal(a.alive, false);
+  assert.equal(r.world.platforms.some(p => p.shelterX === cp.x), false, 'breach removes roof and steps');
 });
 check('blast affects each player once, never a negative heart pool', () => {
   const r = runAt(2, 4), all = [...r.players.values()];
@@ -76,4 +77,71 @@ check('boss order, stun window, survival requirement and background core cycles 
   p15.x = b15.x + 310; b15.phase = 'stunned'; b15.timer = 400; b15.pylons.forEach(s => { s.active = true; });
   interactRun(r15, p15.id); assert.equal(b15.cycle, 1); assert.equal(b15.solved, false);
 });
+check('drop/carry cannot use relays, and boss waits for the living party', () => {
+  const r = runAt(15), [a, b] = [...r.players.values()], boss = r.world.boss;
+  a.x = boss.pylons[0].x;
+  assert.equal(interactRun(r, a.id), false);
+  assert.equal(boss.activeRelay, 0); assert.equal(boss.phase, 'waiting');
+  r.tick += 12; assert.equal(interactRun(r, a.id, 'drop'), false);
+  assert.equal(boss.activeRelay, 0);
+  b.x = boss.x + 20; stepRun(r); assert.notEqual(boss.phase, 'waiting');
+  r.tick += 12; interactRun(r, a.id, 'carry'); assert.equal(boss.activeRelay, 0);
+  r.tick += 12; assert.equal(interactRun(r, a.id), true); assert.equal(boss.activeRelay, 1);
+  const r2 = runAt(1), p = r2.players.get('p0'), crate = r2.world.crates[0];
+  p.x = crate.x; assert.equal(interactRun(r2, p.id, 'drop'), false);
+  assert.equal(p.carryId, null); assert.equal(crate.carriedBy, null);
+});
+check('jump struggle is edge-triggered and shares the four-extension cap', () => {
+  const r = runAt(), [a, b] = [...r.players.values()], e = r.world.enemies.find(e => e.kind === 'grabber');
+  a.x = e.x; b.x = e.x + 100; stepRun(r); assert.ok(a.capture);
+  a.input = { jump: true };
+  for (let i = 0; i < 10; i++) stepRun(r);
+  assert.equal(a.capture.struggle, 1);
+  for (let i = 0; i < 12; i++) { a.input = { jump: i % 2 === 1 }; stepRun(r); }
+  assert.equal(a.capture.struggle, 4);
+});
+check('every expanded shelter has usable ground exits and a reachable roof', () => {
+  for (let level = 2; level <= 15; level++) {
+    const reference = runAt(level, 1);
+    for (let index = 0; index < reference.world.checkpoints.length; index++) {
+      for (const direction of [-1, 1]) {
+        const r = runAt(level, 1), p = r.players.get('p0'), cp = r.world.checkpoints[index];
+        r.world.enemies = []; r.world.giant.speed = 0;
+        p.x = cp.x + 20; p.y = 129;
+        let escaped = false;
+        for (let i = 0; i < 140; i++) {
+          p.input = { left: direction < 0, right: direction > 0, jump: p.onGround && !p.lastJump };
+          stepRun(r);
+          if (direction > 0 ? p.x > cp.x + cp.w + 32 : p.x < cp.x - 32) { escaped = true; break; }
+        }
+        assert.ok(escaped, 'shelter exit ' + level + '/' + index + '/' + direction);
+      }
+      const r = runAt(level, 1), p = r.players.get('p0'), cp = r.world.checkpoints[index];
+      r.world.enemies = []; r.world.giant.speed = 0;
+      p.x = cp.x - 50; p.y = 129;
+      let landed = false, onStep = false, aboveRoof = false;
+      for (let i = 0; i < 240; i++) {
+        if (p.onGround && p.y + p.h === 132) onStep = true;
+        if (onStep && p.y + p.h <= 113) aboveRoof = true;
+        const target = aboveRoof ? cp.x + 16 : cp.x - 28;
+        p.input = { right: p.x < target - 1, left: p.x > target + 2, jump: p.onGround && !p.lastJump };
+        stepRun(r);
+        if (p.onGround && p.y + p.h === 113 && p.x >= cp.x && p.x < cp.x + cp.w) { landed = true; break; }
+      }
+      assert.ok(landed, 'reachable shelter roof ' + level + '/' + index);
+    }
+  }
+});
+check('conveyor drift respects walls and upward ceiling collisions use the head crossing', () => {
+  const w = { width: 300, floors: [{ x: 0, y: 151, w: 300, h: 30 }], platforms: [{ x: 100, y: 120, w: 20, h: 31 }], crates: [], groundDrift: .45 };
+  const p = createPlayer('p', 88, 129); p.onGround = true;
+  for (let i = 0; i < 120; i++) stepPlayer(p, {}, w);
+  assert.equal(p.x, 88); assert.equal(p.y, 129);
+  w.platforms = [{ x: 80, y: 100, w: 50, h: 6 }]; w.groundDrift = 0;
+  p.x = 90; p.y = 108; p.vy = -5;
+  stepPlayer(p, {}, w); assert.equal(p.y, 106); assert.equal(p.vy, 0);
+  p.y = 90; p.vy = -5;
+  stepPlayer(p, {}, w); assert.ok(p.y < 90, 'existing overlap must not eject player downward through floor');
+});
 console.log('Shared systems regression complete.');
+

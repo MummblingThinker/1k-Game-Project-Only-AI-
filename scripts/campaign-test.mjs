@@ -63,7 +63,7 @@ function drive(r, id = 'p0') {
     else if (b.kind === 'gatewarden') target = b.pylons[[1, 0, 2][b.activeRelay] ?? 2].x;
     else if (b.kind === 'background' && b.phase === 'stunned') target = b.x + 310;
     else target = b.pylons.find(s => !s.active)?.x ?? b.x + 190;
-    if (b.phase === 'warning' && b.timer < 45 && Math.abs(p.x - b.targetX) < 60) target = b.targetX + (p.x > b.x + b.w - 110 ? -85 : 85);
+    if (((b.phase === 'warning' && b.timer < 45) || b.phase === 'attack') && Math.abs(p.x - b.targetX) < 60) target = b.targetX + (b.targetX > b.x + b.w - 110 ? -85 : 85);
   }
   const pit = w.pits.find(pit => p.x + p.w > pit.x - 8 && p.x < pit.x + pit.w && !w.platforms.some(s => s.kind === 'switch-bridge' && s.x === pit.x));
   const blockedLedge = w.platforms.some(s => p.y + p.h > s.y + 3 && (target > p.x ? s.x >= p.x + p.w - 1 && s.x < p.x + p.w + 4 : p.x >= s.x + s.w - 1 && p.x < s.x + s.w + 4));
@@ -74,10 +74,14 @@ function drive(r, id = 'p0') {
   if (Math.abs(p.x - target) < 23 && r.tick % 13 === 0) interactRun(r, p.id);
 }
 for (const count of [1, 2, 3, 4]) for (let level = 1; level <= 15; level++) {
+  if (process.env.TEST_LEVEL && level !== Number(process.env.TEST_LEVEL)) continue;
+  if (process.env.TEST_PARTY && count !== Number(process.env.TEST_PARTY)) continue;
   const r = runAt(level, count);
   for (let tick = 0; tick < 24000 && r.phase === 'playing'; tick++) {
     for (const p of r.players.values()) drive(r, p.id);
+    const beforeDeaths = r.deathEvents.length;
     stepRun(r);
+    if (process.env.TRACE_CAMPAIGN && r.deathEvents.length > beforeDeaths) console.log(JSON.stringify({ tick:r.tick, deaths:r.deathEvents.slice(beforeDeaths), players:[...r.players.values()].map(p=>({id:p.id,x:p.x,y:p.y,alive:p.alive,input:p.input})), boss:r.world.boss }));
   }
   const p = r.players.get('p0');
   assert.equal(r.phase, 'victory', `Level ${level}: phase=${r.phase} x=${p.x.toFixed(1)} y=${p.y.toFixed(1)} hearts=${r.hearts} boss=${JSON.stringify(r.world.boss)} notice=${r.notice}`);
