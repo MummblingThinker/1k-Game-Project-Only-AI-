@@ -39,7 +39,8 @@ section('long relay bridge cannot be jumped and opens exactly once',()=>{
 section('pressure bridge latches for crossing, durable weights reset after pit loss',()=>{
   const r=runAt(6),w=r.world,plate=w.plates[0],weight=w.crates.find(c=>c.plateId===plate.id);
   weight.x=plate.x+4;weight.y=plate.y-weight.h;tick(r);assert.equal(plate.held,true);assert.ok(w.platforms.some(s=>s.plateId===plate.id));
-  weight.x=weight.homeX;tick(r,60);assert.equal(plate.remaining,420);
+  weight.x=weight.homeX;tick(r,60);assert.equal(plate.remaining,30);
+  tick(r,30);assert.equal(plate.remaining,0);assert.ok(!w.platforms.some(s=>s.plateId===plate.id),'bridge closes without a sustained weight');
   weight.y=w.height+30;tick(r);assert.equal(weight.used,false);assert.equal(weight.x,weight.homeX);
 });
 section('ladders reach solid roof, wall jump reverses velocity, negative altitude is supported',()=>{

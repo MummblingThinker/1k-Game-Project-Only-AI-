@@ -42,7 +42,7 @@ export function interactRevision(run,id,action,{detach,playersOf}){
     if(w.memory&&!w.memory.read&&Math.abs(p.x-w.memory.x)<22){w.memory.read=true;run.notice='MEMORY: '+MEMORY_FRAGMENTS[run.level];return true;}
   }
   const teammate=action==='carry'&&playersOf(run).find(o=>o.id!==id&&o.alive&&!o.carriedBy&&!o.carryId&&near(p,o,25));
-  const c=teammate||w.crates.find(c=>!c.used&&!c.carriedBy&&near(p,c,27));
+  const c=teammate||w.crates.filter(c=>!c.used&&!c.carriedBy&&near(p,c,27)).sort((a,b)=>Number(b.durable)-Number(a.durable)||Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
   if(c){c.carriedBy=id;c.flightTicks=0;p.carryId=c.id;run.notice=teammate?'Teammate lifted. F throws; Q sets down.':'Object lifted. E/F throws; Q sets down. Yellow weights never break.';return true;}
   return false;
 }
@@ -153,7 +153,7 @@ export function stepRevision(run,api){
   if(run.tick%120===0)w.crates=w.crates.filter(c=>!c.used||c.durable);
   for(const plate of w.plates){
     plate.held=[...alive(run).filter(p=>!p.carriedBy),...w.crates.filter(c=>!c.used&&!c.carriedBy)].some(o=>o.x+o.w>plate.x&&o.x<plate.x+plate.w&&Math.abs(o.y+o.h-plate.y)<2);
-    plate.remaining=plate.held?480:Math.max(0,plate.remaining-1);
+    plate.remaining=plate.held?90:Math.max(0,plate.remaining-1);
     const bridge=w.platforms.find(s=>s.plateId===plate.id);
     if(plate.remaining&&!bridge)w.platforms.push({x:plate.bridgeX,y:plate.y,w:plate.bridgeW,h:8,kind:'pressure-bridge',plateId:plate.id});
     if(!plate.remaining&&bridge)w.platforms=w.platforms.filter(s=>s!==bridge);
@@ -161,13 +161,14 @@ export function stepRevision(run,api){
   for(const p of people){
     p.gestureTicks=Math.max(0,(p.gestureTicks||0)-1);p.hitTicks=Math.max(0,(p.hitTicks||0)-1);
     if(!p.alive||p.carriedBy)continue;
+    const previousX=p.x;
     for(const block of w.platforms.filter(s=>s.kind==='breakable'))if(p.vy>2&&p.x+p.w>block.x&&p.x<block.x+block.w&&p.y+p.h<=block.y+3&&p.y+p.h+p.vy+.24>=block.y){breakBlock(run,block);p.vy=-3;}
     const supports=people.filter(o=>o!==p&&o.alive&&!o.carriedBy&&p.y+p.h<=o.y+3).map(o=>({x:o.x,y:o.y,w:o.w,h:2,kind:'teammate'}));
     const pw={...w,platforms:[...w.platforms,...supports]};
     for(const t of w.terrain)if(p.onGround&&p.x+p.w>t.x&&p.x<t.x+t.w){if(t.kind==='water')pw.moveScale=.7;else pw.groundDrift=t.direction*.35;}
     stepPlayer(p,p.input||{},pw);
     if(b&&b.phase!=='waiting'&&!b.solved&&!['escape','breach'].includes(b.phase))p.x=Math.max(b.x,p.x);
-    for(const cp of w.checkpoints)if(!cp.active&&near(p,cp,20)){
+    for(const cp of w.checkpoints)if(!cp.active&&(near(p,cp,20)||(previousX+p.w<cp.x&&p.x+p.w>=cp.x&&p.y+p.h<=cp.y+cp.h+8))){
       cp.active=true;cp.reachedTick=run.tick;run.respawnX=cp.x;run.respawnY=cp.y+cp.h-p.h;run.hearts++;run.heartMax=Math.max(run.heartMax,run.hearts);
       const down=people.filter(q=>!q.alive).sort((a,b)=>a.timeDead-b.timeDead)[0];
       if(down)Object.assign(down,api.makeParticipant(down.id,down.slot,w),{x:cp.x,y:run.respawnY,invulnerability:120});

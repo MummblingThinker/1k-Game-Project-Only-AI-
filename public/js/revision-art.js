@@ -67,7 +67,7 @@ export function drawRevision(c,w,player,peers,cameraX,state,drawSurvivor){
   for(const s of w.scenery)if(s.x>cameraX-100&&s.x<cameraX+400)scenery(c,s,t);
   if(w.coveredWay&&cameraX+320>w.coveredWay.x&&cameraX<w.coveredWay.x+w.coveredWay.w){
     const r=w.coveredWay;
-    for(let i=0;i<100;i++){const x=r.x+(i*71+Math.sin(t*.001+i)*24)%r.w,y=r.y-20-i%4*10;rect(c,x,y,9,4,'#8299a5');rect(c,x+3,y+3,3,2,'#f08074');rect(c,x-2,y-2,13,1,'#506c7e');}
+    for(let i=0;i<(state.reducedEffects?25:100);i++){const x=r.x+(i*71+Math.sin(t*.001+i)*24)%r.w,y=r.y-20-i%4*10;rect(c,x,y,9,4,'#8299a5');rect(c,x+3,y+3,3,2,'#f08074');rect(c,x-2,y-2,13,1,'#506c7e');}
     for(let x=r.x;x<r.x+r.w;x+=100){rect(c,x,r.y,5,w.floorY-r.y,'#516b7b');rect(c,x+9,r.y+17,32,22,'#223d4a');rect(c,x+10,r.y+18,30,2,'#7e989c');}
     label(c,'HUMAN ACCESS ONLY',r.x+20,r.y+26,'#bcd2be');
   }
@@ -108,7 +108,7 @@ export function drawRevision(c,w,player,peers,cameraX,state,drawSurvivor){
   for(const p of [player,...peers])if(p.alive){drawSurvivor(c,p,p.x,t,state.reducedMotion);label(c,'P'+((p.slot??p.colorIndex??0)+1),p.x,p.y-9,['#f8ce83','#9ee4de','#f1b0c2','#bdc7ff'][(p.slot||0)%4]);if(p.carryId)label(c,'THROW',p.x-5,p.y-21);}
   const g=w.giant;if(g.x>cameraX-100&&g.x<cameraX+350){rect(c,g.x,w.floorY-190,65,190,'#526577');rect(c,g.x-10,w.floorY-180,85,48,'#7a8e99');rect(c,g.x+40,w.floorY-166,23,7,'#ef9e7e');for(let j=0;j<3;j++)rect(c,g.x+8+j*17,w.floorY-116,8,65,'#253b50');}
   const f=w.finish;rect(c,f.x,f.y,f.w,f.h,f.locked?'#705552':'#4b8c83');rect(c,f.x+4,f.y+4,f.w-8,f.h-4,'#193d48');rect(c,f.x+6,f.y+5,f.w-12,3,f.locked?'#d48b70':'#a4e6c0');label(c,f.locked?'LOCKED':'EXIT',f.x,f.y-6);
-  for(const e of w.breakEffects){const age=tick-e.tick,count=e.kind==='boss'?48:12;for(let i=0;i<count;i++){const a=i*2.4,speed=1+i%5*.35,dx=Math.cos(a)*age*speed*.45,dy=Math.sin(a)*age*.7+age*age*.012;rect(c,e.x+dx,e.y+dy,e.kind==='boss'?4:2,e.kind==='boss'?4:2,['#d6b57b','#8ba2ad','#e5845f','#f3d69d'][i%4]);}}
+  for(const e of state.reducedEffects||state.reducedMotion?[]:w.breakEffects){const age=tick-e.tick,count=e.kind==='boss'?48:12;for(let i=0;i<count;i++){const a=i*2.4,speed=1+i%5*.35,dx=Math.cos(a)*age*speed*.45,dy=Math.sin(a)*age*.7+age*age*.012;rect(c,e.x+dx,e.y+dy,e.kind==='boss'?4:2,e.kind==='boss'?4:2,['#d6b57b','#8ba2ad','#e5845f','#f3d69d'][i%4]);}}
   c.restore();
   if(b&&!b.solved&&b.phase!=='waiting'){rect(c,95,5,130,10,'#182637');if(b.kind==='climber'){rect(c,98,8,124*b.hp/b.maxHp,4,'#de8772');label(c,'WARDEN',139,22);}else label(c,b.kind==='chainsaw'?'CHAINSAW — RUN >':b.phase==='escape'?'< RUN LEFT':'RISING LAVA — CLIMB',103,12);}
 }

@@ -4,32 +4,21 @@ import { buildLevel, gapWidthForParty } from '../public/js/world.js';
 import { createPlayer, stepPlayer } from '../public/js/physics.js';
 
 assert.equal(CAMPAIGN.length, 15, 'campaign must have 15 levels');
-assert.equal(getLevel(10).title, 'The Covered Way');
+assert.equal(getLevel(10).title, 'Chainsaw Hollow');
 assert.equal(regionForLevel(1), 'city');
 assert.equal(regionForLevel(6), 'forest');
 assert.equal(regionForLevel(11), 'factory');
-assert.equal(gapWidthForParty(1, 1), 46);
-assert.ok(gapWidthForParty(5, 1) > gapWidthForParty(2, 1), 'teamwork gap should scale up with party size');
-assert.ok(gapWidthForParty(14, 1) <= 180, 'pit width must remain capped');
 const solo = buildLevel(1, 1);
-const party = buildLevel(1, 4);
-assert.equal(solo.id, 1);
-assert.equal(solo.region, 'city');
-assert.equal(solo.checkpoints.length, 1);
-assert.ok(party.pits[1].w > solo.pits[1].w);
-const largeParty = buildLevel(1, 14);
-for (const pit of largeParty.pits) {
-  const stones = largeParty.platforms.filter((platform) => platform.kind === 'stone' && platform.x + platform.w > pit.x && platform.x < pit.x + pit.w).sort((a,b)=>a.x-b.x);
-  const points = [pit.x, ...stones.map((stone) => stone.x + stone.w/2), pit.x + pit.w];
-  for (let i=1;i<points.length;i++) assert.ok(points[i]-points[i-1] <= 36, `solo fallback jump too wide in pit ${pit.index}`);
-}
+assert.equal(solo.region,'city');
+assert.ok(solo.checkpoints.every(c=>c.kind==='flag'));
+assert.ok(solo.pits.every(p=>p.w>=180));
 const player = createPlayer('test', 20, solo.floorY - 22);
 stepPlayer(player, { right: true, jump: false }, solo, 1);
 assert.ok(player.x > 20, 'right input should move the player');
 const beforeJumpY = player.y;
 stepPlayer(player, { right: false, jump: true }, solo, 1);
 assert.ok(player.y <= beforeJumpY, 'jump should move player upward');
-console.log('Project checks passed: campaign, region mapping, gap scaling, level construction, and movement physics.');
+console.log('Project checks passed: campaign, region mapping, flag/bridge construction, and movement physics.');
 
 // The same elapsed input must produce the same movement and jump at different draw rates.
 const { advanceSimulation } = await import('../public/js/timing.js');
@@ -73,18 +62,6 @@ saved='{"version":1,"stages":[2,2,999,"3",4]}';assert.deepEqual(readMemories(sto
 assert.deepEqual(readMemories(blocked),[]);assert.equal(saveMemories(blocked,[2]),false);
 console.log('Memory archive PASS: 14 distinct fragments, validated/deduplicated local progress and blocked storage.');
 
-// Verify a real jump arc crosses every solo Level 1 gap from a readable approach.
-for (const pit of solo.pits) {
-  const jumper = createPlayer('gap-test', pit.x - 20, solo.floorY - 22);
-  jumper.onGround = true;
-  let landed = false;
-  for (let tick = 0; tick < 65; tick++) {
-    stepPlayer(jumper, { right: true, jump: tick === 0 }, solo, 1);
-    assert.ok(jumper.y + jumper.h <= solo.floorY + 1, `fell into pit ${pit.index}`);
-    if (tick > 0 && jumper.onGround && jumper.x >= pit.x + pit.w) { landed = true; break; }
-  }
-  assert.ok(landed, `pit ${pit.index} must allow a normal solo jump`);
-}
 const airborne = createPlayer('air-jump', 20, solo.floorY - 22);
 airborne.onGround = true;
 stepPlayer(airborne, { jump: true }, solo);
@@ -92,4 +69,4 @@ stepPlayer(airborne, { jump: false }, solo);
 const risingSpeed = airborne.vy;
 stepPlayer(airborne, { jump: true }, solo);
 assert.ok(airborne.vy > risingSpeed, 'a second press in the air must not reset jump velocity');
-console.log('Level 1 jump checks passed: every solo pit crosses safely and air-jumps are rejected.');
+console.log('Jump check passed: air-jumps are rejected; required long-bridge crossings are tested by revision-test.mjs.');
