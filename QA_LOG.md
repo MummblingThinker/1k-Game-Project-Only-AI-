@@ -390,3 +390,19 @@ Deployment/packaging follow-up: Render dep-dbi08ics728c73buufu0 for d56fc94 repo
 - Compatibility CI 41001927331: Firefox 157.0 PASS (job 123888071175), all stage inputs, pause, saved resume, separate co-op contexts/readiness, phone comic/reduced motion, no browser errors. Screenshot recovered and inspected. A 100-drone render fixture measured median/p95 draw 1/1ms and rAF 17/18ms on CI; not representative-device gameplay evidence.
 - WebKit job 123888070896 failed a 150ms stage-input assertion after navigation. It now waits for actual playing state, explicitly focuses the canvas and waits up to three seconds for observed movement, with diagnostics on failure. This remains unresolved until rerun. Campaign job also retained the known x420 shelter-driver failure.
 - Added original throw/hit poses, distinct falling hands, robot patrol feet/grab arms/recovery sensors, scanner beam columns and explicit SCAN/BLAST/STRIKE countdown labels. Nearby ordinary threats now explain the escape action in the native objective text. All npm tests PASS; expanded nine-pose visual fixture and updated browser suite await CI. No combat/health values changed.
+
+## 2026-10-30 NET-01 / NET-03 / NET-05 / NET-08 VERIFIED
+
+Evidence: full local npm test; source 235b36248854655a1905da83d1c4266c52dd5a19 CI 41002413091 (campaign job 123889620800); independent Chromium co-op contexts; public HTTPS/WSS smoke 41001685781 rerun, job 123891664012 PASS against live 235b362. Render dep-dbi1ogom7kps73bklim0 LIVE, finished 04:26:31 UTC.
+
+- NET-01: actual clients create distinct random six-character rooms, reject invalid codes and a fifth participant, join/leave four-player rooms and transfer host authority on departure. Positive and negative assertions pass.
+- NET-03: clients submit boolean intentions; forged coordinates/hearts, null fields, distant use and unauthorized host actions are rejected/ignored. Shared physics, captures, carry state and life rules execute on the server. Actual-client and browser regressions pass.
+- NET-05: one fatal transition consumes one shared heart; duplicate client death messages and repeated fatal handling do not charge again. Unit boundary tests, real-client death test and seeded adversarial cases pass.
+- NET-08: two simultaneous rooms receive no foreign snapshots/objectives; malformed/forged message cases do not crash the server; local empty rooms reach health count zero and public tests probe only their own removed room codes. These are bounded automated tests, not an exhaustive security audit or physical-device claim.
+
+## 2026-10-30 cross-browser bundle and invitations
+
+- Source 235b362 passed Chromium 156.0.8078.4, Firefox 157.0 and WebKit 27.2 in CI 41002413091. Phone layout/reduced-motion/save-resume/co-op readiness passed in Firefox and WebKit; full tutorial relay/victory/next-stage, pause/pickup, audio, touch and phone autoscroll passed in Chromium. New nine-pose contact sheet inspected.
+- Firefox and WebKit headless 100-drone render fixtures measured p95 draw 1ms and p95 frame interval 18/19ms respectively. CI timers are coarse; a zero median means below timer resolution, not no rendering cost. Physical hardware/mobile performance remains pending.
+- Added lobby-only Copy invite link. Link fills the room code but does not join automatically; clipboard failure selects the code for manual copying. Browser clipboard/deep-link and four-independent-context ready-order tests added; execution pending. In-game start button now says Co-op run in progress rather than asking for readiness during a running stage.
+- Four-client full sequence with spaced departures and one boss-objective leader is active, session 54199, artifacts/live-sequence-4-spaced.log. This changes only bot strategy, not game physics or state. Soak session 53535 remains active, approaching its 30-minute completion.

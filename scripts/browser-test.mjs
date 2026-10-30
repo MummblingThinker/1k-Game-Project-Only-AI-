@@ -153,7 +153,14 @@ try {
   await a.locator('#create-room').click();
   await a.waitForFunction(() => document.querySelector('#game').dataset.room.length === 6);
   const code = await a.locator('#game').getAttribute('data-room');
-  await b.locator('#room-code').fill(code); await b.locator('#join-room').click();
+  await aContext.grantPermissions(['clipboard-read','clipboard-write']);
+  await a.locator('#copy-invite').click();
+  await a.waitForFunction(()=>document.querySelector('#invite-feedback').textContent.includes('copied'));
+  const invite=await a.evaluate(()=>navigator.clipboard.readText());
+  assert.equal(new URL(invite).searchParams.get('room'),code);
+  await b.goto(invite);assert.equal(await b.locator('#room-code').inputValue(),code);
+  assert.equal(await b.locator('#game').getAttribute('data-room'),'','invitation does not silently join');
+  await b.locator('#join-room').click();
   await a.waitForFunction(() => JSON.parse(document.querySelector('#game').dataset.players).length === 2);
   assert.equal(await a.locator('#start-story').isDisabled(),true,'host waits for guests');
   await b.locator('#room-ready').click();
@@ -177,6 +184,19 @@ try {
   await a.locator('#continue-level').click();
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#region-badge').textContent.includes('LEVEL 02') && document.querySelector('#game').dataset.state === 'playing')));
   await Promise.all([a.locator('#leave-room').click(), b.locator('#leave-room').click()]);
+  const cContext=await browser.newContext(),dContext=await browser.newContext();
+  const c=await pageIn(cContext),d=await pageIn(dContext);
+  await Promise.all([c.goto(base),d.goto(base)]);
+  await a.locator('#create-room').click();await a.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);
+  const fourCode=await a.locator('#game').getAttribute('data-room');
+  for(const page of [b,c,d]){await page.locator('#room-code').fill(fourCode);await page.locator('#join-room').click();await page.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);}
+  await a.waitForFunction(()=>JSON.parse(document.querySelector('#game').dataset.players).length===4);
+  await d.locator('#room-ready').click();await b.locator('#room-ready').click();
+  assert.equal(await a.locator('#start-story').isDisabled(),true,'four-browser host waits for final guest');
+  await c.locator('#room-ready').click();await a.locator('#start-story').click();
+  await Promise.all([a,b,c,d].map(p=>p.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing'&&JSON.parse(document.querySelector('#game').dataset.players).length===4)));
+  await Promise.all([a,b,c,d].map(p=>p.locator('#leave-room').click()));
+  await cContext.close();await dContext.close();
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const phone = await pageIn(mobile); await phone.goto(base + '/?level=1');
   await phone.locator('[data-control=right]').tap();

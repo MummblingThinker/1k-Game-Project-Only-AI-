@@ -116,6 +116,8 @@ const network = new NetworkClient({
     networkPill.classList.toggle('online', !!online);
     networkPill.classList.toggle('offline', !online);
     leaveRoomButton.disabled = !network.inRoom;
+    $('copy-invite').hidden = !network.inRoom || network.latestState?.phase !== 'lobby';
+    if(!network.inRoom || network.latestState?.phase !== 'lobby')$('invite-feedback').textContent='';
     createRoomButton.disabled = network.inRoom;
     joinRoomButton.disabled = network.inRoom;
   },
@@ -172,7 +174,7 @@ const network = new NetworkClient({
     if (signature !== roomUiSignature) {
       roomUiSignature = signature;
     const allReady = data.players.every(p => p.ready);
-    startStoryButton.textContent = host ? allReady ? 'Start co-op run' : 'Waiting for teammates to be ready' : 'Waiting for host to start';
+    startStoryButton.textContent = data.phase !== 'lobby' ? 'Co-op run in progress' : host ? allReady ? 'Start co-op run' : 'Waiting for teammates to be ready' : 'Waiting for host to start';
     startStoryButton.disabled = !host || data.phase !== 'lobby' || !allReady;
     $('room-ready').hidden = data.phase !== 'lobby';
     $('room-ready').disabled = host;
@@ -471,6 +473,18 @@ $('resume-solo').addEventListener('click', () => {
 createRoomButton.addEventListener('click', () => network.createRoom());
 joinRoomButton.addEventListener('click', () => network.joinRoom(roomCodeInput.value));
 $('room-ready').addEventListener('click', () => network.setReady(!lastSnapshot?.you?.ready));
+$('copy-invite').addEventListener('click', async () => {
+  if(!network.inRoom || network.latestState?.phase !== 'lobby')return;
+  const code=network.roomCode,invite=new URL(location.pathname,location.origin);
+  invite.searchParams.set('room',code);
+  try {
+    await navigator.clipboard.writeText(invite.href);
+    $('invite-feedback').textContent='Invite link copied. Friends choose Join, then Ready.';
+  } catch {
+    roomCodeInput.value=code;roomCodeInput.focus();roomCodeInput.select();
+    $('invite-feedback').textContent='Copy the selected room code and share it with your friends.';
+  }
+});
 leaveRoomButton.addEventListener('click', () => { network.leaveRoom(); partySize=1; buildWorld(1, false); returnToTitle(); });
 roomCodeInput.addEventListener('input', () => { roomCodeInput.value = roomCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6); });
 for (const button of document.querySelectorAll('[data-control]')) {
@@ -502,6 +516,13 @@ if (Number.isInteger(queryLevel) && queryLevel>=1 && queryLevel<=15) {
   announce('READY · PRESS START');
 }
 requestAnimationFrame(frame);
+const invitedRoom=new URLSearchParams(location.search).get('room')?.toUpperCase();
+if(invitedRoom && /^[A-HJ-NP-Z2-9]{6}$/.test(invitedRoom)) {
+  roomCodeInput.value=invitedRoom;
+  $('invite-feedback').textContent=`Invitation to ${invitedRoom}. Choose Join Room, then Ready.`;
+  joinRoomButton.focus({preventScroll:true});
+  if(matchMedia('(max-width:850px)').matches)joinRoomButton.closest('.co-op-card').scrollIntoView({block:'start',behavior:'auto'});
+}
 
 // Input is independent of drawing cadence; blur/key-up immediately release remote movement.
 function sendNetworkInput() {
