@@ -27,6 +27,8 @@ Join before the run begins. To add someone later, leave and create a fresh lobby
 
 Touch controls appear on narrow screens. Sound starts after a gesture; mute and volume are saved. Expand Visual options for reduced motion or fewer decorative effects. Gameplay warnings and story timing remain intact.
 
+Keyboard and touch are the supported input methods. There is no native gamepad mapping in this release.
+
 ## Surviving the campaign
 
 There are 15 stages. Normal maps are about three times the Level 1 reference; Levels 5, 10 and 15 are larger milestone encounters. The giant takes about two minutes to traverse a normal map after its entry warning. It does not speed up to catch you. Shelters can restore a shared heart or revive one downed survivor, but the giant eventually breaks them. It cannot enter boss arenas.

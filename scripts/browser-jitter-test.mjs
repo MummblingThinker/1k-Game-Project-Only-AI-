@@ -35,8 +35,12 @@ try{
     await page.goto(base);
   }
   const[a,b]=peers;await a.page.locator('#create-room').click();
-  await until(()=>a.state?.roomCode,'create');await b.page.locator('#room-code').fill(a.state.roomCode);await b.page.locator('#join-room').click();
-  await until(()=>b.state?.players.length===2,'join');await b.page.locator('#room-ready').click();await a.page.locator('#start-story').click();
+  // Socket.IO can deliver the initial lobby over HTTP polling before upgrading
+  // to WebSocket. Use the real UI for setup, then audit gameplay broadcasts.
+  await a.page.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);
+  await b.page.locator('#room-code').fill(await a.page.locator('#game').getAttribute('data-room'));await b.page.locator('#join-room').click();
+  await b.page.waitForFunction(()=>document.querySelector('#game').dataset.state==='lobby');
+  await b.page.locator('#room-ready').click();await a.page.locator('#start-story').click();
   await until(()=>peers.every(p=>p.state?.phase==='playing'),'start');
   await a.page.locator('#game').focus();await sleep(500);
   const before=a.state.you.x;await b.page.evaluate(()=>{window.qaLabels=[];window.qaCapture=true;});

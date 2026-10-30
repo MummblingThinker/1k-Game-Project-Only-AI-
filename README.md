@@ -31,6 +31,8 @@ Create a room, share its six-character code, and join before the host starts. Gu
 
 Touch controls stay at the screen bottom during play on narrow screens. Pause/resume and story advance have touch-accessible buttons. Online Esc releases input while the world continues. Practice a stage or `?level=15` starts a selected stage directly.
 
+Keyboard and touch are supported; native gamepad mapping is not included.
+
 ## Campaign
 
 Level 1 is the roughly 960-unit tutorial/reference. Normal later maps are 3x the reference width; Levels 5/10/15 are 5.5x/6x/6.5x. Routes have authored pits, ledges, shelters, relays, enemy mixes, water, conveyors and cracked salvage that breaks under a stomp or thrown crate. The giant crosses a normal map in about two minutes without catch-up teleportation. Boss boundaries exclude it.
