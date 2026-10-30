@@ -71,11 +71,14 @@ jobs:
       - run: npm install --no-save --package-lock=false playwright
       - run: npx playwright install --with-deps chromium
       - run: node scripts/browser-rescue-test.mjs
+      - run: node scripts/browser-giant-test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: rescue-evidence
-          path: artifacts/rescue/
+          path: |
+            artifacts/rescue/
+            artifacts/giant/
   compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15

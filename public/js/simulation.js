@@ -160,8 +160,10 @@ export function interactRun(run, id, action = 'use') {
 
 function updateEnemies(run) {
   const world = run.world;
-  const alive = playersOf(run).filter(p => p.alive && !p.carriedBy);
   for (const e of world.enemies) {
+    // An earlier robot can kill someone during this same simulation tick.
+    // Later robots must not capture dead bodies or count them as rescuers.
+    const alive = playersOf(run).filter(p => p.alive && !p.carriedBy);
     if (e.stunned > 0) { e.stunned--; e.phase = 'stunned'; continue; }
     if (e.grabbedId) {
       const victim = run.players.get(e.grabbedId);

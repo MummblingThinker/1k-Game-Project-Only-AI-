@@ -8,6 +8,21 @@ const runAt = (level = 2, count = 2) => {
   startLevel(run, level, true); return run;
 };
 const check = (label, fn) => { fn(); console.log('Systems PASS: ' + label); };
+check('later robots observe deaths earlier in the same tick',()=>{
+  for(const overlap of [false,true]){
+    const r=runAt(4,2),[a,b]=[...r.players.values()];
+    Object.assign(a,{x:920,y:129,onGround:true});Object.assign(b,{x:overlap?1200:1330,y:129,onGround:true});
+    r.world.enemies=[
+      {id:'first',kind:'sentinel',x:920,y:123,w:20,h:28,minX:920,maxX:920,dir:1,speed:0,phase:'attack',timer:10,targetX:920,stunned:0},
+      {id:'second',kind:'grabber',x:overlap?920:1330,y:123,w:20,h:28,minX:0,maxX:2000,dir:1,speed:0,phase:'patrol',timer:0,stunned:0}
+    ];
+    stepRun(r);assert.equal(a.alive,false);assert.equal(b.alive,true);assert.equal(r.hearts,3);
+    assert.equal(a.capture,null,'a dead survivor cannot receive a new grab');
+    assert.equal(b.capture??null,null,'last survivor gets a warning rather than a new unrescuable grab');
+    assert.equal(r.world.enemies[1].grabbedId,undefined);
+    assert.equal(r.world.enemies[1].phase,overlap?'patrol':'warning');
+  }
+});
 check('shelter ladder reaches its roof, cancels safely and disappears on breach',()=>{
   for(const direction of [-1,1]){
     const r=runAt(1,1),p=r.players.get('p0'),cp=r.world.checkpoints[0];
