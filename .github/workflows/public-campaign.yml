@@ -1,5 +1,5 @@
 name: Public co-op campaigns
-# Live b724817d; audit caption order, ending blackout and complete shared snapshots.
+# Live 13744978; repeat all 15 levels after arena clearance fix, with full snapshot/caption audits.
 on:
   workflow_dispatch:
   push:

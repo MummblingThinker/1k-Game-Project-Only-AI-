@@ -1,5 +1,5 @@
 name: Public browser acceptance
-# Live b724817d: memory archive, fixed mixed-touch release and settled relay/hatch alignment.
+# Live 13744978: release 0.3.0, arena clearance, input boundaries and readable stacked labels.
 on:
   workflow_dispatch:
   push:
