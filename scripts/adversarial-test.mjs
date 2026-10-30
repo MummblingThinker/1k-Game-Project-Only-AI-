@@ -15,8 +15,17 @@ for (const count of [2, 3, 4]) {
   for (let tick = 0; tick < 80; tick++) stepRun(r);
   assert.ok(top.x > 180 && top.alive, 'top player separates and lands');
   assert.ok(all.every(p => Number.isFinite(p.y)));
+  const ledgeRun=makeRun(2,count),stack=[...ledgeRun.players.values()];
+  ledgeRun.world.enemies=[];ledgeRun.world.giant.speed=0;
+  stack.forEach((p,i)=>{p.x=100;p.y=151-(i+1)*p.h;});
+  for(let t=0;t<120;t++)stepRun(ledgeRun);
+  const climber=stack.at(-1),ledge={x:140,y:climber.y+climber.h-20,w:48,h:6,kind:'stack-test'};
+  ledgeRun.world.platforms.push(ledge);
+  for(let t=0;t<120;t++){climber.input={right:climber.x<150,jump:t===0};stepRun(ledgeRun);}
+  assert.ok(climber.onGround&&climber.x>=ledge.x&&climber.x+climber.w<=ledge.x+ledge.w,'stack reaches raised ledge '+count);
+  assert.equal(climber.y,ledge.y-climber.h);
 }
-console.log('Adversarial PASS: stable 2/3/4-player stacks and clean jump separation.');
+console.log('Adversarial PASS: stable 2/3/4-player stacks, clean jump separation and raised-ledge landing.');
 
 const seedCount=Number(process.env.ADVERSARIAL_SEEDS||120),tickLimit=Number(process.env.ADVERSARIAL_TICKS||1800);
 assert.ok(Number.isInteger(seedCount)&&seedCount>=1&&seedCount<=8000);

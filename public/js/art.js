@@ -447,7 +447,10 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
     if (p.capture) outlinedText(ctx, `HELP ${Math.max(0, p.capture.remaining).toFixed(1)}`, x - 12, p.y - 8, '#ffcc8a');
     else if (all.length > 1) {
       const labelLane=all.filter(q=>(q.slot??0)<(p.slot??0)&&Math.abs(q.x-p.x)<25&&Math.abs(q.y-p.y)<14).length;
-      outlinedText(ctx, `P${(p.slot ?? 0) + 1}${p.alive ? '' : ' DOWN'}`, x - 2, Math.max(8,Math.min(168,p.y-8)-labelLane*9), p.id === player.id ? '#fff0c6' : '#bdd7df');
+      const overhead=all.some(q=>q.id!==p.id&&q.alive&&Math.abs(q.x-p.x)<16&&q.y+q.h<=p.y+3&&q.y+q.h>=p.y-8);
+      const labelX=overhead?(x<20?x+p.w+4:x-16):x-2;
+      const labelY=overhead?p.y+10:Math.min(168,p.y-8)-labelLane*9;
+      outlinedText(ctx, `P${(p.slot ?? 0) + 1}${p.alive ? '' : ' DOWN'}`, labelX, Math.max(8,Math.min(168,labelY)), p.id === player.id ? '#fff0c6' : '#bdd7df');
     }
     if (!p.alive) continue;
     if(p.id===player.id) {

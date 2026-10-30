@@ -1,8 +1,8 @@
 {
   "name": "tiny-teamwork-last-spark",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "Playable pixel-art browser prototype and multiplayer starter for Tiny Teamwork: The Last Spark.",
+  "description": "Fifteen-stage solo and cooperative browser platformer with shared physics, giant robot encounters and original anime comic chapters.",
   "type": "module",
   "scripts": {
     "start": "node server/server.js",

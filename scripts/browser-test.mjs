@@ -147,6 +147,20 @@ try {
     if(same(render(0,false),render(190,false)))throw Error('Full motion must retain animated frames');
     const before=render(190,true);world.enemies[0].phase='warning';world.enemies[0].timer=90;world.enemies[0].targetX=180;
     if(same(before,render(190,true)))throw Error('Reduced motion must preserve semantic warning changes');
+    const labels=[],originalText=ctx.fillText.bind(ctx);
+    ctx.fillText=(text,x,y)=>{if(/^P[1-4]$/.test(text))labels.push({text,x,y,w:ctx.measureText(text).width});originalText(text,x,y);};
+    for(const formation of ['two-pairs','four-stack']){
+      const team=Array.from({length:4},(_,slot)=>{
+        const avatar=createPlayer('label-'+slot,formation==='two-pairs'?27+Math.floor(slot/2)*34:27,formation==='two-pairs'?129-slot%2*24:129-slot*22);
+        avatar.slot=slot;avatar.onGround=true;return avatar;
+      });
+      if(formation==='two-pairs')for(const index of [0,2]){team[index].carryId=team[index+1].id;team[index+1].carriedBy=team[index].id;}
+      labels.length=0;drawGame(ctx,buildLevel(1),team[0],team.slice(1),0,{clock:0,state:'playing'});
+      if(labels.length!==4)throw Error('Four readable participant labels required');
+      for(const label of labels)for(const avatar of team)
+        if(label.x<avatar.x+avatar.w&&label.x+label.w>avatar.x&&label.y-7<avatar.y+avatar.h&&label.y+2>avatar.y)throw Error('Player label overlaps a body in '+formation);
+    }
+    ctx.fillText=originalText;
   });
   const sheet=await fixture.evaluate(()=>{
     const {getSurvivorSheet,SURVIVOR_POSES,survivorPose}=window.renderTools;

@@ -2,6 +2,8 @@
 
 A solo or 2–4-player browser platformer across 15 stages: escape the city, cross the forest, and infiltrate the factory. Gameplay uses original pixel sprites; story scenes reveal original anime illustrations in sequential comic panels.
 
+Campaign release 0.3.0. Physical-device and human balance acceptance remain pending; see verification notes below.
+
 Play: https://tiny-teamwork-last-spark.onrender.com
 
 ## Run locally
