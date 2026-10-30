@@ -366,6 +366,8 @@ function frame(now) {
 
 window.addEventListener('keydown', (event) => {
   if (['INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName)) return;
+  // Let focused native buttons keep their keyboard activation (including sound settings).
+  if (event.target.tagName === 'BUTTON' && ['Space', 'Enter'].includes(event.code)) return;
   const key = event.code;
   if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(key)) event.preventDefault();
   if (!keys.has(key)) justPressed.add(key);

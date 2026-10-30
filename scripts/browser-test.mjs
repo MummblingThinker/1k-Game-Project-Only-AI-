@@ -45,7 +45,8 @@ try {
   const soloContext = await browser.newContext({ viewport: { width: 1800, height: 1200 } });
   const solo = await pageIn(soloContext);
   await solo.goto(base); await solo.waitForFunction(() => document.querySelector('#game').dataset.state === 'title');
-  await solo.locator('#sound-toggle').click();
+  await solo.locator('#sound-toggle').focus();
+  await solo.keyboard.press('Space');
   assert.equal(await solo.locator('#sound-toggle').getAttribute('aria-pressed'), 'false');
   await solo.locator('#sound-volume').evaluate(el => { el.value = '17'; el.dispatchEvent(new Event('input', { bubbles: true })); });
   await solo.reload();
