@@ -1,5 +1,5 @@
 name: Public browser acceptance
-# Live 13744978: release 0.3.0, arena clearance, input boundaries and readable stacked labels.
+# Live 13744978: observe shelter-step jump distance instead of overrunning the next pit on a timer.
 on:
   workflow_dispatch:
   push:

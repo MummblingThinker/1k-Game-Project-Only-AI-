@@ -30,12 +30,15 @@ async function walk(page, target) {
     console.log('BROWSER WALK FAILED',target,await page.locator('#game').getAttribute('data-players'));
     throw error;
   } finally { await page.keyboard.up(direction); }
-  assert.equal(await page.locator('#game').getAttribute('data-alive'), 'true');
+  assert.equal(await page.locator('#game').getAttribute('data-alive'), 'true',`walk to ${target}: ${await page.locator('#game').getAttribute('data-players')}`);
 }
-async function jump(page) {
+async function jump(page, stopAt) {
   await page.keyboard.down('ArrowRight'); await page.keyboard.down('Space');
-  await page.waitForTimeout(950);
-  await page.keyboard.up('Space'); await page.keyboard.up('ArrowRight');
+  try {
+    if(stopAt===undefined)await page.waitForTimeout(950);
+    else await page.waitForFunction(target=>Number(document.querySelector('#game').dataset.playerX)>=target,stopAt,{timeout:5000});
+  } finally {await page.keyboard.up('Space'); await page.keyboard.up('ArrowRight');}
+  if(stopAt!==undefined)await page.waitForTimeout(700);
 }
 async function align(page,target,tolerance=3){
   await page.waitForTimeout(250);
@@ -312,7 +315,9 @@ try {
   await Promise.all([jump(a),jump(b)]);
   // Party-scaled shelter moved its exit step; jump it before approaching the relay.
   await Promise.all([walk(a,509),walk(b,509)]);
-  await Promise.all([jump(a),jump(b)]);
+  // A full timed jump from 509 travels into the next pit at 586 when release
+  // arrives late. Stop after clearing the step, using observed movement.
+  await Promise.all([jump(a,545),jump(b,545)]);
   await Promise.all([walk(a, 550), walk(b, 560)]);
   await align(a,536);
   await a.keyboard.press('e');
