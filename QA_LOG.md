@@ -465,3 +465,10 @@ Evidence: local npm test artifacts/gap-band-test-2.log; clean extraction artifac
 - LIFE-04 VERIFIED: table resets after departure preserve original-party cap and revive remaining players. Full actual-client sequences assert full hearts/all alive after stage transitions with multiple deaths.
 - EXTRA-02 VERIFIED: storage version/range/corruption/blocked-storage tests pass; Chromium/Firefox/WebKit reload/resume starts at entry with full hearts. Save remains local and stage-only.
 - UI-001 VERIFIED: native HTML text for HUD/title/story/pause/results/controls. Desktop and 390px screenshots inspected, including comic-review.jpg; co-op victory/next-stage/no-error checks pass. Physical mobile rendering is a separate pending gate.
+
+## 2026-10-30 full browser results and survivor frames
+
+- Full browser run 41007426199: two isolated Chromium contexts completed all 15 stages and timed stories (job 123905381468). Three contexts completed stages 1-8 then lost all hearts to capture in 9; four completed 1-13 then lost all hearts in 14. These are recorded controller losses, not evidence of a softlock or full three/four-player clearance. New matrix on 408dfc84 includes solo and ordinary struggle inputs.
+- 408dfc84 CI 41008565964: npm/adversarial/jitter/live campaign and Firefox/WebKit PASS. Chromium short tutorial stopped at x509, the relocated shelter exit step at x521. Test now explicitly jumps that step; gameplay geometry unchanged.
+- ART-01: cached original 2080x160 survivor sheet, 13 poses, four frames and four palettes. Added breathing, throw follow-through, airborne carry/throw and slower invulnerability flash. Local syntax/systems PASS; browser tile containment/frame differences and visual inspection pending.
+- Practice guide refreshed for deployed service, invitations/readiness, spectator controls, preferences and optional stage reports.

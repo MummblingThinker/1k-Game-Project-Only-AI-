@@ -1,94 +1,60 @@
-# How to Practice Playing the Current Prototype
+# Playing Tiny Teamwork
 
-The current project is an early browser prototype. The fastest way to try it is **offline single-player**; that mode needs Node.js but does not need `npm install`. Online co-op supports the shared 15-stage campaign; the public service is deployed at https://tiny-teamwork-last-spark.onrender.com, with physical-device/network acceptance still pending.
+Open https://tiny-teamwork-last-spark.onrender.com. The free service can take a moment to wake up. Start the story for solo, resume your saved solo stage, or use the practice-stage selector. Saves remember the stage on this browser and restart it with full hearts; they are not mid-stage or cloud saves.
 
-## 1. Start the single-player version
+## Play together
 
-1. Download and extract `Tiny_Teamwork_The_Last_Spark_Codex_Starter.zip`.
-2. Open a terminal in the extracted `Tiny_Teamwork_The_Last_Spark` folder.
-3. Check that Node.js is available with `node --version` (Node 22+ required).
-4. Run the automated checks first:
+1. The host creates a room and copies its invitation link or six-character code.
+2. Up to three guests open the link and click Join Room. An invitation fills the code; it never joins silently.
+3. Each guest selects Ready. The host starts once everyone is ready.
+4. Activate relays with E and bring every living survivor to the exit. The host continues after victory. Story scenes advance together.
 
-   ```bash
-   npm test
-   ```
+Join before the run begins. To add someone later, leave and create a fresh lobby. Disconnecting removes that survivor; reconnecting does not reclaim the old identity. If the host leaves, a remaining player becomes host. Online Escape releases your controls while the shared world continues.
 
-5. Start the offline server:
+## Controls
 
-   ```bash
-   npm run offline
-   ```
+| Action | Keyboard |
+| --- | --- |
+| Move | A/D or Left/Right |
+| Jump / struggle while grabbed | Space or Up |
+| Interact with relay, beacon or memory | E |
+| Pick up / throw teammate or crate | F |
+| Drop carried teammate or crate | Q |
+| Break free from being carried | Jump |
+| Watch next living teammate while down | V or Watch next button |
+| Continue after victory | N; host online |
+| Pause solo / release online input | Escape |
 
-6. Open **http://localhost:4173** in your browser. Keep the terminal window open while playing. To stop the server, return to the terminal and press **Ctrl+C**.
+Touch controls appear on narrow screens. Sound starts after a gesture; mute and volume are saved. Expand Visual options for reduced motion or fewer decorative effects. Gameplay warnings and story timing remain intact.
 
-The offline mode is local to your computer. It does not publish the game to the internet or enable multiplayer.
+## Surviving the campaign
 
-## 2. Controls
+There are 15 stages. Normal maps are about three times the Level 1 reference; Levels 5, 10 and 15 are larger milestone encounters. The giant takes about two minutes to traverse a normal map after its entry warning. It does not speed up to catch you. Shelters can restore a shared heart or revive one downed survivor, but the giant eventually breaks them. It cannot enter boss arenas.
 
-- **A / D** or **Left / Right arrows:** move.
-- **Space** or **Up arrow:** jump; also advances a cutscene panel.
-- **E:** interact with nearby objects (such as crates or switches); the exact behavior depends on the current situation.
-- **F / Q:** carry or throw / drop a teammate or crate.
-- **N:** continue after victory (host online).
-- **Esc:** pause/resume solo; release controls online while the world continues.
-- **R:** restart from game-over or paused state where supported.
-- **Touch buttons:** appear on narrow screens; test with a physical device before relying on them.
+- Jump pits carefully and use stepping stones. Carry, throw and stack to help a teammate across.
+- Robots are indestructible. Jump onto the robot holding a teammate to stun it and release them. Struggling buys a little time.
+- Water slows movement; conveyors move you. Stomp marked salvage or throw a crate at it to break it.
+- Level 5: bait the gate robot's slam, then use the exposed relay sequence.
+- Level 10: reach three beacons and survive the encounter under the human passage roof.
+- Level 15: evade the background Colossus, activate the pylons, then interact with its exposed core. Repeat for three cycles.
 
-The first goal is simply to learn the jump arc, approach gaps carefully, interact with objects, and observe patrol timing. Robots are not enemies to defeat; the intended design is to evade them and escape.
+The game uses shared hearts. A fatal hit costs one; downed players watch a living teammate until revived. Completing a stage restores the original party's heart pool and all remaining survivors.
 
-## 3. Practice a specific level
+## Run locally
 
-Use the **Practice a stage** dropdown and click **Load Selected Level**. Alternatively, while the server is running, open a level directly:
+Use the current source checkout or extract `release/TinyTeamwork-source.zip`. Node 22 or newer is required. In the project folder:
 
-- `http://localhost:4173/?level=1` — city introduction to the level layout
-- `http://localhost:4173/?level=5` — City Gate / city-to-forest transition setup
-- `http://localhost:4173/?level=6` — forest region
-- `http://localhost:4173/?level=10` — covered walkway / factory reveal setup
-- `http://localhost:4173/?level=11` — factory region
-- `http://localhost:4173/?level=15` — final factory level / ending setup
-
-Valid level numbers are 1–15. Direct test-level loading skips the opening cinematic so you can test that stage. All 15 stages now have authored routes and work in solo/co-op. Levels 5, 10 and 15 include milestone encounters; see CAMPAIGN_BUILD.md for mechanics.
-
-## 4. A useful 10-minute practice session
-
-1. Start Level 1 and run left/right to feel acceleration and stopping distance.
-2. Jump over a pit or onto a ledge; repeat until you can land without rushing.
-3. Walk toward a crate or switch, press **E**, and observe how nearby interactions behave.
-4. Watch a patrol robot rather than trying to fight it. Learn its spacing and avoid contact.
-5. Try a level with the pursuer/checkpoint scenery and note whether the routes feel fair or confusing.
-6. Load Level 5, then Level 10, then Level 15 to inspect the current story panels and regional visual styles.
-7. Write down bugs with the level URL, the action that triggered the issue, and what you expected to happen. Share those notes with Codex and ask it to turn each bug into a reproducible test before fixing it.
-
-Because this is a prototype, an obstacle, animation, or co-op mechanic may not yet behave as the design document specifies. Report those as unfinished tasks rather than assuming you missed a control.
-
-## 5. Practice multiplayer locally
-
-Only after you are ready to install project dependencies:
-
-```bash
-npm install
+```sh
+npm ci
 npm start
 ```
 
-Then:
+Open http://localhost:4173. For local solo without installing dependencies, use `npm run offline` instead. This does not enable multiplayer. Stop either server with Ctrl+C. `npm test` runs the automated regression suite.
 
-1. Open **http://localhost:4173** in a browser and click **Create Room**.
-2. Copy the six-character room code.
-3. Open a second browser session (a private/incognito window is helpful) on the same computer, or open the address on another device on the same network.
-4. Enter the room code in the second session and click **Join Room**.
-5. The host clicks Start co-op run once everyone joins. Jump the first pit; use E near the relay to open the shared bridge/gate. Get every living survivor to the shelter; host can replay after victory.
+For stage practice, use the selector or append `?level=5` (valid stages 1-15). Practice skips the opening story and starts solo at that stage.
 
-Local Level 1 play has been verified with independent clients: server movement, shared relay/bridge/gate, victory/replay and room isolation. Online ESC releases input without pausing. Join before start; create a new lobby to add players. Disconnect clears membership. Advanced co-op and later online campaign remain incomplete. Public HTTPS and physical-device/network tests are unverified. See QA_LOG.md.
+## Report a bug
 
-## 6. How to report a bug so Codex can fix it
+Record the stage, party size, exact actions, expected result and actual result. A screenshot or short recording helps. Optional `?debug=1` adds a local stage report and download button with death/checkpoint timing. Reports omit room codes and player IDs and are never uploaded automatically. Add `&debug=1` if the URL already has a level query.
 
-Record:
-
-- **Level URL:** e.g. `http://localhost:4173/?level=10`
-- **Party size:** solo or number of clients
-- **Steps:** exact actions, in order
-- **Expected:** what the rule/design says should happen
-- **Actual:** what happened instead
-- **Evidence:** screenshot, short recording, terminal/browser-console error, if available
-
-Ask Codex to reproduce the issue, add a test for it, fix it, rerun `npm test`, perform the relevant manual browser test, then update `TASK_LIST.md` and `QA_LOG.md`. It must not mark the task verified if it cannot reproduce or validate the fix.
+Automated browser and socket tests cover the campaign, but physical-device/network acceptance and human difficulty review remain pending. See `QA_LOG.md` for specific tested revisions and known limits.

@@ -1,7 +1,7 @@
 // CI-only browser dependency: npm install --no-save --package-lock=false playwright.
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir } from 'node:fs/promises';
+import { mkdir,writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 
 const base = process.env.BROWSER_BASE_URL || 'http://127.0.0.1:4188';
@@ -114,6 +114,23 @@ try {
     window.renderTools = { ...await import('/js/world.js'), ...await import('/js/physics.js'), ...await import('/js/art.js') };
   });
   await fixture.waitForTimeout(500);
+  const sheet=await fixture.evaluate(()=>{
+    const {getSurvivorSheet,SURVIVOR_POSES,survivorPose}=window.renderTools;
+    const sheet=getSurvivorSheet(),ctx=sheet.getContext('2d'),pixels=ctx.getImageData(0,0,sheet.width,sheet.height).data;
+    if(sheet!==getSurvivorSheet())throw Error('Sprite sheet must be cached');
+    for(let y=0;y<sheet.height;y++)for(let x=0;x<sheet.width;x++){
+      if((x%40===0||x%40===39||y%40===0||y%40===39)&&pixels[(y*sheet.width+x)*4+3])throw Error('Sprite frame spills outside tile');
+    }
+    for(const pose of ['run','throw','idle']){
+      const start=SURVIVOR_POSES.indexOf(pose)*160;
+      const a=ctx.getImageData(start,0,40,40).data,b=ctx.getImageData(start+(pose==='idle'?80:40),0,40,40).data;
+      if(a.every((v,i)=>v===b[i]))throw Error('Missing animated frame for '+pose);
+    }
+    if(survivorPose({alive:true,onGround:false,vy:-3,carryId:'box'})!=='carry-jump')throw Error('Airborne carry pose missing');
+    return sheet.toDataURL('image/png').split(',')[1];
+  });
+  await writeFile('artifacts/survivor-sheet.png',Buffer.from(sheet,'base64'));
+  console.log('SHEET_BASE64_BEGIN'+sheet+'SHEET_BASE64_END');
   await fixture.evaluate(() => {
     for (const level of [2, 3, 7, 9, 10, 11, 12, 13, 14, 15]) {
       const { buildLevel, createPlayer, drawGame } = window.renderTools;
@@ -205,6 +222,9 @@ try {
   await Promise.all([walk(a, 256), walk(b, 256)]);
   await Promise.all([jump(a), jump(b)]);
   await Promise.all([walk(a,400),walk(b,400)]);
+  await Promise.all([jump(a),jump(b)]);
+  // Party-scaled shelter moved its exit step; jump it before approaching the relay.
+  await Promise.all([walk(a,509),walk(b,509)]);
   await Promise.all([jump(a),jump(b)]);
   await Promise.all([walk(a, 530), walk(b, 520)]);
   await a.keyboard.press('e');

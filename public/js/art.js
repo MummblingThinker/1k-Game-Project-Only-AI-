@@ -245,7 +245,7 @@ function drawEncounter(ctx, world, cameraX, clock, reducedEffects=false) {
   }
 }
 
-export function drawSurvivor(ctx, p, x, clock = 0, reducedMotion=false) {
+function drawSurvivorPixels(ctx, p, x, clock = 0) {
   const colors = ['#e7aa55', '#73c5d2', '#d995a7', '#b9a2df'];
   const coat = colors[(p.slot ?? p.colorIndex ?? 0) % colors.length];
   const skin = (p.slot ?? 0) % 2 ? '#d5a77f' : '#edc39a';
@@ -254,7 +254,6 @@ export function drawSurvivor(ctx, p, x, clock = 0, reducedMotion=false) {
   const bob = walking && frame % 2 ? -1 : 0;
   ctx.save(); ctx.translate(rnd(x), rnd(p.y));
   if (p.face < 0) { ctx.translate(p.w, 0); ctx.scale(-1, 1); }
-  if (p.invulnerability > 0 && (reducedMotion||Math.floor(clock / 90) % 2)) ctx.globalAlpha = reducedMotion ? .7 : .45;
   if (!p.alive) {
     if (p.hitTicks > 0) {
       RECT(ctx,1,6,8,7,skin); RECT(ctx,0,4,8,3,'#35313b'); RECT(ctx,2,13,8,6,coat);
@@ -266,7 +265,7 @@ export function drawSurvivor(ctx, p, x, clock = 0, reducedMotion=false) {
     ctx.restore(); return;
   }
   const airborne = !p.onGround;
-  const torso = p.capture ? Math.sin(clock * .025) > 0 ? -1 : 0 : bob;
+  const torso = p.capture ? Math.sin(clock * .025) > 0 ? -1 : 0 : walking?bob:(!airborne?[0,0,-1,0][frame]:0);
   // Original pixel geometry gives each pose a clear silhouette at 12x22.
   RECT(ctx,2,8+torso,9,10,'#172735'); RECT(ctx,3,9+torso,7,8,coat);
   RECT(ctx,6,10+torso,2,7,'#e4d7b8'); RECT(ctx,3,15+torso,7,2,'#435269');
@@ -281,8 +280,9 @@ export function drawSurvivor(ctx, p, x, clock = 0, reducedMotion=false) {
     RECT(ctx,0,5+torso,3,7,coat); RECT(ctx,10,5+torso,3,7,coat);
     RECT(ctx,0,3+torso,3,3,skin); RECT(ctx,10,3+torso,3,3,skin);
   } else if (p.gestureTicks > 0) {
-    RECT(ctx,0,11+torso,3,5,coat); RECT(ctx,10,9+torso,7,3,coat); RECT(ctx,16,8+torso,3,4,skin);
-    RECT(ctx,19,7+torso,3,1,'#e4d7b8');
+    const reach=[0,2,3,1][frame],lift=[1,0,-1,0][frame];
+    RECT(ctx,0,11+torso,3,5,coat); RECT(ctx,10,9+torso+lift,7+reach,3,coat); RECT(ctx,16+reach,8+torso+lift,3,4,skin);
+    if(frame<3)RECT(ctx,19+reach,7+torso+lift,3,1,'#e4d7b8');
   } else if (airborne) {
     RECT(ctx,0,7+torso,3,6,coat); RECT(ctx,10,8+torso,3,5,coat);
     RECT(ctx,-1,(p.vy<0?6:11)+torso,3,3,skin); RECT(ctx,11,(p.vy<0?7:12)+torso,3,3,skin);
@@ -295,6 +295,46 @@ export function drawSurvivor(ctx, p, x, clock = 0, reducedMotion=false) {
   const raised = airborne && p.vy < 0 ? 2 : 0;
   RECT(ctx,3+stride,17,3,5-raised,'#36445b'); RECT(ctx,7-stride,17,3,5,'#273748');
   RECT(ctx,2+stride,21-raised,4,1,'#d0b38a'); RECT(ctx,7-stride,21,4,1,'#d0b38a');
+  ctx.restore();
+}
+
+export const SURVIVOR_POSES=['idle','run','jump','fall','carry','carry-jump','carry-fall','throw','throw-jump','throw-fall','captured','hurt','down'];
+const SURVIVOR_TILE=40;
+let survivorSheet;
+export function survivorPose(p) {
+  if(!p.alive)return p.hitTicks>0?'hurt':'down';
+  if(p.capture)return 'captured';
+  const air=p.onGround?'':p.vy<0?'-jump':'-fall';
+  if(p.carryId)return 'carry'+air;
+  if(p.gestureTicks>0)return 'throw'+air;
+  if(air)return p.vy<0?'jump':'fall';
+  return Math.abs(p.vx||0)>.1?'run':'idle';
+}
+export function getSurvivorSheet() {
+  if(survivorSheet)return survivorSheet;
+  const sheet=document.createElement('canvas');sheet.width=SURVIVOR_POSES.length*4*SURVIVOR_TILE;sheet.height=4*SURVIVOR_TILE;
+  const context=sheet.getContext('2d');context.imageSmoothingEnabled=false;
+  for(let slot=0;slot<4;slot++)for(let pose=0;pose<SURVIVOR_POSES.length;pose++)for(let frame=0;frame<4;frame++){
+    const name=SURVIVOR_POSES[pose],p={slot,w:12,h:22,y:slot*SURVIVOR_TILE+6,face:1,alive:true,onGround:true,vx:0,vy:0};
+    if(name==='run')p.vx=1.28;
+    if(name.includes('jump')){p.onGround=false;p.vy=-3;}
+    if(name.includes('fall')){p.onGround=false;p.vy=3;}
+    if(name.startsWith('carry'))p.carryId='fixture';
+    if(name.startsWith('throw'))p.gestureTicks=18;
+    if(name==='captured')p.capture={remaining:2};
+    if(name==='hurt'){p.alive=false;p.hitTicks=14;}
+    if(name==='down')p.alive=false;
+    drawSurvivorPixels(context,p,(pose*4+frame)*SURVIVOR_TILE+8,frame*95);
+  }
+  survivorSheet=sheet;return sheet;
+}
+export function drawSurvivor(ctx,p,x,clock=0,reducedMotion=false) {
+  const pose=survivorPose(p),index=SURVIVOR_POSES.indexOf(pose),slot=(p.slot??p.colorIndex??0)%4;
+  const frame=pose.startsWith('throw')?Math.min(3,Math.max(0,Math.floor((18-p.gestureTicks)/5))):Math.floor(clock/(pose==='idle'?360:95))%4;
+  ctx.save();ctx.translate(rnd(x),rnd(p.y));
+  if(p.face<0){ctx.translate(p.w,0);ctx.scale(-1,1);}
+  if(p.invulnerability>0&&(reducedMotion||Math.floor(clock/180)%2))ctx.globalAlpha=reducedMotion ? .7 : .45;
+  ctx.drawImage(getSurvivorSheet(),(index*4+frame)*SURVIVOR_TILE,slot*SURVIVOR_TILE,SURVIVOR_TILE,SURVIVOR_TILE,-8,-6,SURVIVOR_TILE,SURVIVOR_TILE);
   ctx.restore();
 }
 
