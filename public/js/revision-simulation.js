@@ -25,7 +25,7 @@ export function interactRevision(run,id,action,{detach,playersOf}){
     const console=b?.kind==='foundry'&&b.phase!=='waiting'&&!b.solved&&b.pylons.find(s=>!s.active&&near(p,s));
     if(console){
       const next=b.pylons.find(s=>!s.active);if(next!==console){run.notice='Break the lower circuit first.';return false;}
-      console.active=true;b.phaseIndex++;b.cycle=b.phaseIndex;b.activeRelay++;b.lavaSpeed+=.035;b.timer=90;run.objectiveVersion++;
+      console.active=true;b.phaseIndex++;b.cycle=b.phaseIndex;b.activeRelay++;b.lavaSpeed+=.045;b.timer=90;run.objectiveVersion++;
       if(b.phaseIndex===3){
         b.phase='breach';b.escapeStart=run.tick;b.bodyX=b.x-180;b.bodyY=b.escapeY-60;b.leapTicks=0;
         // Escape corridor runs left above the tower. Its floor stays above rising lava.
@@ -136,11 +136,14 @@ function bossStep(run,api){
       if(people.every(p=>p.x<w.finish.x+65)){b.lavaY=b.escapeY-5;deadBoss(run);run.notice='The factory collapses. The Colossus sinks into lava. Exit left!';return;}
     }else if(b.phaseIndex>0){
       if(--b.timer<=0){
-        if(b.phase==='warning'){b.phase='attack';b.timer=20;}
+        if(b.phase==='warning'){
+          b.phase='attack';b.timer=20;
+          if(b.phaseIndex===2&&b.breakTarget){const target=b.breakTarget,s=w.platforms.find(s=>s.kind==='boss-step'&&s.x===target.x&&s.y===target.y);if(s){w.platforms=w.platforms.filter(q=>q!==s);effect(w,s.x+s.w/2,s.y,run.tick);run.notice='Platform shattered! The gold ladders remain safe.';}b.breakTarget=null;}
+        }
         else{b.phase='warning';b.timer=100;const p=people[Math.floor(b.elapsed/120)%people.length];b.targetX=p.x;b.targetY=p.y;
-          if(b.phaseIndex===2){const candidates=w.platforms.filter(s=>s.kind==='boss-step'&&s.y>p.y+30);const s=candidates[0];if(s){w.platforms=w.platforms.filter(q=>q!==s);effect(w,s.x,s.y,run.tick);}}}
+          if(b.phaseIndex===2){const s=w.platforms.filter(s=>s.kind==='boss-step').sort((a,c)=>Math.abs(a.y-(p.y+p.h))-Math.abs(c.y-(p.y+p.h)))[0];b.breakTarget=s?{x:s.x,y:s.y,w:s.w,h:s.h}:null;if(s){b.targetX=s.x+s.w/2;b.targetY=s.y-22;}run.notice='CRUMBLE! The marked platform will break. Use the gold ladder.';}}
       }
-      if(b.phase==='attack')for(const p of people)if(Math.abs(p.x-b.targetX)<13&&Math.abs(p.y-b.targetY)<70)api.killPlayer(run,p,'Colossus laser');
+      if(b.phase==='attack'&&b.phaseIndex===1)for(const p of people)if(Math.abs(p.x-b.targetX)<13&&Math.abs(p.y-b.targetY)<70)api.killPlayer(run,p,'Colossus laser');
     }
     for(const p of people)if(p.y+p.h>b.lavaY&&p.x>=b.x-650)api.killPlayer(run,p,'Rising lava',true);
   }

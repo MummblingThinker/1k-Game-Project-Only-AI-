@@ -107,7 +107,7 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
     w.checkpoints.push({x:bossX-30,y:floorY-34,w:12,h:34,active:false,kind:'flag'});
     if(id===5||id===15){
       for(let tier=0;tier<7;tier++){const p=addClimbTier(w,b,tier);if(id===15&&[1,3,5].includes(tier))b.pylons.push({id:`core-${tier}`,x:p.x+100,y:p.y-18,w:14,h:18,active:false});}
-      if(id===15){b.lavaY=floorY+95;b.lavaSpeed=.035;b.phaseIndex=0;b.escapeY=floorY-560;}
+      if(id===15){b.lavaY=floorY+95;b.lavaSpeed=.16;b.phaseIndex=0;b.escapeY=floorY-560;}
       w.finish={x:bossX+350,y:floorY-590,w:28,h:30,locked:true};
     }else{
       // Alternating trunks force climbs and descents through an actual tree maze.

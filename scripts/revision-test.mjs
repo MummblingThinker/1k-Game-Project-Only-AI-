@@ -100,6 +100,15 @@ section('a nearby factory console takes priority over the next ladder',()=>{
   assert.ok(w.ladders.some(l=>Math.abs(p.x+p.w/2-l.x-l.w/2)<19&&p.y+p.h>l.y+4&&p.y<l.y+l.h+4),'fixture overlaps both interactions');
   assert.ok(interactRun(r,p.id));assert.equal(core.active,true);assert.equal(p.climbing,null);
 });
+section('second factory attack warns before breaking a nearby platform, without removing any ladder or firing another laser',()=>{
+  const r=runAt(15),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);b.phase='active';b.phaseIndex=2;b.timer=1;
+  p.x=b.x+200;p.y=220-p.h;p.onGround=true;p.invulnerability=999;b.lavaY=900;
+  const ladders=JSON.stringify(w.ladders),tiers=w.platforms.filter(s=>s.kind==='boss-tier').length;tick(r);
+  assert.equal(b.phase,'warning');assert.ok(b.breakTarget);assert.ok(Math.abs(b.breakTarget.y-(p.y+p.h))<100,'target is near the visible player');
+  const target={...b.breakTarget};assert.ok(w.platforms.some(s=>s.x===target.x&&s.y===target.y),'warning keeps platform intact');
+  tick(r,100);assert.equal(b.phase,'attack');assert.ok(!w.platforms.some(s=>s.kind==='boss-step'&&s.x===target.x&&s.y===target.y));
+  assert.equal(JSON.stringify(w.ladders),ladders);assert.equal(w.platforms.filter(s=>s.kind==='boss-tier').length,tiers);assert.ok(!r.deathEvents.some(e=>e.cause==='Colossus laser'));
+});
 section('giant remains outside boss zone and heart death is charged once',()=>{
   const r=runAt(5),p=p0(r),w=r.world;w.giant.x=w.boss.x-65;w.giant.wakeTicks=0;p.x=w.boss.x+10;p.invulnerability=1000;tick(r,300);assert.ok(w.giant.x+44<w.boss.x);assert.equal(p.alive,true);
   const h=r.hearts;killPlayer(r,p,'fixture',true);killPlayer(r,p,'duplicate',true);assert.equal(r.hearts,h-1);

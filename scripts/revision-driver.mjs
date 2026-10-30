@@ -42,7 +42,16 @@ export function driveRevision(state,p,memo={}){
     if(b.kind==='foundry'&&['escape','breach'].includes(b.phase))moveTo(w.finish.x+5);
     else if(b.kind==='foundry'||b.kind==='climber'){
       if(b.kind==='foundry'){
-        const core=b.pylons.find(s=>!s.active);if(core&&Math.abs(feet-(core.y+core.h))<12){moveTo(core.x);if(near(core)){command.action='use';}return command;}
+        const core=b.pylons.find(s=>!s.active);
+        if(core&&feet<core.y+core.h-12){
+          // A jump can reach the next ladder before stopping at a console.
+          // Return by walking off the tier edge, then steering onto its floor.
+          if(p.x>b.x+386||memo.droppingCore===core.id){memo.droppingCore=core.id;command.input={};if(feet>core.y+core.h-60)moveTo(core.x);}
+          else moveTo(b.x+395);
+          return command;
+        }
+        memo.droppingCore=null;
+        if(core&&Math.abs(feet-(core.y+core.h))<12){moveTo(core.x);if(near(core)){command.action='use';}return command;}
       }
       const ladders=w.ladders.filter(l=>l.x>=b.x&&l.y<routeFeet-3&&l.y+l.h>=routeFeet-1).sort((a,c)=>c.y-a.y||Math.abs(a.x-p.x)-Math.abs(c.x-p.x));
       const l=ladders[0];if(l)moveTo(l.x);
