@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated October 30, 2026, 09:40 UTC. Autonomous work is authorized until 06:00 America/New_York today (10:00 UTC); save final handoff and stop then.
+Final handoff prepared October 30, 2026, 09:54 UTC. Owner cutoff is 06:00 America/New_York today (10:00 UTC). Stop autonomous work at cutoff; further work requires a new owner request.
 
 GitHub is connected as MummblingThinker with admin/push access to MummblingThinker/1k-Game-Project-Only-AI-. Render My Workspace: tea-dbhakd8u01pc73ap1ou0; service srv-dbhnfcm1egvs73817n4g. Public game: https://tiny-teamwork-last-spark.onrender.com.
 
@@ -8,7 +8,7 @@ GitHub is connected as MummblingThinker with admin/push access to MummblingThink
 
 LIVE release 0.3.0: 137449780ffee2baae8d128e3fc3f7a4a2d6bebb, Render dep-dbi5lqp42hec73chfgu0 finished 08:54:00 UTC. Includes arena-corner fix, input/transition safeguards, memory archive and readable stacked labels. Regression 41028837354 all five PASS. Later main commits change tests/documentation only.
 
-Published source before this documentation update: c6aa2cedb3eaaa3923156782d434a063a4eaad93. Regression 41033230209 all five PASS, including actual delayed-browser/pressure-countdown checks and scene captures. Public short acceptance 41030093969/job 123977506870 PASS against live 13744978.
+Final validation source: 3db6c677b780b16ef9d64f3e396fec30962dcf0a; subsequent handoff commits change documentation only. Regression 41036079419 ALL FIVE PASS, including delayed-browser/pressure-countdown checks and scene captures. Public short browser 41030093969/job 123977506870 PASS. Final HTTPS/WSS smoke 41036079502/job 123997121435 PASS after quiet interval, first health response 21404ms; all assets/gameplay/cleanup pass. Render rechecked LIVE on unchanged 13744978.
 
 Public full campaign 41029627746: two-player job 123975944220 and four-player job 123975944028 PASS all 15 stages first attempt, 14925/15834 matching complete shared snapshots, correct chapters/ending. Public three-player 41032049339/job 123983852697 PASS with 17654 matches and recorded game-over replays at Levels 10/15. CAMP-01 reverified. All public campaign rooms finished; no runtime redeployment needed.
 
@@ -22,12 +22,12 @@ Public full campaign 41029627746: two-player job 123975944220 and four-player jo
 - Task board: 47 VERIFIED entries. Remaining entries have precise completed evidence/missing acceptance; criteria unchanged. Physical/human MVP-03/MVP-04 gates remain unverified.
 - Latest local npm test PASS artifacts/release-final-tests.log; syntax PASS 53 modules. Submission checker intentionally reports missing physical/human evidence. No contest submission.
 
-## Active local work
+## Completed local validation and archive
 
 - COMPLETE session 92222: 40-minute 12-room/48-client soak on released simulation 13744978. 265128 checks, 200 resets, 2338932 messages, peak RSS 193.43 MiB, no failure, cleanup zero. artifacts/soak-release-12-2400.log and soak-12-2400.json. Local capacity evidence only.
 - COMPLETE session 67695: one-hour eight-room/32-client soak on d6810106 (before transition/arena changes). 265048 checks, 221 resets, 2338316 messages, peak RSS 190.76 MiB, cleanup zero. artifacts/soak-8-3600.json.
 - COMPLETE prior two-hour ladder-source soak: 530048 checks, 383 resets, 4686804 messages, peak RSS 190.80 MiB, cleanup zero. artifacts/soak-8-7200.json.
-- Archive preflight PASS: 104 allowlisted files, ZIP integrity and fresh dependency-free extraction npm test PASS. artifacts/release-preflight.log. Final source ZIP/manifest refresh required after final smoke documentation; preflight is not the final handoff checksum.
+- Release archive verification PASS: 104 allowlisted files, ZIP integrity, exact local-file/manifest comparison and fresh dependency-free extraction npm test PASS. artifacts/release-final-archive.log. Final handoff archive: release/TinyTeamwork-source.zip; authoritative current checksum/file inventory: release/source-manifest.json. Archive is regenerated with this final documentation; do not use older QA-log preflight hashes.
 
 ## Features and limits
 
@@ -35,4 +35,4 @@ Public full campaign 41029627746: two-player job 123975944220 and four-player jo
 
 Physical mobile/separate-network acceptance, first-time human onboarding/difficulty, full animation playback and speaker/headphone review remain deferred. Keyboard/touch supported; no native gamepad mapping. One Node process, solo or up to four players, join before start. Disconnect removes identity and returns to a fresh lobby; no persistent reconnect/cloud save. Free Render cold starts possible.
 
-Next: final HTTPS/WSS smoke after the quiet interval; update exact evidence/handoff and package a clean verified archive before 10:00 UTC. No test processes remain from completed local soaks. Do not redeploy merely for test/documentation changes. TASK_LIST.md is canonical; QA_LOG.md retains passes and failures.
+Next acceptance when the owner is ready: MVP-03 separate-device/network session, then MVP-04 human entry review/submission. No automated gameplay blocker remains open; human balance/device/playback gates remain explicit. No test processes remain from completed local soaks. Do not redeploy merely for documentation changes. TASK_LIST.md is canonical; QA_LOG.md retains passes, failures and replay counts. Do not continue autonomous work beyond the cutoff without a new request.

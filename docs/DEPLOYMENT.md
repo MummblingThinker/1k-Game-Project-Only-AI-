@@ -19,6 +19,8 @@ Full public regression passed: https://github.com/MummblingThinker/1k-Game-Proje
 
 Current 0.3.0 public short browser acceptance: run 41030093969, job 123977506870 PASS. Full public two/four-player campaign run 41029627746 PASS, all 15 stages on first attempts with complete shared-state comparisons and default endings. Public three-player run 41032049339/job 123983852697 also PASS, with recorded replays at Levels 10 and 15. These are automated independent browsers on the hosted HTTPS service, not physical-device testing.
 
+Final HTTPS/WSS smoke after a quiet interval: 41036079502/job 123997121435 PASS, first health response 21404ms followed by successful assets/gameplay/cleanup. Provider sleep is not inferred solely from the delay. The runtime remained 13744978 throughout; no redeployment interrupts players for handoff-only changes.
+
 To repeat from a terminal with internet access (PowerShell):
 
 ```powershell
