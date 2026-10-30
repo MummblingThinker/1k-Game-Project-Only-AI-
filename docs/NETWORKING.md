@@ -25,6 +25,6 @@ Optional ?debug=1 reports contain a bounded stage-event history and no participa
 - npm run test:jitter: real TCP delays of 60-140ms each direction, input release/shared state/host handoff.
 - npm run test:abuse: isolated local server creation/action/input budgets, oversized sender isolation, malformed/forged fields and cleanup. Never aims abuse traffic at production.
 - Browser workflows exercise isolated Chromium sessions, Firefox/WebKit compatibility, actual rescue/revival/ladder, repeated retry/title flows and full campaigns. Public workflows use the deployed origin and check only their own room cleanup.
-- Long local soaks exercise eight rooms/32 clients. These are local stability measurements, not Render capacity guarantees.
+- Long local soaks passed eight rooms/32 clients for one and two hours; the released simulation also passed 12 rooms/48 clients for 40 minutes, with zero remaining rooms. These are local stability measurements, not Render capacity guarantees.
 
 Exact source revisions, results and failed runs are in QA_LOG.md; current deployment is in PROJECT_STATUS.md. Physical-device/network acceptance and human balance/audio review remain deferred. An external CI browser is not a physical phone test.

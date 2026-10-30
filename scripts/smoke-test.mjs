@@ -48,7 +48,9 @@ child?.stderr.on('data', (chunk) => { logs += chunk.toString(); });
 const baseUrl = remote || `http://127.0.0.1:${port}`;
 
 try {
+  const healthStartedAt = Date.now();
   const health = await waitForHealth(baseUrl, child);
+  console.log(`Health ready after ${Date.now() - healthStartedAt}ms (${remote ? 'public HTTPS' : 'local offline server'}).`);
   assert.equal(health.ok, true, 'health endpoint should report ok');
   if (!remote) assert.equal(health.multiplayer, false, 'static server must clearly indicate multiplayer is disabled');
   else assert.equal(health.service, 'tiny-teamwork-server', 'public service must be the multiplayer server');

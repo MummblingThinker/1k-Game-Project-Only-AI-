@@ -1,37 +1,46 @@
 # Start here in Codex
 
-## Current owner authorization (October 29-30, 2026)
+## Current project
 
-The owner explicitly deferred physical-device testing and authorized completing the campaign, remaining implementation, bug testing and optional art/features until 06:00 America/New_York October 30 (10:00 UTC). This supersedes the older gate-only restrictions below for that session. At the cutoff save a handoff and stop autonomous work. Never fabricate physical acceptance or submit the contest entry. The 15-stage game is deployed; consult docs/PROJECT_STATUS.md for the current source/live revisions and pending checks. Preserve the completed work rather than reverting to a single-level prototype.
+Tiny Teamwork: The Last Spark is an implemented fifteen-stage solo/co-op browser game, release 0.3.0. Preserve the completed campaign; do not reset it to the original single-level prototype.
 
-You are continuing the existing project **Tiny Teamwork: The Last Spark**. It is an early prototype, not a finished game. The user has limited ChatGPT/Codex budget, so **prioritize getting one real multiplayer slice hosted and playable before expanding the campaign or polishing art**.
+Play: https://tiny-teamwork-last-spark.onrender.com
+Source: https://github.com/MummblingThinker/1k-Game-Project-Only-AI-
 
-## Mandatory order
+Use Render My Workspace. GitHub connection is MummblingThinker with admin/push access. Exact live/source revisions, deployment IDs, current checks and archive status are in docs/PROJECT_STATUS.md.
 
-1. First read the three root-level planning files: `PRIORITY_ROADMAP.md`, `TASK_LIST.md`, and `QA_LOG.md`. Then read `docs/PROJECT_STATUS.md` and `AGENTS.md`. These root-level files are canonical; do not edit the small navigation stubs under `docs/`.
-2. Run `npm test` before editing. If it fails, diagnose the failure before adding a feature.
-3. Work in this order only: `MVP-01` → `MVP-02` → `MVP-03` → `MVP-04`. Do not jump to optional art, advanced enemies, or all 15 levels while a release gate is open.
-4. For each task, inspect only the related files, use the smallest viable change, and avoid broad refactors or new dependencies unless truly needed. Preserve working features.
-5. Add/update relevant tests. Run `npm test` after changes. For real-browser behavior, perform browser testing; for multiplayer, test separate browser sessions; for deployment, test from a separate device/network.
-6. Record exact commands/manual steps, expected and actual result, date/environment, and limitations in `QA_LOG.md`. Update `TASK_LIST.md` and `docs/PROJECT_STATUS.md`.
-7. **Never mark a task verified or tell the user it is complete until every acceptance criterion passes and evidence is logged.** If testing can't happen, use `IMPLEMENTED_UNVERIFIED` or `BLOCKED`.
-8. At the end of the session, report task IDs attempted, evidence-backed verified results, blockers, and the next single task. Do not spend the final message re-describing the entire project.
+## Owner authorization and cutoff
 
-## Smallest target worth submitting
+The owner deferred physical-device testing and authorized campaign implementation, remaining tasks, bug testing and optional art/features until 06:00 America/New_York October 30, 2026 (10:00 UTC). This overrides the older gate-only budget restriction in planning files for this session. At the cutoff save the handoff and stop autonomous work. Further work requires a new owner request; do not interpret the historical deadline as permission for another overnight run.
 
-One polished Level 1 loop (start, movement, obstacle, goal, win/restart), two players who join with a random room code, server-synchronized movement, one meaningful shared interaction, room isolation, a public HTTPS URL, and a passing playtest from another device/network. This is a real minimal multiplayer slice. The 15-level story remains the vision, but every level does not need to be bespoke before the first public entry is ready.
+Physical-device acceptance and contest submission must never be invented. The game can be developed and tested while those human gates remain unchecked.
 
-## Do not spend time on yet
+## Resume procedure
 
-Until `MVP-01` through `MVP-04` pass, defer: full 15-level authorship, every enemy variant, all carry/throw/rescue variants, full cutscene polish, sound, mobile/gamepad extras, and engine migration. If the core deployment is blocked, focus on diagnosing that blocker—not adding features that can't be shown to judges.
+1. Read root TASK_LIST.md and QA_LOG.md, then docs/PROJECT_STATUS.md, AGENTS.md, PRIORITY_ROADMAP.md and docs/PRACTICE_GUIDE.md. Root planning files are canonical; docs navigation stubs are not duplicate task boards.
+2. Check the actual live/source state before editing. Runtime is intentionally stable while public campaigns run; do not redeploy into their temporary rooms.
+3. Run npm test before code edits. Select a coherent task and preserve working mechanics. Avoid broad rewrites or dependency changes without a concrete need.
+4. Test the relevant behavior. Use separate contexts/actual clients for multiplayer. Automated browsers are not physical devices, and headless WebKit is not a physical Safari test.
+5. Record exact revision, command/workflow/job, result and limitation in QA_LOG.md. A failed test remains in the history even after repair. Update the task board only when its full acceptance criteria are met.
+6. Update docs/PROJECT_STATUS.md and README/help when behavior changes. Build release/TinyTeamwork-source.zip with python scripts/package-release.py --verify after final documentation changes.
+7. Report what actually passed and what remains. Do not claim every task is verified merely because the game is implemented.
 
-## Non-negotiable design reminders
+## Remaining acceptance
 
-- Campaign plan: Levels 1–5 city, 6–10 forest, 11–15 robot factory.
-- Level 10 includes the human-only covered walkway with about 100 flying robots overhead, followed by the factory-manufacturing reveal and pursuers behind the survivors.
-- After Level 15, humans celebrate the factory destruction, then robots attack and the scene cuts to black.
-- Art remains original while using the broad pacing/contrast/readability of classic arcade pixel-art cutscenes; never copy or trace TMNT artwork, sprites, or layouts.
-- Robots are indestructible. Players evade, escape, distract, or rescue. A teammate may briefly stun a robot only when it is actively grabbing a teammate, forcing release.
-- Shared hearts, deaths, checkpoints, carry/throw state, enemy timers, and level completion eventually need server-authoritative validation and event deduplication.
-- Teamwork pits must not permanently softlock the remaining survivor. The giant pursuer adds urgency and can destroy temporary checkpoint rooms.
-- Preserve the HTML Canvas + JavaScript + Node.js + Express + Socket.IO stack unless the user explicitly requests a migration or a specific blocker requires it.
+MVP-03's missing step is a real two-device/separate-network session at the public URL. Public HTTPS/WSS and independent automated browser campaigns are already covered; consult current evidence before repeating them.
+
+MVP-04 materials exist in submission/. The owner must review eligibility, description/link/cover, the recorded official deadline discrepancy and submission preview, then submit personally. npm run check:submission intentionally remains nonzero while human/device fields are false. Do not change those fields based on automated tests.
+
+Human onboarding, difficulty balance, physical mobile/display performance and headphone/speaker review remain separate. The task board specifies each remaining gap; unchecked does not necessarily mean unimplemented.
+
+## Design constraints to preserve
+
+- Fifteen authored stages: city 1-5, forest 6-10, factory 11-15.
+- Level 1 is the short reference; normal later maps are about 3x, milestones 5/10/15 are 5-7x.
+- Fixed roughly 120-second normal pursuer after its entry warning, no catch-up teleportation. It can destroy shelters but cannot enter boss arenas.
+- Level 5 ordered Warden relays, Level 10 covered swarm/survival passage, Level 15 separate background Colossus and three production-core cycles.
+- Robots remain indestructible. Teammate rescue stuns only an actively grabbing robot; boss overloads create escape windows.
+- Shared hearts charge once per fatal transition. Checkpoints revive one longest-dead survivor OR restore one heart; full-stage transitions reset the original party pool.
+- Carry/throw/stack, crates and fallback stepping stones cannot permanently trap the last survivor.
+- Original pixel gameplay art and original anime comic chapters with native captions. Default ending: factory shutdown, celebration, robot attack, blackout.
+- Server-authoritative HTML Canvas/JavaScript/Node/Express/Socket.IO architecture. Supported party size 1-4, join before start; disconnect requires a fresh lobby. Keyboard/touch supported; no native gamepad mapping or persistent identity restore.

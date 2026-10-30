@@ -1,6 +1,6 @@
-# Publish the multiplayer slice
+# Deployment and multiplayer acceptance
 
-Status: deployed on Render on 2026-10-29; physical-device/network acceptance remains unverified.
+Status: campaign release 0.3.0 deployed on Render; physical-device/network acceptance remains unverified. Exact subsequent source/test/archive status is maintained in PROJECT_STATUS.md.
 
 ## Current service
 
@@ -10,11 +10,14 @@ Status: deployed on Render on 2026-10-29; physical-device/network acceptance rem
 - Service: `srv-dbhnfcm1egvs73817n4g`; https://dashboard.render.com/web/srv-dbhnfcm1egvs73817n4g
 - Free Node service, Virginia, one instance, manual deploys. Build `npm ci && npm test`; start `npm start`; Node 24.20.0; NODE_ENV=production. No database or secrets.
 - Initial live deploy: `dep-dbhnfde1egvs73817pj0`, runtime source `269fc0e4384ebd9cf44bdd6cb6caaa81dcc0c776`. Logs confirm assigned PORT=10000.
+- Current campaign runtime: `137449780ffee2baae8d128e3fc3f7a4a2d6bebb`, deploy `dep-dbi5lqp42hec73chfgu0`, LIVE October 30 at 08:54:00 UTC. Later test/documentation commits do not require redeployment.
 - Direct MCP creation uses Render's default TCP readiness checks; its limited tool cannot set `healthCheckPath`. The existing `/health` HTTP endpoint is independently tested below. To enable provider HTTP checks, set `/health` in Dashboard Settings; the supplied Blueprint already requests it.
 
 The repository also contains a Public multiplayer smoke GitHub Actions workflow. It tests this deployed URL from an Ubuntu runner, without a ChatGPT login. It does not replace the physical-device test below.
 
 Full public regression passed: https://github.com/MummblingThinker/1k-Game-Project-Only-AI-/actions/runs/40915358003. Includes HTTP assets/health and actual WSS gameplay through shared victory/replay, isolation and cleanup. See QA_LOG.md for the earlier failures and corrections.
+
+Current 0.3.0 public short browser acceptance: run 41030093969, job 123977506870 PASS. Full public two/four-player campaign run 41029627746 PASS, all 15 stages on first attempts with complete shared-state comparisons and default endings. Public three-player run 41032049339/job 123983852697 also PASS, with recorded replays at Levels 10 and 15. These are automated independent browsers on the hosted HTTPS service, not physical-device testing.
 
 To repeat from a terminal with internet access (PowerShell):
 

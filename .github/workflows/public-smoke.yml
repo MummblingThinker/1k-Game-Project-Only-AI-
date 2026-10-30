@@ -1,4 +1,5 @@
 name: Public multiplayer smoke
+# Final 0.3.0 HTTPS/WSS check after the completed public campaigns and quiet interval.
 on:
   workflow_dispatch:
   push:

@@ -18,7 +18,7 @@ All PNG sprites under `public/assets/sprites/` are generated with simple shapes 
 
 Sprites: `human_amber.png`, `human_cyan.png`, `human_rose.png`, `robot_sentinel.png`, `robot_flyer.png`, `robot_creeper.png`, `giant_pursuer.png`, `crate.png`, `checkpoint_shelter.png`.
 
-The original base PNGs remain for title staging and machines. Gameplay survivors now use a cached sixteen-pose animation sheet generated from original pixel code, with four palettes and four frame slots per pose. Native-scale silhouettes, frame boundaries and browser rendering are checked in the QA harness.
+The original base PNGs remain for title/story staging and the roaming giant. Gameplay survivors use a cached sixteen-pose animation sheet generated from original pixel code, with four palettes and four frame slots per pose; ordinary robots use the cached sheet described below. Native-scale silhouettes, frame boundaries and browser rendering are checked in the QA harness.
 
 
 ## October 2026 campaign presentation
