@@ -106,7 +106,10 @@ function bossStep(run,api){
       w.ladders=w.ladders.filter(l=>l.x<b.x||l.y<cutoff);
       w.crates=w.crates.filter(c=>c.carriedBy||c.x<b.x||c.y<cutoff);
     }
-    const target=people[Math.floor(b.elapsed/240)%people.length];
+    // Keep a readable pursuit target. Switching elevations every four seconds
+    // made debris attacks unreliable when co-op players occupied different floors.
+    const target=people.find(p=>p.id===b.targetId)||people.reduce((best,p)=>Math.abs(p.y-b.bodyY)<Math.abs(best.y-b.bodyY)?p:best,people[0]);
+    b.targetId=target.id;
     b.bodyX=b.x+425;
     b.bodyY+=(target.y-18-b.bodyY)*.025;
     b.crushY-=.1;

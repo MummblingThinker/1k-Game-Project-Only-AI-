@@ -4,12 +4,16 @@
 
 Gameplay uses public/js/revision-art.js alongside the retained survivor/giant renderer: biome scenery and directional robot headlights, distinct Warden/chainsaw/factory chassis, climbing camera, scan/cone warnings and three pixel boss-death cards. The current comic presentation uses eleven new triptychs with 33 separately illustrated panels, no repeated story picture; provenance and prompts are in OCTOBER_REVISION_ART.md. Native HTML captions stay sharp. The old story atlases and shelter sprite below remain in source for provenance and historical tests; they are not the current story/shelter design.
 
+## Follow-up environment and sound
+
+Original environment-art.js adds layered city silhouettes, canopy branches, factory stacks/pipes, warm atmospheric light, recessed windowed facades, natural forest soil/roots, and riveted/wood-toned truss bridges. Bright edges and dark outlines identify solid geometry; facades retain lower-contrast detail behind the walking lane. Original Web Audio zone scores and noise/hum beds in audio.js use no recordings or external music.
+
 ## Target look
 
 Original, high-contrast pixel-art arcade platformer with cinematic, readable character silhouettes. Cutscenes should evoke the theatrical framing and rhythmic pacing of classic TMNT-era pixel arcade story panels without copying those games' characters, sprite sheets, compositions, layouts, logos, or exact art.
 
-- Internal canvas: 320 × 180; scaled to 16:9 with image-rendering pixelated/crisp-edges.
-- Shape language: clear 1–3 pixel highlights, dark navy outlines, chunky equipment, bright face/eye pixels, expressive body posture.
+- Internal canvas: 320 Ã— 180; scaled to 16:9 with image-rendering pixelated/crisp-edges.
+- Shape language: clear 1â€“3 pixel highlights, dark navy outlines, chunky equipment, bright face/eye pixels, expressive body posture.
 - Story panels: short captions, letterbox bars, visual focal point, brief holds, limited palette, quick fade/cut transitions.
 - City: navy/steel skyline, broken cables, muted amber windows, red warnings.
 - Forest: layered trunks and canopies, teal shadow, green fireflies, warm trail lights.

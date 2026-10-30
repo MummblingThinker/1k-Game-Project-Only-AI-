@@ -1,9 +1,17 @@
 import assert from 'node:assert/strict';
 import {buildLevel} from '../public/js/world.js';
 import {createPlayer,stepPlayer,overlaps} from '../public/js/physics.js';
-import {startLevel,stepRun,interactRun} from '../public/js/simulation.js';
+import {startLevel,stepRun,interactRun,killPlayer} from '../public/js/simulation.js';
 const runAt=(level=1,count=1)=>{const r={players:new Map(Array.from({length:count},(_,slot)=>['p'+slot,{id:'p'+slot,slot}]))};startLevel(r,level,true);return r;};
 const tick=(r,n=1)=>{for(let i=0;i<n;i++)stepRun(r);};
+
+{
+ const r=runAt(5,2),b=r.world.boss,[a,p]=[...r.players.values()];r.world.switches.forEach(s=>s.active=true);
+ a.x=b.x+200;p.x=b.x+250;a.y=318;p.y=158;a.invulnerability=p.invulnerability=9999;
+ tick(r);const id=b.targetId;tick(r,500);assert.equal(b.targetId,id,'boss holds a readable target across floors instead of cycling away');
+ killPlayer(r,r.players.get(id),'target departure fixture',true);tick(r);assert.notEqual(b.targetId,id);assert.ok(r.players.get(b.targetId).alive);
+ console.log('FOLLOWUP PASS: Warden focus stays stable between floors and transfers when its target is lost.');
+}
 
 {
  const w=buildLevel(1),facade=w.facades[0],l=w.ladders.find(l=>l.x>facade.x&&l.x<facade.x+20),p=createPlayer('p',facade.x-20,w.floorY-22);w.crates=[];

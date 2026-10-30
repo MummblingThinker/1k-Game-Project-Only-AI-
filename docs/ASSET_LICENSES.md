@@ -12,4 +12,5 @@ No ripped game sprites, third-party photographs, franchise characters, logos, fo
 
 October 30 revision: eleven new original triptychs in public/assets/story/revision/ provide 33 distinct illustrations. They replace the older atlas crops in the active story. Built-in image-generation prompts and provenance are recorded in OCTOBER_REVISION_ART.md; JPEG encoding changed format only. Revised scenery, themed debris, directional ground robots, boss chassis and pixel death cards are original Canvas code in public/js/revision-art.js. The old robot sheet and atlas files remain historical assets.
 
-submission/cover.jpg is an unedited 1440×960 screenshot from actual public solo gameplay in Chromium, captured during the Level 5 Warden fight (0606bcb7, workflow 41067528871/job 124102766580). It is not a detached render fixture.
+submission/cover.jpg is an unedited 1440Ã—960 screenshot from actual public solo gameplay in Chromium, captured during the Level 5 Warden fight (0606bcb7, workflow 41067528871/job 124102766580). It is not a detached render fixture.
+The 1 PM follow-up adds original procedural environment artwork in public/js/environment-art.js and three original synthesized zone scores/ambience in public/js/audio.js. No external textures, music samples, fonts or recordings were added.
