@@ -61,6 +61,10 @@ export function driveRevision(state,p,memo={}){
       if(b.kind==='climber'){
         const c=w.crates.find(c=>!c.used&&!c.carriedBy&&near(c));
         if(!p.carryId&&c){command.action='use';return command;}
+        if(!p.carryId&&p.onGround&&feet<w.floorY-140){
+          const supply=w.crates.filter(c=>!c.used&&!c.carriedBy&&Math.abs(c.y+c.h-feet)<12&&c.x>=b.x+35&&c.x<b.x+385).sort((a,c)=>Math.abs(a.x-p.x)-Math.abs(c.x-p.x))[0];
+          if(supply){moveTo(supply.x-12);return command;}
+        }
         if(p.carryId&&feet<w.floorY-140){moveTo(b.bodyX-65);if(p.face>0&&Math.abs(p.x-(b.bodyX-65))<18&&Math.abs(p.y-b.bodyY)<55){command.action='carry';return command;}}
       }
     }
