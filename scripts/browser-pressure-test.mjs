@@ -26,20 +26,23 @@ try{
   await a.locator('#level-select').selectOption('6');await b.locator('#room-code').fill(await a.locator('#game').getAttribute('data-room'));await b.locator('#join-room').click();
   await b.waitForFunction(()=>document.querySelector('#game').dataset.state==='lobby');await b.locator('#room-ready').click();await a.locator('#start-story').click();
   await until(async()=> (await Promise.all(peers.map(snapshot))).every(s=>s?.phase==='playing'),'start');await a.locator('#game').focus();
-  async function walk(target){
-    const right=(await snapshot(a)).you.x<target,key=right?'ArrowRight':'ArrowLeft';await a.keyboard.down(key);
-    try{await a.waitForFunction(({target,right})=>{const p=window.readQaState().you;return right?p.x>=target:p.x<=target;},{target,right},{timeout:8000});}
-    finally{await a.keyboard.up(key);}await sleep(200);
+  async function walk(page,target){
+    await page.locator('#game').focus();
+    const right=(await snapshot(page)).you.x<target,key=right?'ArrowRight':'ArrowLeft';await page.keyboard.down(key);
+    try{await page.waitForFunction(({target,right})=>{const p=window.readQaState().you;return right?p.x>=target:p.x<=target;},{target,right},{timeout:8000});}
+    finally{await page.keyboard.up(key);}await sleep(200);
   }
   async function agreed(test,label){await until(async()=> (await Promise.all(peers.map(snapshot))).every(test),label);}
-  await walk(244);await agreed(s=>s.world.plates[0].held&&s.world.platforms.some(p=>p.kind==='pressure-bridge'),'weight holds bridge');
-  await walk(200);await sleep(1200);
+  await Promise.all([walk(a,244),walk(b,200)]);await agreed(s=>s.world.plates[0].held&&s.world.platforms.some(p=>p.kind==='pressure-bridge'),'weight holds bridge');
+  await walk(a,200);await sleep(1200);
   await agreed(s=>{
     const plate=s.world.plates[0];return plate.held&&plate.remaining===480&&s.players.every(p=>p.x+p.w<=plate.x||p.x>=plate.x+plate.w);
   },'crate alone holds bridge');
   await mkdir('artifacts/pressure',{recursive:true});
   await a.locator('.screen-frame').screenshot({path:'artifacts/pressure/crate-held.jpg',type:'jpeg',quality:85});
-  await walk(300);await agreed(s=>!s.world.plates[0].held&&s.world.plates[0].remaining>400,'release begins eight-second countdown');
+  // Keep both actual survivors ahead of the pursuing giant while observing
+  // the bridge, rather than leaving the guest idle at the starting line.
+  await Promise.all(peers.map(p=>walk(p,300)));await agreed(s=>!s.world.plates[0].held&&s.world.plates[0].remaining>400,'release begins eight-second countdown');
   const released=await snapshot(a);const shot=await a.locator('.screen-frame').screenshot({path:'artifacts/pressure/countdown.jpg',type:'jpeg',quality:85});
   console.log('PRESSURE_BASE64_BEGIN'+shot.toString('base64')+'PRESSURE_BASE64_END');
   await agreed(s=>!s.world.plates[0].remaining&&!s.world.platforms.some(p=>p.kind==='pressure-bridge'&&p.x===s.world.plates[0].bridgeX),'shared expiry');
