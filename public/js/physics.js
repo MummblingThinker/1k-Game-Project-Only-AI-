@@ -47,6 +47,19 @@ export function stepPlayer(player, input, world, dt = 1) {
   const jump = !!input.jump;
   p.ladderBlocked=false;
 
+  if(world.revision && p.climbing!=null){
+    const ladder=world.ladders.find(l=>l.id===p.climbing);
+    if(!ladder||left!==right){p.climbing=null;p.vy=0;}
+    else {
+      p.x=ladder.x+(ladder.w-p.w)/2;p.y=Math.max(ladder.y-p.h,p.y-1.5*dt);
+      p.vx=p.vy=0;p.onGround=false;p.lastJump=jump;
+      if(p.y<=ladder.y-p.h){p.climbing=null;p.onGround=true;}
+      if(p.invulnerability>0)p.invulnerability--;
+      if(p.carryId){const c=world.crates.find(c=>c.id===p.carryId);if(c){c.x=p.x;c.y=p.y-c.h;}}
+      return p;
+    }
+  }
+
   if(p.climbing!=null){
     const shelter=(world.checkpoints||[]).find(c=>c.x===p.climbing&&!c.destroyed);
     const roof=shelter&&world.platforms.find(s=>s.kind==='shelter-roof'&&s.shelterX===shelter.x);
@@ -83,10 +96,15 @@ export function stepPlayer(player, input, world, dt = 1) {
   p.coyoteTicks = p.onGround ? 5 : Math.max(0, (p.coyoteTicks || 0) - dt);
   p.jumpBufferTicks = jump && !p.lastJump ? 6 : Math.max(0, (p.jumpBufferTicks || 0) - dt);
   if (p.jumpBufferTicks > 0 && p.coyoteTicks > 0) {
-    p.vy = JUMP_SPEED;
+    p.vy = world.revision ? -6 : JUMP_SPEED;
     p.onGround = false;
     p.coyoteTicks = 0;
     p.jumpBufferTicks = 0;
+  }
+  else if(world.revision && p.jumpBufferTicks>0 && !p.onGround){
+    const wall=world.platforms.find(s=>p.y+p.h>s.y+3&&p.y<s.y+s.h&&
+      (Math.abs(p.x+p.w-s.x)<3||Math.abs(p.x-(s.x+s.w))<3));
+    if(wall){const dir=p.x<wall.x?-1:1;p.vy=-6.2;p.throwTicks=10;p.throwVx=dir*2;p.vx=p.throwVx;p.face=dir;p.jumpBufferTicks=0;}
   }
   p.lastJump = jump;
   p.vy = Math.min(5.1, p.vy + GRAVITY * dt);
@@ -153,7 +171,7 @@ export function updateCrates(world, dt = 1) {
       else if (oldX >= solid.x + solid.w) { crate.x = solid.x + solid.w; crate.vx = 0; }
     }
     crate.y += crate.vy * dt;
-    crate.vx *= 0.94;
+    crate.vx *= world.revision&&crate.flightTicks>0 ? .995 : .94;
     for (const solid of solids) {
       const horizontally = crate.x + crate.w > solid.x && crate.x < solid.x + solid.w;
       if (horizontally && crate.vy >= 0 && oldBottom <= solid.y + 2 && crate.y + crate.h >= solid.y) {

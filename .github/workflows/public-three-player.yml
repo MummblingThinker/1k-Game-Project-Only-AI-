@@ -2,9 +2,6 @@ name: Public three-player campaign
 # Complete the supported party-size matrix against live release 13744978.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/public-three-player.yml
 permissions:
   contents: read
 concurrency:

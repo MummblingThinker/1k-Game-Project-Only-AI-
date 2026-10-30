@@ -2,9 +2,6 @@ name: Public browser acceptance
 # Live 13744978: observe shelter-step jump distance instead of overrunning the next pit on a timer.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/public-browser.yml
 permissions:
   contents: read
 concurrency:

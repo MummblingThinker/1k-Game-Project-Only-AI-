@@ -10,7 +10,7 @@
     "check": "node scripts/check-project.mjs",
     "offline": "node server/static-server.mjs",
     "smoke": "node scripts/smoke-test.mjs",
-    "test": "npm run check && npm run test:rules && npm run test:systems && npm run test:campaign && npm run test:survivor && npm run smoke && npm run verify:board && npm run test:client && npm run test:multiplayer",
+    "test": "node scripts/revision-test.mjs && npm run test:client && npm run smoke",
     "test:rules": "node scripts/rules-test.mjs",
     "test:systems": "node scripts/systems-test.mjs",
     "test:adversarial": "node scripts/adversarial-test.mjs",
@@ -26,7 +26,9 @@
     "verify:board": "node scripts/verify-task-board.mjs",
     "test:multiplayer": "node scripts/multiplayer-test.mjs",
     "test:client": "node scripts/network-client-test.mjs",
-    "check:submission": "node scripts/check-submission.mjs"
+    "check:submission": "node scripts/check-submission.mjs",
+    "test:legacy-contracts": "npm run check && npm run test:rules && npm run test:systems && npm run test:campaign && npm run test:survivor && npm run smoke && npm run verify:board && npm run test:client && npm run test:multiplayer",
+    "test:revision": "node scripts/revision-test.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",

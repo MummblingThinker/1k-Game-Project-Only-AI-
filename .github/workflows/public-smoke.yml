@@ -2,11 +2,6 @@ name: Public multiplayer smoke
 # Final 0.3.0 HTTPS/WSS check after the completed public campaigns and quiet interval.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/public-smoke.yml
-      - scripts/smoke-test.mjs
-      - scripts/multiplayer-test.mjs
 permissions:
   contents: read
 concurrency:

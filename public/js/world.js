@@ -1,5 +1,6 @@
 import { getLevel } from './campaign.js';
 import { PLAYER_H } from './physics.js';
+export { buildRevisionLevel as buildLevel } from './revision-world.js';
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
@@ -120,7 +121,7 @@ const ROUTES = {
   15: { pits: [410, 1030, 1650, 2260, 2890, 3510, 4140, 4780, 5380], ledges: [240, 780, 1370, 1990, 2600, 3250, 3880, 4500, 5060, 5570], theme: 'core', enemy: ['sentinel', 'creeper', 'scanner', 'grabber'] },
 };
 
-export function buildLevel(levelId = 1, partySize = 1) {
+export function buildLegacyLevel(levelId = 1, partySize = 1) {
   const level = getLevel(levelId);
   if (level.id === 1) {
     const world = buildReferenceLevel(1, partySize);

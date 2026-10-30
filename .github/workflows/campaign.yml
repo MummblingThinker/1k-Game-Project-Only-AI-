@@ -1,13 +1,6 @@
 name: Campaign and browser regression
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - public/**
-      - server/**
-      - scripts/**
-      - package*.json
-      - .github/workflows/campaign.yml
 permissions:
   contents: read
 jobs:

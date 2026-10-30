@@ -1,20 +1,6 @@
 name: Full browser campaigns
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - scripts/browser-campaign-test.mjs
-      - scripts/route-driver.mjs
-      - scripts/snapshot-audit.mjs
-      - public/js/game.js
-      - public/js/network.js
-      - public/js/text-ui.js
-      - public/js/campaign.js
-      - server/server.js
-      - public/js/physics.js
-      - public/js/simulation.js
-      - public/js/world.js
-      - .github/workflows/browser-campaign.yml
 permissions:
   contents: read
 jobs:

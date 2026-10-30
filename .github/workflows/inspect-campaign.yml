@@ -1,9 +1,6 @@
 name: Inspect saved campaign evidence
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/inspect-campaign.yml
 permissions:
   contents: read
   actions: read

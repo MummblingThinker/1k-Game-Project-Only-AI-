@@ -8,6 +8,10 @@ This is the single source of truth for the remaining build. Codex must update th
 
 ## Submission-critical path — do these before optional polish
 
+- [ ] `REV-01` · `P0` · Owner playtest revision: flag recovery, long bridge puzzles, vertical/biome-varied maps, throwable combat and directional patrol/charge enemies. **Status: IN_PROGRESS** - New request October 30; old shelter/indestructible acceptance is historical, not applicable to the replacement rules.
+- [ ] `REV-02` · `P0` · Replace all three bosses with the requested climb/combat, chainsaw tree maze and escalating lava/factory escape encounters, preserving at least one route and adding death animation. **Status: IN_PROGRESS** - Requires new simulation, camera, rendering and campaign acceptance.
+- [ ] `REV-03` · `P1` · Distinct comic pictures, Level 11 protected swarm transition, updated themed props/enemies and honest release handoff. **Status: IN_PROGRESS** - Work authorized until 11:00 America/New_York (15:00 UTC).
+
 - [x] `CAMP-01` · `P0` · Owner-requested expanded campaign. **Acceptance:** tutorial reference preserved; normal maps 3x reference, Levels 5/10/15 5-7x; distinct routes and encounters; 120-second normal-map pursuer without catch-up; hard boss-zone exclusion; Level 15 background attacker; all 15 levels accessible in solo and authoritative co-op with shared transitions. **Verify:** deterministic map/encounter/life tests, automated campaign traversal, live Socket.IO transitions, browser regression and playthrough. **Status: VERIFIED** - Reproduced/fixed Level 5 corner, full local 1/2/3/4 matrix PASS, and current public two/four campaigns 41029627746 PASS all 15 on first attempt with complete shared snapshots. Dimensions, 120-second pursuit, boss exclusion and all last-survivor routes PASS. See QA_LOG.md public campaign acceptance 09:26.
 
 Follow [`PRIORITY_ROADMAP.md`](PRIORITY_ROADMAP.md) before choosing any other task. The release gates below summarize the required sequence; complete them in order. The full backlog remains below, but it is not a reason to delay a small, playable, public multiplayer entry.

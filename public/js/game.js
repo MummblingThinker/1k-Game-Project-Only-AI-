@@ -73,6 +73,7 @@ let message = '';
 let messageTimer = 0;
 let clock = 0;
 let cameraX = 0;
+let cameraY = 0;
 let startedIntro = false;
 let lastFrame = performance.now();
 const simulationTimer = { remaining: 0 };
@@ -421,7 +422,9 @@ function draw(dtMs = 1000 / 60) {
     const renderedPeers = rendered ? otherPlayers.map(p => rendered.get(p.id) || p) : otherPlayers;
     const cameraTarget = Math.max(0, Math.min(world.width - 320, renderedPlayer.x - 108));
     cameraX += (cameraTarget - cameraX) * (1 - Math.pow(.84, Math.min(100, dtMs) / (1000 / 60)));
-    drawGame(ctx, world, renderedPlayer, renderedPeers, cameraX, { clock, state: gameState, tick: network.inRoom ? lastSnapshot?.tick : soloRun?.tick, reducedMotion:visualOptions.reducedMotion,reducedEffects:visualOptions.reducedEffects });
+    const targetY=world.revision?Math.max(world.topY??0,Math.min(world.height-180,renderedPlayer.y-94)):0;
+    cameraY += (targetY-cameraY)*(1-Math.pow(.78,Math.min(100,dtMs)/(1000/60)));
+    drawGame(ctx, world, renderedPlayer, renderedPeers, cameraX, { cameraY, clock, state: gameState, tick: network.inRoom ? lastSnapshot?.tick : soloRun?.tick, reducedMotion:visualOptions.reducedMotion,reducedEffects:visualOptions.reducedEffects });
   }
 }
 

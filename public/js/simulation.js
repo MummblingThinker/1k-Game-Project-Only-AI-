@@ -2,6 +2,7 @@ import { buildLevel } from './world.js';
 import { createPlayer, stepPlayer, overlaps, updateCrates } from './physics.js';
 import { recordRunEvent } from './telemetry.js';
 import { MEMORY_FRAGMENTS } from './memories.js';
+import { stepRevision, interactRevision, revisionObjective } from './revision-simulation.js';
 
 export const heartMaximum = count => count <= 1 ? 3 : Math.min(10, 3 + Math.ceil((count - 1) / 2));
 export const playersOf = run => [...run.players.values()];
@@ -23,6 +24,7 @@ export function startLevel(run, level = 1, resetRun = false) {
   run.runId = (run.runId || 0) + 1;
   run.deathEvents = [];
   run.stageEvents = [];
+  run.respawnX=null;run.respawnY=null;
   recordRunEvent(run,'stage-start');
   run.notice = level === 1 ? 'Jump the first gap. E activates the red relay.' : 'Activate every route relay. Reach the exit together.';
   for (const [id, p] of run.players) run.players.set(id, makeParticipant(id, p.slot || 0, run.world));
@@ -33,9 +35,10 @@ function detach(run, player, throwing = false) {
   if (object) {
     object.carriedBy = null;
     object.x = Math.max(0, Math.min(run.world.width - object.w, player.x + player.face * 19));
-    object.y = Math.max(0, player.y - 12);
-    object.vx = throwing ? player.face * 2.6 : 0;
+    object.y = run.world.revision ? player.y-12 : Math.max(0, player.y - 12);
+    object.vx = throwing ? player.face * (run.world.revision?3.8:2.6) : 0;
     object.vy = throwing ? -4.3 : 0;
+    if(run.world.revision&&!run.players.has(object.id)){object.flightTicks=throwing?100:0;object.thrownBy=throwing?player.id:null;if(throwing){object.y=player.y+2;object.vy=-2.2;}}
     if (run.players.has(object.id)) {
       object.throwTicks = throwing ? 32 : 0; object.throwVx = object.vx;
       object.onGround = false; object.coyoteTicks = 0; object.jumpBufferTicks = 0;
@@ -92,6 +95,7 @@ function recover(run, checkpoint) {
 }
 
 export function safeFromOrdinary(world, player) {
+  if(world.revision)return !!(world.coveredWay&&player.x>=world.coveredWay.x&&player.x<world.coveredWay.x+world.coveredWay.w&&player.y>world.coveredWay.y)||!!(world.boss&&player.x>=world.boss.x);
   return world.checkpoints.some(c => !c.destroyed && player.x + player.w > c.x && player.x < c.x + c.w) ||
     (world.coveredWay && player.x >= world.coveredWay.x && player.x < world.coveredWay.x + world.coveredWay.w) ||
     (world.boss && player.x >= world.boss.x);
@@ -108,6 +112,7 @@ function openRelay(run, sw) {
 }
 
 export function interactRun(run, id, action = 'use') {
+  if(run.world.revision)return interactRevision(run,id,action,{detach,playersOf});
   const p = run.players.get(id);
   if (!p?.alive || p.carriedBy || p.capture || p.climbing!=null || run.phase !== 'playing') return false;
   if (run.tick - (p.lastInteractionTick ?? -60) < 12) return false;
@@ -264,6 +269,7 @@ function updatePressureBridges(run) {
 }
 
 export function stepRun(run) {
+  if(run.world.revision)return stepRevision(run,{killPlayer,makeParticipant,playersOf,releaseParticipant});
   if (run.phase !== 'playing') return;
   run.tick++;
   const world = run.world;
@@ -349,6 +355,7 @@ export function stepRun(run) {
 }
 
 export function objectiveText(run) {
+  if(run.world.revision)return revisionObjective(run);
   const w = run.world, b = w.boss;
   const done = w.switches.filter(s => s.active).length;
   const hazard = w.enemies.find(e => ['warning','attack'].includes(e.phase) && playersOf(run).some(p => p.alive && Math.abs(p.x-e.targetX)<100));

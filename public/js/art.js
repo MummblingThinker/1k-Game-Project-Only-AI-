@@ -1,4 +1,5 @@
 import { drawRobot } from './robot-art.js';
+import { drawRevision } from './revision-art.js';
 export { getRobotSheet, ROBOT_KINDS, ROBOT_POSES, ROBOT_TILE, robotPose } from './robot-art.js';
 const SPRITES = [
   'human_amber.png', 'human_cyan.png', 'human_rose.png', 'robot_sentinel.png',
@@ -483,6 +484,7 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
 }
 
 export function drawGame(ctx, world, player, peerPlayers, cameraX, state) {
+  if(world.revision)return drawRevision(ctx,world,player,peerPlayers,cameraX,state,drawSurvivor);
   const clock=state.clock||0;
   const sceneryClock=state.reducedMotion?0:clock;
   drawBackground(ctx,world,cameraX,sceneryClock);

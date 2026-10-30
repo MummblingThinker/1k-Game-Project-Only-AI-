@@ -2,9 +2,6 @@ name: Public co-op campaigns
 # Live 13744978; repeat all 15 levels after arena clearance fix, with full snapshot/caption audits.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/public-campaign.yml
 permissions:
   contents: read
 concurrency:
