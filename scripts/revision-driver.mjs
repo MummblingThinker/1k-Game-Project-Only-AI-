@@ -88,6 +88,12 @@ export function driveRevision(state,p,memo={}){
     const heavy=w.enemies.find(e=>e.size==='big'&&!e.dead&&e.stunned<=0&&feet<e.y+4&&feet>e.y-65&&p.x+p.w+24>e.x&&p.x-24<e.x+e.w);
     if(heavy){const right=p.x+p.w/2>heavy.x+heavy.w/2;command.input.right=right;command.input.left=!right;}
   }
-  if(b?.kind==='chainsaw'&&b.phase!=='waiting')command.input.right=true;
+  if(b?.kind==='chainsaw'&&b.phase!=='waiting'){
+    command.input.right=true;
+    // Jump from branch edges instead of dropping into the saw's ground lane.
+    // On the last stretch, keep clear of a close pursuer with an ordinary jump.
+    const ledge=w.platforms.find(s=>Math.abs(feet-s.y)<2&&p.x+p.w>s.x&&p.x<s.x+s.w&&s.x+s.w-p.x<26);
+    if(p.onGround&&(ledge||(!b.solved&&b.bodyX+b.bodyW+70>p.x)))command.input.jump=true;
+  }
   return command;
 }
