@@ -232,11 +232,25 @@ function breakSalvage(run, block) {
   run.notice = 'Cracked salvage cleared. Machines cannot be broken.';
 }
 
+function updatePressureBridges(run) {
+  const world = run.world;
+  for (const plate of world.plates || []) {
+    const weights = [...playersOf(run).filter(p => p.alive && !p.carriedBy && !p.capture),
+      ...world.crates.filter(c => !c.used && !c.carriedBy)];
+    plate.held = weights.some(p => p.x + p.w > plate.x && p.x < plate.x + plate.w && Math.abs(p.y + p.h - plate.y) < 2);
+    plate.remaining = plate.held ? 480 : Math.max(0, plate.remaining - 1);
+    const bridge = world.platforms.find(p => p.plateId === plate.id);
+    if (plate.remaining && !bridge) world.platforms.push({ x: plate.bridgeX, y: world.floorY, w: plate.bridgeW, h: 6, kind: 'pressure-bridge', plateId: plate.id });
+    if (!plate.remaining && bridge) world.platforms = world.platforms.filter(p => p !== bridge);
+  }
+}
+
 export function stepRun(run) {
   if (run.phase !== 'playing') return;
   run.tick++;
   const world = run.world;
   const participants = playersOf(run);
+  updatePressureBridges(run);
   if (world.breakEffects) world.breakEffects = world.breakEffects.filter(e => run.tick - e.tick < 30);
   for (const p of participants) {
     if (!p.alive || p.carriedBy || p.capture) continue;
@@ -306,7 +320,7 @@ export function stepRun(run) {
     return;
   }
   world.finish.locked = world.switches.some(s => !s.active) || !!(b && !b.solved);
-  if (!world.finish.locked && alive.every(p => !p.capture && p.x + p.w >= world.finish.x && p.y >= world.finish.y - p.h)) {
+  if (!world.finish.locked && alive.every(p => !p.capture && p.x + p.w >= world.finish.x && p.y + p.h >= 0 && p.y < world.floorY)) {
     run.phase = 'victory'; run.notice = run.level === 15 ? 'Factory disabled. The last spark survives…' : `Level ${run.level} complete. Continue together.`;
   }
 }
@@ -314,6 +328,8 @@ export function stepRun(run) {
 export function objectiveText(run) {
   const w = run.world, b = w.boss;
   const done = w.switches.filter(s => s.active).length;
+  const plate = w.plates?.find(s => playersOf(run).some(p => p.alive && p.x > s.x - 75 && p.x < s.bridgeX + s.bridgeW + 30));
+  if (plate) return `RELAYS ${done}/${w.switches.length} • PRESSURE BRIDGE: ${plate.held ? 'HELD OPEN' : plate.remaining ? `${Math.ceil(plate.remaining / 60)}s TO CROSS` : 'stand on plate or leave a crate'} • fallback jump available`;
   if (w.platforms.some(s => s.kind === 'breakable' && playersOf(run).some(p => p.alive && Math.abs(p.x - s.x) < 90))) return `RELAYS ${done}/${w.switches.length} • CRACKED SALVAGE: stomp from above or throw a crate`;
   if (done < w.switches.length) return `ROUTE RELAYS ${done}/${w.switches.length} • E near the red terminals`;
   if (b && !b.solved) {

@@ -90,6 +90,7 @@ try {
       canvas.width = 320; canvas.height = 180; figure.append(caption, canvas); document.body.append(figure);
       let focus = world.platforms.find(p => p.kind === 'breakable')?.x || 450;
       if (level === 9) focus = world.memory.x;
+      if (world.plates) focus = world.plates[0].x + 45;
       if (level === 10) focus = world.coveredWay.x + 200;
       if (level === 15) { focus = world.boss.x + 320; world.boss.phase = 'warning'; world.boss.targetX = focus + 40; }
       const player = createPlayer('fixture', focus - 50, 129);
@@ -170,6 +171,9 @@ try {
   await phone.waitForFunction(() => document.querySelector('#story-heading').textContent === 'RUN!');
   assert.equal(await phone.locator('#story-heading').textContent(), 'RUN!');
   await phone.waitForTimeout(1600);
+  const nextBounds=await phone.locator('#story-next').boundingBox(), captionBounds=await phone.locator('#story-caption').boundingBox(), artBounds=await phone.locator('#comic-panels').boundingBox();
+  assert.ok(nextBounds.y >= captionBounds.y + captionBounds.height, 'phone navigation does not cover captions');
+  assert.ok(captionBounds.y >= artBounds.y + artBounds.height && artBounds.height > 240, 'phone artwork has dedicated space');
   const mobileStory = await phone.screenshot({ path: 'artifacts/mobile-story.jpg', type: 'jpeg', quality: 80 });
   console.log('MOBILE_BASE64_BEGIN' + mobileStory.toString('base64') + 'MOBILE_BASE64_END');
   assert.deepEqual(errors, [], `browser errors: ${JSON.stringify(errors)}`);

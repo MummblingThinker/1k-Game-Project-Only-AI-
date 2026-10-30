@@ -216,5 +216,13 @@ export function buildLevel(levelId = 1, partySize = 1) {
       world.crates.push({ id: 'salvage-crate-' + index, x: x - 40, y: 137, w: 14, h: 14, vx: 0, vy: 0, carriedBy: null, used: false });
     }
   }
+  if ([6, 8, 12, 13].includes(level.id)) {
+    world.plates = [0, 3].map(index => {
+      const pit = world.pits[index];
+      const plate = { id: `plate-${index}`, x: pit.x - 70, y: floorY, w: 24, bridgeX: pit.x, bridgeW: pit.w, held: false, remaining: 0 };
+      world.crates.push({ id: `plate-crate-${index}`, x: plate.x - 29, y: 137, w: 14, h: 14, vx: 0, vy: 0, carriedBy: null, used: false });
+      return plate;
+    });
+  }
   return world;
 }

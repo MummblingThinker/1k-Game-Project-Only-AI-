@@ -201,5 +201,34 @@ check('stage-entry warning lasts eight seconds and does not grant contact immuni
   const other=runAt(2,2), p=other.players.get('p0');
   other.world.giant.x=p.x-30; stepRun(other); assert.equal(p.alive,false,'a parked giant still has contact collision');
 });
+check('pressure bridges accept grounded survivors and crates, expire visibly, and preserve fallback geometry', () => {
+  const r=runAt(6,2), p=r.players.get('p0'), plate=r.world.plates[0];
+  const initial=r.world.platforms.slice();
+  p.x=plate.x+4; p.y=plate.y-p.h; p.vy=0;
+  stepRun(r); assert.equal(plate.held,true); assert.equal(plate.remaining,480);
+  assert.equal(r.world.platforms.filter(s=>s.plateId===plate.id).length,1);
+  for(let i=0;i<30;i++)stepRun(r);
+  assert.equal(plate.remaining,480,'weight keeps timer full');
+  p.x=plate.bridgeX+2; p.y=plate.y-p.h; p.onGround=true;
+  stepRun(r); assert.equal(plate.held,false); assert.equal(plate.remaining,479); assert.equal(p.onGround,true,'bridge carries weight');
+  p.x=plate.x-80;
+  for(let i=0;i<479;i++)stepRun(r);
+  assert.equal(plate.remaining,0); assert.ok(!r.world.platforms.some(s=>s.plateId===plate.id));
+  for(const platform of initial)assert.ok(r.world.platforms.includes(platform),'fallback platforms remain');
+  const crate=r.world.crates.find(c=>c.id==='plate-crate-0');
+  crate.x=plate.x+4; crate.y=plate.y-crate.h; crate.vx=crate.vy=0;
+  stepRun(r); assert.equal(plate.held,true);
+  crate.carriedBy=p.id; p.carryId=crate.id;
+  stepRun(r); assert.equal(plate.held,false,'carried props do not weigh down a plate');
+  assert.equal(runAt(6,2).world.plates[0].remaining,0,'a fresh room has independent plate state');
+});
+check('the exit accepts a living human stack and jumps without waiting for the pursuer to remove upper survivors', () => {
+  const r=runAt(6,4);
+  r.world.switches.forEach(s=>{s.active=true;});
+  for(const p of r.players.values()) { p.x=r.world.finish.x+4; p.y=129-p.slot*22; p.onGround=true; }
+  const hearts=r.hearts; stepRun(r);
+  assert.equal(r.phase,'victory'); assert.equal(r.hearts,hearts);
+  assert.ok([...r.players.values()].every(p=>p.alive));
+});
 console.log('Shared systems regression complete.');
 

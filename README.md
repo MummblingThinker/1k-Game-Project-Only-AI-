@@ -36,6 +36,8 @@ Level 1 is the 960-unit tutorial. Normal later maps are 3x as wide; Levels 5/10/
 - Level 10: activate three beacons and survive 45 seconds. A covered route shelters the team beneath a drone swarm.
 - Level 15: evade the background Colossus, charge three pylons and use the exposed central terminal. Complete three overload cycles to escape.
 
+Pressure plates in selected forest/factory stages open temporary bridges. Stand on one or leave a crate; after release, the bridge counts down eight seconds. Existing jumps and stones provide fallback routes. The pursuer gives an eight-second entry warning and keeps its normal walking speed on giant maps.
+
 Robots are indestructible. Jump onto a grabber only while it holds a teammate to force a temporary rescue stun. Struggling buys limited time. Solo grabbers use a telegraphed strike instead.
 
 Shared hearts start at three solo, four for two/three players and five for four. Each fatal transition charges once. A checkpoint revives the longest-dead survivor OR restores one heart if everyone is alive. Full stage transitions reset the original party's life pool. Carry/throw, stacking and fallback stepping stones support teamwork. See [campaign rules](docs/CAMPAIGN_BUILD.md).

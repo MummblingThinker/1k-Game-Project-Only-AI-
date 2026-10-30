@@ -172,7 +172,7 @@ function drawFloor(ctx, world, cameraX) {
   for(const platform of world.platforms) {
     const x=platform.x-cameraX;
     if(x+platform.w<0||x>320) continue;
-    const color=platform.kind==='stone'?'#758b8a':p.ground;
+    const color=platform.kind==='stone'?'#758b8a':platform.kind==='pressure-bridge'?'#398e98':p.ground;
     if (platform.kind === 'breakable') {
       RECT(ctx,x,platform.y,platform.w,platform.h,'#4b342a');
       for (let row=0;row<3;row++) RECT(ctx,x+1,platform.y+1+row*6,platform.w-2,4,row%2?'#c59965':'#b88658');
@@ -306,6 +306,17 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
     RECT(ctx,x-2,cp.y+12,4,9,'#d2b56f'); RECT(ctx,x+40,cp.y+12,4,9,'#d2b56f');
     RECT(ctx,x+21,cp.y-8,2,8,'#d2b56f'); RECT(ctx,x+17,cp.y-5,10,1,'#d2b56f');
     if(cp.active) RECT(ctx,x+14,cp.y+2,14,2,'#b9db9b');
+  }
+  for(const plate of world.plates || []) {
+    const x=plate.x-cameraX;
+    if(x < -120 || x > 340) continue;
+    const warning=plate.remaining > 0 && plate.remaining <= 120 && !plate.held;
+    const color=warning?'#f5b773':plate.remaining?'#8de0cf':'#92b8c8';
+    RECT(ctx,x,plate.y-3,plate.w,3,'#263e51');
+    RECT(ctx,x+2,plate.y-(plate.held?2:4),plate.w-4,2,color);
+    for(let wire=x+plate.w;wire<plate.bridgeX-cameraX;wire+=5) RECT(ctx,wire,154,3,1,color);
+    outlinedText(ctx,plate.held?'HELD':plate.remaining?`${Math.ceil(plate.remaining/60)}s`:'WEIGHT / CRATE',x-8,plate.y-10,color);
+    if(!plate.remaining) for(let rail=0;rail<plate.bridgeW;rail+=8) RECT(ctx,plate.bridgeX-cameraX+rail,plate.y+3,4,1,'#59818c');
   }
   for(const sw of world.switches) {
     const x=sw.x-cameraX;

@@ -153,3 +153,5 @@ These checks **do not** prove all mechanics work in a real browser, verify visua
 6. Only after all four MVP gates are verified, move into Extra tier A, then B, C, and D in `PRIORITY_ROADMAP.md`.
 
 Never mark a gate `VERIFIED` while any acceptance criterion remains untested. Keep the full vision intact, but do not spend scarce work budget on polish while the public multiplayer entry is still blocked.
+
+- [ ] `EXTRA-01` · `P2` · Optional pressure bridges. **Acceptance:** humans/crates hold bridges; visible eight-second release countdown; solo fallback preserved; room state shared. **Status: IMPLEMENTED_UNVERIFIED** - Unit tests and 60 simulated routes pass. Actual-client route/visual checks in progress; human play review pending. See QA_LOG.md pressure bridges entry.

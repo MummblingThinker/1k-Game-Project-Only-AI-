@@ -6,7 +6,7 @@ The owner authorized campaign development while the separate-device acceptance t
 
 Level 1 stays the short tutorial/reference. Levels 2–4, 6–9, 11–14 are 2880 units (about three reference widths). Levels 5/10/15 are 5280/5760/6240 units (5.5/6/6.5 reference widths). Authored pit, ledge and relay coordinates differ per stage. Regular maps have one midpoint shelter; giant maps have two near one-third and two-thirds. Shelters have left/right ground exits and steps to an overhead roof route.
 
-The pursuer advances at a fixed speed calibrated to cross the map in 120 simulated seconds. It does not teleport to the slowest player. It instantly kills on contact and can breach a shelter; ordinary rescue immunity does not protect against it or a pit. It stops outside every boss blast door, even after the arena is solved. Party-wipe retry rewinds it to the segment restart, spends no extra hearts and restores no hearts.
+The pursuer advances at a fixed speed calibrated to cross a normal map in 120 simulated seconds, after an eight-second stage-entry warning. Giant milestone maps use the same walking speed, giving nominal crossings of about 216/235/255 seconds before the boss boundary. It does not teleport to the slowest player. It instantly kills on contact and can breach a shelter; ordinary rescue immunity does not protect against it or a pit. It stops outside every boss blast door, even after the arena is solved. Party-wipe retry rewinds it to the segment restart, spends no extra hearts and restores no hearts.
 
 Level 5: bait the Gate Warden's marked slam. During its exposed cooling window, activate relay 2, then 1, then 3. Each activation briefly stuns it. Escape the opened gate; the robot is not killed.
 
@@ -23,6 +23,8 @@ Sentinels mark an impending strike; creepers count down to a radius blast and re
 N / Continue advances a completed stage; R replays the current stage. Online only the host may advance/replay or skip a shared story. Story scenes after 5/10/15 are server-timed, with native HTML captions. In the lobby the host may select any practice stage. Join before start; leaving/disconnecting clears identity and releases carry/grab relationships.
 
 ## Evidence scope
+
+Levels 6/8/12/13 have pressure-plate bridges. A grounded survivor or uncarried crate holds a bridge open. After release it remains solid for eight seconds with a visible countdown. Leaving a crate supports the whole team; a solo survivor can trigger it and run across. The existing jumps and stepping stones remain as fallback routes. These bridges are optional route aids and never consume an irreplaceable object or disable a relay bridge.
 
 campaign-test.mjs completes all fifteen routes with 1, 2, 3 and 4 simulated participants using input intentions, plus deterministic geometry, pursuer, life and carry checks. These are not human balance tests. The browser workflow checks title/story/pause, every stage load/movement, two independent browser contexts playing the tutorial to shared victory and continuing into Level 2, and touch cancellation. Separate physical-device/network acceptance remains pending.
 
