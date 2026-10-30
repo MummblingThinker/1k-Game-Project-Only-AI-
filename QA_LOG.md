@@ -541,3 +541,8 @@ Evidence: local npm test artifacts/gap-band-test-2.log; clean extraction artifac
 
 - Added an original cached robot sheet with four machine silhouettes and six state poses/four frame slots. Read-only pose selection preserves every attack/capture/stun timer and collision. Warning geometry and countdown text remain visible; reduced decorative motion freezes frame cycling while state changes still show distinct poses.
 - npm test PASS locally, artifacts/robot-frames-test.log; node --check public/js/robot-art.js PASS. Browser frame containment, patrol animation and phase distinction checks added; exported contact-sheet review pending. ART-01 remains IN_PROGRESS.
+
+## 2026-10-30 last-survivor route audit and public ladder follow-up
+
+- node scripts/last-survivor-test.mjs PASS on local Windows/Node 24: all 15 unchanged maps at original party sizes 2/3/4, only the last slot connected. 45 full routes, no teleport, removed hazard, gap shrink or heart refill. Original geometry/cap assertions pass. artifacts/last-survivor-test.log. Added npm test:survivor to the regular suite and documented fallback route solutions in docs/CAMPAIGN_BUILD.md. This covers LIFE-05/LVL-07 automated single-survivor evidence; human balance review remains separate.
+- Public browser run 41015527881 on test source 670e1c4b/live 8e54252c: HTTPS/assets and actual WSS regression PASS, including cleanup of only its own rooms. Browser reached shelter scenario but timed out waiting for roof at line 301. Added short alignment pulses and a settled-position assertion for the narrow E hatch under remote input latency; failure now prints observed room state. Cause is not yet proven; public browser remains unverified pending rerun. No production rules changed.

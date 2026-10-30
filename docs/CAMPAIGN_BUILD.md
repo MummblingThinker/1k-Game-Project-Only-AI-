@@ -16,6 +16,20 @@ Level 15: a separate background Colossus marks targeted strikes. Move away from 
 
 ## Shared rules and controls
 
+Every required route uses reachable E relays and then the exit. The following fallback plan also works when teammates disconnect: take the fixed stepping stones across widened gaps, jump raised ledges rather than pushing against them, and use the midpoint shelter's central E ladder or side steps. Ordinary robots cannot attack inside an intact shelter, but the giant can breach it. Optional memories, salvage and pressure bridges never consume a required key or remove the fallback stones.
+
+| Stages | Route and fallback |
+| --- | --- |
+| 1 | Jump the teaching gap, reach the shelter, jump the exit step, use the relay and cross the second gap. |
+| 2-4 | Follow each transit/roof/searchlight route relay in order; use the stones and shelter roof to pass patrol lanes. Salvage in 3 can be stomped or bypassed. |
+| 5 | Complete the route relays before the arena; use the 2-1-3 cooling-window sequence above. |
+| 6-9 | Water slows movement, so jump from firm ledges. Optional plates in 6/8 hold bridges for eight seconds; stones remain usable after expiry. Memory in 9 is optional. |
+| 10 | Stay below the covered roof; charge all three beacons and evade ground marks until the survival timer ends. |
+| 11-14 | Watch conveyor arrows; wait to land on each narrow stone before the next jump. Plates in 12/13 are optional. Salvage in 11/14 can be bypassed or broken. |
+| 15 | Charge three pylons, use the visibly lit central core, repeat three times and exit. Shelter beneath arena platforms or leave the marked strike zone. |
+
+Automated last-survivor audit: scripts/last-survivor-test.mjs creates each original 2/3/4-player map, disconnects everyone except the last slot, and completes all 45 routes using input/actions only. Original gap sizes, enemies, pursuer and heart cap remain unchanged. This supplements full browser campaigns; it does not replace human difficulty review.
+
 Solo and Socket.IO rooms use simulation.js. E uses a relay/memory terminal or picks up a nearby crate; use E again to throw. F prioritizes a nearby teammate, then crates; F again throws. Q safely drops. A carried teammate can jump free. Living teammates are standable top surfaces for stacking. Jumping on a robot stuns it only while it is actually grabbing a teammate. Alternating A/D or tapping Jump during capture buys a limited extension (four increments shared across both inputs).
 
 Sentinels mark an impending strike; creepers count down to a radius blast and recover; scanners mark a vertical scan target; grabbers patrol and capture. All machines are indestructible. Solo grabbers use a telegraphed crush window because no teammate can rescue a solo player. Shallow water slows ground movement; conveyors push. Optional machine memory terminals never gate completion.

@@ -313,13 +313,26 @@ try {
   await d.waitForFunction(()=>{try{return JSON.parse(document.querySelector('#debug-report').value).events.some(e=>e.type==='checkpoint-revive');}catch{return false;}});
   assert.equal(await d.locator('#spectator-status').isVisible(),false,'revival returns camera to own survivor');
   await walk(b,491);
+  // A remote server may process release after the snapshot that reached the
+  // target. Settle with short input pulses before testing the narrow hatch.
+  await b.waitForTimeout(250);
+  for(let attempt=0;attempt<16&&Math.abs(await x(b)-489)>3;attempt++){
+    await b.keyboard.press(await x(b)>489?'ArrowLeft':'ArrowRight',{delay:30});
+    await b.waitForTimeout(220);
+  }
+  assert.ok(Math.abs(await x(b)-489)<=3,'player is aligned with the ladder hatch');
   const climberId=JSON.parse(await b.locator('#game').getAttribute('data-players'))[0].id;
   await d.evaluate(async()=>{window.readQaState=(await import('/js/game.js')).readDebugSnapshot;});
   await b.keyboard.press('e');
-  await Promise.all([
-    b.waitForFunction(()=>Number(document.querySelector('#game').dataset.playerY)===91),
-    d.waitForFunction(id=>window.readQaState()?.players.find(p=>p.id===id)?.y===91,climberId)
-  ]);
+  try{
+    await Promise.all([
+      b.waitForFunction(()=>Number(document.querySelector('#game').dataset.playerY)===91),
+      d.waitForFunction(id=>window.readQaState()?.players.find(p=>p.id===id)?.y===91,climberId)
+    ]);
+  }catch(error){
+    console.log('LADDER FAILED',JSON.stringify(await d.evaluate(()=>window.readQaState())));
+    throw error;
+  }
   assert.equal(await b.locator('#game').getAttribute('data-alive'),'true','ladder reaches shelter roof alive');
   const ladderImage=await b.screenshot({path:'artifacts/ladder.jpg',type:'jpeg',quality:80});
   console.log('LADDER_BASE64_BEGIN'+ladderImage.toString('base64')+'LADDER_BASE64_END');
