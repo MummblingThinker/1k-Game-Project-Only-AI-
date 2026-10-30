@@ -1,47 +1,47 @@
 {
-  "status": "DRAFT_NOT_READY",
-  "title": "Tiny Teamwork: The Last Spark",
-  "description": "Escape a robot-ruled world in a solo or 2-4-player cooperative platformer. Share a room code, carry and rescue teammates, solve relays and survive three giant encounters across 15 city, forest and factory stages. Original anime comic panels tell the story between regions. The hardest challenge was synchronizing shared lives, physics and boss progression; shared simulation and independent-client tests keep the team together.",
-  "projectUrl": "https://tiny-teamwork-last-spark.onrender.com",
-  "coverImage": "submission/cover.jpg",
-  "shareToShowcase": true,
-  "controls": {
-    "move": "A/D or arrow keys",
-    "jump": "Space or Up",
-    "relay": "E: relays, pylons, terminal, crate or shelter ladder",
-    "replay": "R or Retry stage / Replay stage (host online)",
-    "leave": "Leave button; Enter after victory",
-    "pause": "Solo only. Online Esc releases input while the world continues.",
-    "carry": "F: carry/throw; Q: drop",
-    "continueCampaign": "N or Continue after victory (host online)"
-  },
-  "verification": {
-    "publicHealthAndAssets": true,
-    "twoSeparateDevicesAndNetworks": false,
-    "externalPlaytestQaEntry": null,
-    "humanReviewed": false,
-    "humanSubmitted": false
-  },
-  "sources": {
-    "mission": "https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/mission_step_cmssgy0di000y1ztkbjrpbt5r",
-    "submission": "https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/submit",
-    "rules": "https://go.joinhandshake.com/rs/390-ZTF-353/images/%5BAI_Skills_Studio_Challenge%5D_Contest_Official_Rules.pdf?version=0"
-  },
-  "deadlineDiscrepancy": {
-    "mission": "October 31, 2026 at 11:59pm Pacific",
-    "officialRules": "October 30, 2026 at 11:59pm Pacific",
-    "planningTarget": "Use earlier official-rules date unless organizer confirms otherwise."
-  },
-  "coverRequirements": {
-    "kind": "Screenshot of a key game screen",
-    "minimumWidth": 1200,
-    "recommendedAspect": "3:2"
-  },
-  "limitations": [
-    "15-stage solo/co-op campaign implemented; full human playthrough and difficulty balance remain unverified.",
-    "Physical-device and separate-network acceptance remains pending.",
-    "Optional synthesized sound and saved settings implemented; physical headphone, touch and performance review remains pending.",
-    "Rooms live in one server process and are lost on restart; disconnect requires a new lobby.",
-    "Final entry, eligibility, disclosures and publication require human review."
-  ]
+    "status":  "DRAFT_NOT_READY",
+    "title":  "Tiny Teamwork: The Last Spark",
+    "description":  "Escape a robot-ruled world in a solo or 2-4-player cooperative platformer. Share a room code, carry teammates, throw debris at patrol robots and save at flags across 15 city, forest and factory stages. Climb a giant Warden, flee a chainsaw through a tree maze, and break a factory above rising lava. Original anime comic panels tell the story. The hardest challenge was synchronizing shared physics, lives and boss progression across independent clients.",
+    "projectUrl":  "https://tiny-teamwork-last-spark.onrender.com",
+    "coverImage":  "submission/cover.jpg",
+    "shareToShowcase":  true,
+    "controls":  {
+                     "move":  "A/D or arrow keys",
+                     "jump":  "Space or Up",
+                     "relay":  "E: relay, console, memory, ladder or debris; F throws held objects",
+                     "replay":  "R or Retry stage / Replay stage (host online)",
+                     "leave":  "Leave button; Enter after victory",
+                     "pause":  "Solo only. Online Esc releases input while the world continues.",
+                     "carry":  "F: carry/throw; Q: drop",
+                     "continueCampaign":  "N or Continue after victory (host online)"
+                 },
+    "verification":  {
+                         "publicHealthAndAssets":  true,
+                         "twoSeparateDevicesAndNetworks":  false,
+                         "externalPlaytestQaEntry":  null,
+                         "humanReviewed":  false,
+                         "humanSubmitted":  false
+                     },
+    "sources":  {
+                    "mission":  "https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/mission_step_cmssgy0di000y1ztkbjrpbt5r",
+                    "submission":  "https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/submit",
+                    "rules":  "https://go.joinhandshake.com/rs/390-ZTF-353/images/%5BAI_Skills_Studio_Challenge%5D_Contest_Official_Rules.pdf?version=0"
+                },
+    "deadlineDiscrepancy":  {
+                                "mission":  "October 31, 2026 at 11:59pm Pacific",
+                                "officialRules":  "October 30, 2026 at 11:59pm Pacific",
+                                "planningTarget":  "Use earlier official-rules date unless organizer confirms otherwise."
+                            },
+    "coverRequirements":  {
+                              "kind":  "Screenshot of a key game screen",
+                              "minimumWidth":  1200,
+                              "recommendedAspect":  "3:2"
+                          },
+    "limitations":  [
+                        "15-stage solo/co-op campaign implemented; full human playthrough and difficulty balance remain unverified.",
+                        "Physical-device and separate-network acceptance remains pending.",
+                        "Optional synthesized sound and saved settings implemented; physical headphone, touch and performance review remains pending.",
+                        "Rooms live in one server process and are lost on restart; disconnect requires a new lobby.",
+                        "Final entry, eligibility, disclosures and publication require human review."
+                    ]
 }

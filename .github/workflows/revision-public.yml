@@ -1,4 +1,5 @@
 name: October revision public acceptance
+# Final factory attack/lava revision: runtime 913a4342.
 on:
   workflow_dispatch:
   push:
@@ -27,7 +28,7 @@ jobs:
           node --input-type=module <<'JS'
           import {readFile} from 'node:fs/promises';
           import assert from 'node:assert/strict';
-          for(const p of ['revision-world.js','revision-simulation.js','revision-art.js','physics.js','game.js']) {
+          for(const p of ['revision-world.js','revision-simulation.js','revision-art.js','simulation.js','physics.js','game.js']) {
             const response=await fetch(process.env.BROWSER_BASE_URL+'/js/'+p);
             assert.equal(response.status,200);
             assert.equal((await response.text()).replaceAll('\r\n','\n'),(await readFile('public/js/'+p,'utf8')).replaceAll('\r\n','\n'),p+' deployed source differs');
