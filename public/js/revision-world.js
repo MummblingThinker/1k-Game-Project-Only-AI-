@@ -25,10 +25,10 @@ export function addLadder(w,x,bottom,top) {
 export function addClimbTier(w,b,index) {
   const y=w.floorY-80*(index+1), left=index%2===0;
   const x=b.x+(left?35:210);
-  w.platforms.push({x,y,w:175,h:9,kind:'boss-tier',essential:true,tier:index});
+  w.platforms.push({x:b.x+35,y,w:350,h:9,kind:'boss-tier',essential:true,tier:index,oneWay:true});
   addLadder(w,x+65,Math.min(w.floorY,y+160),y);
   // A permanent stepping block lets a player transfer between alternate ladders.
-  w.platforms.push({x:b.x+178,y:y+39,w:55,h:8,kind:'boss-step',essential:true});
+  w.platforms.push({x:b.x+178,y:y+39,w:55,h:8,kind:'boss-step',essential:true,oneWay:true});
   supply(w,x+22,y,w.region==='city'?'aircon':'gear');
   supply(w,x+125,y,w.region==='city'?'brick':'battery');
   w.topY=Math.min(w.topY,y-120); b.highestTier=index;
@@ -75,8 +75,8 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
     if(type==='water')w.terrain.push({kind:'water',x:x+35,y:y-5,w:cell-70,h:12});
     if(type==='furnace'||type==='assembly')w.terrain.push({kind:'conveyor',x:x+40,y:y-4,w:cell-80,h:8,direction:type==='furnace'?-1:1});
     if(type==='covered'){
-      w.coveredWay??={x,y:y-100,w:0,h:12,drones:100};w.coveredWay.w+=cell;
-      w.platforms.push({x,y:y-100,w:cell,h:12,kind:'covered-roof',essential:true});
+      w.coveredWay??={x,y:y-68,w:0,h:10,drones:100};w.coveredWay.w+=cell;
+      w.platforms.push({x,y:y-68,w:cell,h:10,kind:'covered-roof',essential:true});
     }
     const props=biome==='city'?['trashcan','mailbox','brick','bottle','aircon','antenna']:biome==='forest'?['stick','bone','log','acorn','stone','mushroom']:['gear','battery','pipe','scrap','monitor','coil'];
     if(!['bridge','weight','covered'].includes(type)) {
@@ -84,6 +84,7 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
         const px=x+90+j*Math.max(20,(cell-150)/4);
         supply(w,px,deckY,props[(i+j+id)%props.length]);
       }
+      if(i%2===1)w.platforms.push({x:end-88,y:deckY-20,w:22,h:20,kind:'breakable',material:biome});
       if(i>0||id>1) {
         for(let j=0;j<(id===1?1:3);j++){
           const ex=x+110+j*Math.max(18,(cell-180)/3), flying=(i+j+id)%4===0;
@@ -96,11 +97,11 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
       }
     }
     for(let j=0;j<5;j++)w.scenery.push({x:x+j*cell/5,y:deckY,w:20+(j*17%32),h:15+(i*13+j*11)%45,kind:biome==='city'?['lamp','sign','rubble','vent','wires'][(j+id)%5]:biome==='forest'?['tree','fern','bones','stump','flowers'][(j+id)%5]:['pipe','tank','piston','cables','cratepile'][(j+id)%5]});
-    if(biome==='forest'&&type!=='bridge'&&type!=='weight')w.animals.push({x:x+90,y:deckY-8,homeX:x+90,kind:(id+i)%2?'rabbit':'deer',dir:1});
+    if(biome==='forest'&&!['bridge','weight','covered'].includes(type))w.animals.push({x:x+90,y:deckY-8,homeX:x+90,kind:(id+i)%2?'rabbit':'deer',dir:1});
     if(i>0&&(i%2===1||i===route.length-1))w.checkpoints.push({x:x+20,y:y-34,w:12,h:34,active:false,kind:'flag'});
   });
   let cursor=0;for(const gap of gaps.sort((a,b)=>a.x-b.x)){w.floors.push({x:cursor,y:floorY,w:gap.x-cursor,h:70});cursor=gap.x+gap.w;}w.floors.push({x:cursor,y:floorY,w:width-cursor,h:70});w.pits=gaps;
-  w.memory={x:180,y:floorY-25,read:false};
+  w.memory=id===1?null:{x:112,y:floorY-25,read:false};
   if(milestone){
     const b=w.boss={kind:id===5?'climber':id===10?'chainsaw':'foundry',x:bossX,w:width-bossX,phase:'waiting',solved:false,elapsed:0,timer:120,hp:id===5?8:1,maxHp:id===5?8:1,pylons:[],cycle:0,activeRelay:0,highestTier:-1,bodyX:bossX+70,bodyY:floorY-62,bodyW:58,bodyH:62,crushY:floorY+70};
     w.checkpoints.push({x:bossX-30,y:floorY-34,w:12,h:34,active:false,kind:'flag'});

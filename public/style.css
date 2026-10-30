@@ -170,6 +170,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .comic-factory { background-position: 0 100%; }
 .comic-ending { background-position: 100% 100%; }
 .comic-detail { background-image: url('/assets/story/story-details.png'); }
+.comic-cell .comic-art.comic-original { top:0; left:50%; width:auto; height:100%; aspect-ratio:1 / 1; transform:translateX(-50%); background-size:300% 100%; background-repeat:no-repeat; }
 .comic-rescue { background-position: 0 0; }
 .comic-swarm { background-position: 100% 0; }
 .comic-assembly { background-position: 0 100%; }
@@ -222,3 +223,4 @@ body[data-motion=reduced] .comic-cell { animation:none;opacity:1;transform:none;
 .memory-archive ol { margin: 16px 0 0; padding-left: 24px; display: grid; gap: 16px; }
 .memory-archive h3 { margin: 0 0 6px; font-size: 16px; }
 .memory-archive li p { margin: 0; max-width: 76ch; line-height: 1.6; }
+.comic-cell .comic-art.comic-original { top:0; left:50%; width:auto; height:100%; aspect-ratio:1 / 1; transform:translateX(-50%); background-size:300% 100%; background-repeat:no-repeat; }

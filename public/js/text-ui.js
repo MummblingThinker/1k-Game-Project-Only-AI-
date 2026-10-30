@@ -24,7 +24,7 @@ export function createTextUI() {
     text('scene-retry',roomCode&&!isHost?'Waiting for host':'Retry stage');
     text('scene-menu',roomCode?'Leave room':'Return to title');
     const copy = {
-      title: ['A CO-OP PIXEL PLATFORMER', 'Tiny Teamwork', 'The Last Spark', 'Outrun the machines. Reach shelter together.', 'Press Enter or choose Start Story'],
+      title: ['A CO-OP PIXEL PLATFORMER', 'Tiny Teamwork', 'The Last Spark', 'Outrun the machines. Reach the exit together.', 'Press Enter or choose Start Story'],
       lobby: ['YOUR CO-OP ROOM', roomCode || '', 'Share the code with your team.', 'Everyone joins before the host starts the run.', isHost ? 'Choose Start co-op run or press Enter' : 'Waiting for the host to start'],
       paused: ['TAKE A BREATHER', 'Paused', '', 'Your solo run is paused.', 'Esc to resume / R to restart'],
       gameover: ['THE MACHINES ARE STILL OUT THERE', 'Run over', '', 'Your team is down. Try the escape again.', roomCode ? (isHost ? 'R to restart the room / Enter to leave' : 'Wait for the host to restart / Enter to leave') : 'R to try again / Enter for title'],
@@ -54,6 +54,7 @@ export function createTextUI() {
             survivors: ['One small spark.', 'A hand to hold.', 'Stay together.'],
             gate: ['The barricade falls.', 'Beyond the city.', 'Into the trees.'],
             forestChase: ['Branches break.', 'Red lights follow.', 'The hunt continues.'],
+            treeFall: ['The saw is gaining.', 'Out of the shadow!', 'The forest fights back.'],
             swarm: ['A hundred eyes.', 'Stay beneath the roof.', 'No room for machines.'],
             factoryDoor: ['The door gives way.', 'Something is moving.', 'Listen.'],
             assemblyReveal: ['Another chassis.', 'Another awakening.', 'They never stop.'],
@@ -65,7 +66,9 @@ export function createTextUI() {
             cell.className = 'comic-cell';
           cell.style.setProperty('--panel', index);
             const art = document.createElement('div');
-            art.className = `comic-art comic-${quadrant}${detailQuadrant?' comic-detail':''}`;
+            art.className = 'comic-art comic-original';
+            art.style.backgroundImage = `url('/assets/story/revision/${visual}.jpg')`;
+            art.style.backgroundPosition = `${index*50}% 50%`;
             art.setAttribute('aria-hidden', 'true');
             const caption = document.createElement('span');
             caption.className = 'comic-note';

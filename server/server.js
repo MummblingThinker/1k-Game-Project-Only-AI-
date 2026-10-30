@@ -135,7 +135,7 @@ function continueCampaign(room) {
     if (room.level === 15) { room.phase = 'ending'; room.storyKey = null; }
     else { startLevel(room, room.level + 1); room.storyKey = null; }
   } else if (room.phase === 'victory') {
-    if ([5, 10, 15].includes(room.level)) { room.phase = 'cutscene'; room.storyKey = `after${room.level}`; room.storyTick = 0; }
+    if ([5, 10, 11, 15].includes(room.level)) { room.phase = 'cutscene'; room.storyKey = `after${room.level}`; room.storyTick = 0; }
     else startLevel(room, room.level + 1);
   }
   broadcastRoom(room);

@@ -22,6 +22,7 @@ section('15 distinct routes, biome debris, dense enemies, map scale, protected s
   assert.equal(signatures.size,15);
 });
 section('flags award once, have no safe room protection, solo death respawns at saved flag',()=>{
+  const full=runAt(),f=p0(full),flag=full.world.checkpoints[0];f.x=flag.x;f.y=flag.y+flag.h-f.h;tick(full);assert.equal(full.hearts,4,'a full-health player still gains the promised heart');assert.equal(full.heartMax,4);
   const r=runAt(),p=p0(r),cp=r.world.checkpoints[0];r.hearts=1;p.x=cp.x;p.y=cp.y+cp.h-p.h;tick(r);
   assert.equal(cp.active,true);assert.equal(r.hearts,2);assert.equal(r.respawnX,cp.x);assert.equal(safeFromOrdinary(r.world,p),false);
   tick(r,30);assert.equal(r.hearts,2);killPlayer(r,p,'test');tick(r);assert.equal(r.hearts,1);assert.equal(p.alive,true);assert.ok(Math.abs(p.x-cp.x)<1);tick(r,30);assert.equal(r.hearts,1);
@@ -67,12 +68,12 @@ section('climbing boss takes thrown damage, death emits pixels and creates final
   assert.equal(b.hp,0);assert.equal(b.solved,true);assert.ok(w.breakEffects.some(e=>e.kind==='boss'));assert.equal(w.finish.locked,false);assert.ok(w.ladders.some(l=>l.id==='final-ladder'));
 });
 section('chainsaw finale kills players underneath, permits safe escape, and kills boss',()=>{
-  for(const under of [false,true]){const r=runAt(10),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);p.x=b.tree.x-40;p.y=w.floorY-p.h;p.invulnerability=999;tick(r);assert.equal(b.tree.phase,'warning');p.x=under?b.tree.x:b.tree.x+b.tree.w+10;tick(r,180);assert.equal(b.solved,true);assert.equal(r.deathEvents.some(e=>e.cause==='Falling tree'),under);}
+  for(const under of [false,true]){const r=runAt(10),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);p.x=b.tree.x-40;p.y=w.floorY-p.h;p.invulnerability=999;tick(r);assert.equal(b.tree.phase,'warning');p.x=under?b.tree.x:b.tree.x+b.tree.w+10;tick(r,210);assert.equal(b.solved,true);assert.equal(r.deathEvents.some(e=>e.cause==='Falling tree'),under);}
 });
 section('foundry consoles escalate lava, retain ladder routes, switch to left escape, lava death unlocks exit',()=>{
   const r=runAt(15),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);p.x=b.x+30;tick(r);const speed=b.lavaSpeed;
   for(let i=0;i<3;i++){const s=b.pylons[i];p.x=s.x;p.y=s.y-4;p.invulnerability=1000;tick(r,12);assert.ok(interactRun(r,p.id));assert.equal(b.phaseIndex,i+1);assert.ok(b.lavaSpeed>speed);}
-  assert.equal(b.phase,'escape');assert.ok(w.finish.x<b.x);assert.ok(w.ladders.length>=7);assert.ok(w.platforms.some(s=>s.kind==='escape-floor'));
+  assert.equal(b.phase,'breach');assert.ok(b.bodyX<b.x);tick(r,120);assert.equal(b.phase,'escape');assert.ok(w.finish.x<b.x);assert.ok(w.ladders.length>=7);assert.ok(w.platforms.some(s=>s.kind==='escape-floor'));
   p.x=w.finish.x+40;p.y=w.finish.y;tick(r);assert.equal(b.solved,true);assert.equal(w.finish.locked,false);
 });
 section('giant remains outside boss zone and heart death is charged once',()=>{

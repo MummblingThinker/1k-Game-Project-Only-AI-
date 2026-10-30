@@ -31,7 +31,7 @@
             <p id="scene-kicker" class="panel-kicker">A CO-OP PIXEL PLATFORMER</p>
             <h2 id="scene-title">Tiny Teamwork</h2>
             <p id="scene-subtitle">The Last Spark</p>
-            <p id="scene-body">Outrun the machines. Reach shelter together.</p>
+            <p id="scene-body">Outrun the machines. Reach the exit together.</p>
             <p id="scene-hint">Press Enter or choose Start Story</p>
             <div id="scene-actions" class="scene-actions" hidden>
               <button id="scene-retry" class="secondary-button" type="button">Retry stage</button>
@@ -49,7 +49,7 @@
           <div id="result-panel" class="result-panel" hidden role="region" aria-labelledby="result-title">
             <p id="result-kicker" class="panel-kicker">LEVEL 01 COMPLETE</p>
             <h2 id="result-title">You made it out.</h2>
-            <p>The shelter gate is reached. The last spark is still alive.</p>
+            <p>The exit door is reached. The last spark is still alive.</p>
             <button id="continue-level" class="primary-button">Continue campaign / N</button>
             <button id="replay-level" class="secondary-button">Replay stage / R</button>
             <button id="result-menu" class="secondary-button">Return to title / Enter</button>
@@ -60,7 +60,7 @@
         <div id="tactical-status" class="tactical-status" aria-live="polite"></div>
         <p id="threat-status" class="threat-status"></p>
         <p id="spectator-status" class="microcopy" hidden aria-live="polite"></p>
-        <div class="route-readout"><span id="route-label">Reach the shelter gate. Jump the gaps. Evade the robots.</span><progress id="route-progress" max="100" value="0" aria-label="Route to shelter gate"></progress></div>
+        <div class="route-readout"><span id="route-label">Reach the exit door. Jump the gaps. Evade the robots.</span><progress id="route-progress" max="100" value="0" aria-label="Route to exit door"></progress></div>
         <div class="audio-controls" aria-label="Audio settings">
           <button id="sound-toggle" class="text-button" type="button" aria-pressed="true">Sound on</button>
           <button id="pause-game" class="text-button" type="button" disabled>Pause</button>
@@ -80,8 +80,8 @@
         <div class="quick-controls">
           <span><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd> Move</span>
           <span><kbd>SPACE</kbd> Jump</span>
-          <span><kbd>E</kbd> Use / Throw crate</span>
-          <span><kbd>F</kbd> Carry / Throw teammate</span>
+          <span><kbd>E</kbd> Use / Climb / Lift</span>
+          <span><kbd>F</kbd> Carry / Throw</span>
           <span><kbd>Q</kbd> Drop</span>
           <span><kbd>ESC</kbd> Pause</span>
         </div>
@@ -124,8 +124,8 @@
               <option value="7">07 · River of Sparks</option>
               <option value="8">08 · Watcher Canopy</option>
               <option value="9">09 · The Old Ranger Station</option>
-              <option value="10">10 · The Covered Way</option>
-              <option value="11">11 · Assembly Line A</option>
+              <option value="10">10 · Chainsaw Hollow</option>
+              <option value="11">11 · A Hundred Eyes</option>
               <option value="12">12 · Furnace Hall</option>
               <option value="13">13 · Prototype Wing</option>
               <option value="14">14 · The Control Foundry</option>
@@ -133,12 +133,12 @@
             </select>
           </div>
           <button id="play-selected" class="secondary-button">Load Selected Level</button>
-          <p class="microcopy">15 stages: city, forest, factory. Activate route relays, evade the machines, and reach each shelter together. Continue with N. Larger encounters await at 5, 10, and 15.</p>
+          <p class="microcopy">15 stages: city, forest, factory. Activate route relays, evade the machines, and reach each exit together. Continue with N. Larger encounters await at 5, 10, and 15.</p>
         </section>
 
         <section class="panel-card co-op-card">
           <div class="panel-heading"><h2>Co-op room</h2><span id="network-pill" class="network-pill offline">OFFLINE</span></div>
-          <p class="microcopy">Create a room and share its six-character code with another player. Join before the host starts. Activate the relay with E to open the shared bridge and gate, then get every survivor to the shelter.</p>
+          <p class="microcopy">Create a room and share its six-character code with another player. Join before the host starts. Activate the relay with E to open the shared bridge and gate, then get every survivor to the exit.</p>
           <button id="create-room" class="secondary-button">＋ Create Room</button>
           <div class="form-row join-row">
             <label for="room-code">Room code</label>
@@ -159,7 +159,7 @@
       <article class="lower-card">
         <p class="panel-kicker">WHAT'S PLAYABLE</p>
         <h3>Fifteen stages. One shared escape.</h3>
-        <p>Cross ruined streets, river trails and assembly floors. Use crates and teammates to cross gaps. Reach shelters to recover, then confront three larger escape encounters.</p>
+        <p>Cross ruined streets, river trails and assembly floors. Use crates and teammates to cross gaps. Pass flags to heal and save, then confront three larger escape encounters.</p>
       </article>
       <article class="lower-card">
         <p class="panel-kicker">ART DIRECTION</p>
@@ -169,7 +169,7 @@
       <article class="lower-card">
         <p class="panel-kicker">STAY TOGETHER</p>
         <h3>Rescue. Carry. Outrun.</h3>
-        <p>Jump on a robot only while it is grabbing a teammate to rescue them. F carries or throws a teammate; Q sets them down. Machines recover. Your chance is to escape.</p>
+        <p>Throw debris to destroy small robots and stun heavy armor. E climbs ladders or uses consoles. F carries or throws; Q sets down. Flags save your place and restore a heart.</p>
       </article>
     </section>
 

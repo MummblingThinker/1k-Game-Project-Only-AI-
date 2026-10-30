@@ -31,7 +31,7 @@ try{
     const metadata=await page.evaluate(async level=>{
       const {buildLevel}=await import('/js/world.js'),{drawGame}=await import('/js/art.js'),{createPlayer}=await import('/js/physics.js');
       const w=buildLevel(level,1),b=w.boss;
-      const x=b?b.x+180:level===11?w.coveredWay.x+60:700,y=b&&level!==10?w.floorY-220:w.floorY-22;
+      const x=b?b.x+300:level===11?w.coveredWay.x+60:700,y=b&&level!==10?w.floorY-220:w.floorY-22;
       const p=createPlayer('render',x,y,0);p.slot=0;p.onGround=true;
       if(b){b.phase=level===15?'warning':'active';b.bodyX=b.x+425;b.bodyY=y;b.targetX=x+70;b.targetY=y;if(level===15){b.phaseIndex=2;b.lavaY=w.floorY-40;}}
       const canvas=document.createElement('canvas');canvas.id='revision-preview';canvas.width=960;canvas.height=540;canvas.style.cssText='position:fixed;inset:0;z-index:99999;width:960px;height:540px;background:black;image-rendering:pixelated';document.querySelector('#revision-preview')?.remove();document.body.append(canvas);
@@ -42,5 +42,17 @@ try{
     if([5,11,15].includes(level))console.log(`SCENE_${level}_BASE64_BEGIN`+shot.toString('base64')+`SCENE_${level}_BASE64_END`);
   }
   await page.evaluate(()=>document.querySelector('#revision-preview')?.remove());
+  const art=await page.evaluate(async()=>{
+    const {STORY_BEATS}=await import('/js/campaign.js');const scenes=Object.values(STORY_BEATS).flatMap(b=>b.panels.map(p=>p.visual));
+    const loaded=await Promise.all(scenes.map(visual=>new Promise(resolve=>{const im=new Image();im.onload=()=>resolve({visual,width:im.naturalWidth,height:im.naturalHeight});im.onerror=()=>resolve({visual,error:true});im.src='/assets/story/revision/'+visual+'.jpg';})));
+    return{scenes,loaded};
+  });
+  assert.equal(new Set(art.scenes).size,11);assert.ok(art.loaded.every(i=>i.width>1500&&i.height>500),JSON.stringify(art));
+  await page.goto(base+'/?debug=1');await page.locator('#start-story').click();await sleep(1800);
+  const story=await page.locator('#story-panel').screenshot({path:'artifacts/revision/comic-desktop.jpg',type:'jpeg',quality:80});console.log('COMIC_BASE64_BEGIN'+story.toString('base64')+'COMIC_BASE64_END');
+  const positions=await page.locator('.comic-original').evaluateAll(es=>es.map(e=>getComputedStyle(e).backgroundPosition));assert.equal(new Set(positions).size,3);
+  await page.setViewportSize({width:430,height:932});await sleep(300);await page.screenshot({path:'artifacts/revision/comic-mobile.png'});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no mobile horizontal overflow');
+  console.log('COMIC PASS: 11 unique triptychs / 33 distinct illustrations; desktop and mobile layouts.');
   assert.deepEqual(errors,[]);await writeFile('artifacts/revision/result.json',JSON.stringify({browser:browser.version(),errors,level1:'victory'},null,2));
 }finally{await browser?.close();child?.kill();}

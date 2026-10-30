@@ -230,7 +230,7 @@ const network = new NetworkClient({
       announce(data.phase === 'victory' ? `TEAM ESCAPED / LEVEL ${currentLevel} COMPLETE`
         : data.phase === 'gameover' ? 'RUN OVER / HOST CAN RESTART WITH R'
         : data.phase === 'lobby' ? 'ROOM READY / SHARE THE CODE'
-        : 'ACTIVATE THE RELAY / GET EVERY SURVIVOR TO THE SHELTER');
+        : 'ACTIVATE THE RELAY / GET EVERY SURVIVOR TO THE EXIT');
     } else if (data.notice && data.notice !== lastNotice) announce(data.notice, 2600);
     lastNotice = data.notice || '';
     syncTextUI();
@@ -267,7 +267,7 @@ function startStory() {
   startCutscene('opening', () => {
     buildWorld(1);
     gameState = 'playing';
-    announce('GET OUT OF THE CITY · REACH THE SHELTER GATE', 2800);
+    announce('GET OUT OF THE CITY · REACH THE EXIT DOOR', 2800);
   });
 }
 function loadSelectedLevel() {
@@ -289,7 +289,7 @@ function nextLevel() {
     buildWorld(completed + 1); gameState = 'playing'; canvas.focus();
     announce(`LEVEL ${currentLevel} / ${world.title}`);
   };
-  if ([5,10,15].includes(completed)) startCutscene(`after${completed}`, proceed);
+  if ([5,10,11,15].includes(completed)) startCutscene(`after${completed}`, proceed);
   else proceed();
 }
 function returnToTitle() {
@@ -359,7 +359,7 @@ function syncTextUI() {
   const viewed=viewPlayer(),spectating=viewed.id!==player.id;
   $('watch-player').hidden=!spectating||peers.filter(p=>p.alive).length<2;
   $('spectator-status').hidden=!spectating;
-  const watchText=spectating?`YOU ARE DOWN • Watching Survivor ${viewed.slot+1}. A shelter can revive the longest-down teammate.`:'';
+  const watchText=spectating?`YOU ARE DOWN • Watching Survivor ${viewed.slot+1}. A flag can revive the longest-down teammate.`:'';
   if($('spectator-status').textContent!==watchText)$('spectator-status').textContent=watchText;
   const inArena = world.boss && viewed.x >= world.boss.x;
   const wakeSeconds = Math.ceil((world.giant.wakeTicks || 0) / 60);
@@ -397,9 +397,9 @@ function syncTextUI() {
   const progress = Math.max(0, Math.min(100, Math.floor((viewed.x + viewed.w) / world.finish.x * 100)));
   const routeValue = gameState === 'title' || gameState === 'cutscene' ? 0 : progress;
   if (routeProgress.value !== routeValue) routeProgress.value = routeValue;
-  const routeText = won ? 'Shelter reached. Replay or return to the title.' : gameState === 'title' || gameState === 'cutscene'
-    ? 'Reach the shelter gate. Jump the gaps. Evade the robots.'
-    : `SHELTER GATE / ${progress}% of route / ${gameState === 'paused' ? 'PAUSED' : gameState === 'gameover' ? 'RUN OVER / R to retry' : 'Space to jump / E to interact'}`;
+  const routeText = won ? 'Exit reached. Replay or return to the title.' : gameState === 'title' || gameState === 'cutscene'
+    ? 'Reach the exit door. Jump the gaps. Evade the robots.'
+    : `EXIT DOOR / ${progress}% of route / ${gameState === 'paused' ? 'PAUSED' : gameState === 'gameover' ? 'RUN OVER / R to retry' : 'Space to jump / E to interact'}`;
   if (routeLabel.textContent !== routeText) routeLabel.textContent = routeText;
 }
 
@@ -423,6 +423,7 @@ function draw(dtMs = 1000 / 60) {
     const cameraTarget = Math.max(0, Math.min(world.width - 320, renderedPlayer.x - 108));
     cameraX += (cameraTarget - cameraX) * (1 - Math.pow(.84, Math.min(100, dtMs) / (1000 / 60)));
     const targetY=world.revision?Math.max(world.topY??0,Math.min(world.height-180,renderedPlayer.y-94)):0;
+    if(Math.abs(targetY-cameraY)>180)cameraY=targetY;
     cameraY += (targetY-cameraY)*(1-Math.pow(.78,Math.min(100,dtMs)/(1000/60)));
     drawGame(ctx, world, renderedPlayer, renderedPeers, cameraX, { cameraY, clock, state: gameState, tick: network.inRoom ? lastSnapshot?.tick : soloRun?.tick, reducedMotion:visualOptions.reducedMotion,reducedEffects:visualOptions.reducedEffects });
   }

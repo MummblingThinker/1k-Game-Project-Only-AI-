@@ -115,6 +115,7 @@ export function stepPlayer(player, input, world, dt = 1) {
 
   // Wall/block contacts do not let the player clip through crate-sized props.
   for (const block of world.platforms) {
+    if(block.oneWay)continue;
     if (overlaps(p, block) && p.y + p.h > block.y + 3) {
       if (oldX + p.w <= block.x) p.x = block.x - p.w;
       else if (oldX >= block.x + block.w) p.x = block.x + block.w;
@@ -148,7 +149,7 @@ export function stepPlayer(player, input, world, dt = 1) {
       p.y = solid.y - p.h;
       p.vy = 0;
       p.onGround = true;
-    } else if (horizontally && p.vy < 0 && p.y <= solid.y + solid.h && previousTop >= solid.y + solid.h) {
+    } else if (!solid.oneWay && horizontally && p.vy < 0 && p.y <= solid.y + solid.h && previousTop >= solid.y + solid.h) {
       p.y = solid.y + solid.h;
       p.vy = 0;
     }
@@ -166,6 +167,7 @@ export function updateCrates(world, dt = 1) {
     const solids = [...world.floors, ...world.platforms, ...world.crates.filter(c => c !== crate && !c.used && !c.carriedBy)];
     crate.x += (crate.vx || 0) * dt;
     for (const solid of solids) {
+      if(solid.oneWay)continue;
       if (!overlaps(crate, solid)) continue;
       if (oldX + crate.w <= solid.x) { crate.x = solid.x - crate.w; crate.vx = 0; }
       else if (oldX >= solid.x + solid.w) { crate.x = solid.x + solid.w; crate.vx = 0; }
@@ -177,7 +179,7 @@ export function updateCrates(world, dt = 1) {
       if (horizontally && crate.vy >= 0 && oldBottom <= solid.y + 2 && crate.y + crate.h >= solid.y) {
         crate.y = solid.y - crate.h;
         crate.vy = 0;
-      } else if(horizontally && crate.vy<0 && oldTop>=solid.y+solid.h && crate.y<=solid.y+solid.h) {
+      } else if(!solid.oneWay && horizontally && crate.vy<0 && oldTop>=solid.y+solid.h && crate.y<=solid.y+solid.h) {
         crate.y=solid.y+solid.h;crate.vy=0;
       }
     }

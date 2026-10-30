@@ -1,5 +1,13 @@
 // A controller that only reads snapshots and emits ordinary player inputs/actions.
 // No teleports, disabled enemies, extra hearts, or private server endpoints.
+const browserMemos=new Map();
+export function revisionIntent(s){
+  if(!s?.you||s.phase!=='playing')return{input:{}};
+  const key=[s.you.id,s.runId,s.level].join(':');
+  if(!browserMemos.has(key))browserMemos.set(key,{});
+  if(browserMemos.size>100)browserMemos.delete(browserMemos.keys().next().value);
+  return driveRevision(s,s.you,browserMemos.get(key));
+}
 export function driveRevision(state,p,memo={}){
   const w=state.world,b=w.boss,t=state.tick;
   if(!p?.alive)return {input:{}};
@@ -14,11 +22,11 @@ export function driveRevision(state,p,memo={}){
   if(!b||b.phase==='waiting'){
     const target=w.enemies.find(e=>!e.dead&&e.stunned<=0&&e.x>p.x+25&&e.x<p.x+140&&Math.abs(e.y-p.y)<38);
     const prop=w.crates.find(c=>!c.used&&!c.carriedBy&&!c.durable&&near(c));
-    if(!p.carryId&&prop){command.action='carry';return command;}
+    if(!p.carryId&&prop){command.action='use';return command;}
     if(p.carryId&&target&&target.x-p.x<78&&p.face>0){command.action='carry';return command;}
   }
   if(b&&b.phase!=='waiting'&&!b.solved){
-    if(b.kind==='foundry'&&b.phase==='escape')moveTo(w.finish.x+5);
+    if(b.kind==='foundry'&&['escape','breach'].includes(b.phase))moveTo(w.finish.x+5);
     else if(b.kind==='foundry'||b.kind==='climber'){
       if(b.kind==='foundry'){
         const core=b.pylons.find(s=>!s.active);if(core&&Math.abs(feet-(core.y+core.h))<12){moveTo(core.x);if(near(core)){command.action='use';}return command;}
@@ -27,7 +35,7 @@ export function driveRevision(state,p,memo={}){
       const l=ladders[0];if(l)moveTo(l.x);
       if(b.kind==='climber'){
         const c=w.crates.find(c=>!c.used&&!c.carriedBy&&near(c));
-        if(!p.carryId&&c){command.action='carry';return command;}
+        if(!p.carryId&&c){command.action='use';return command;}
         if(p.carryId&&feet<w.floorY-140){moveTo(b.bodyX-65);if(p.face>0&&Math.abs(p.x-(b.bodyX-65))<18&&Math.abs(p.y-b.bodyY)<55){command.action='carry';return command;}}
       }
     }
@@ -45,7 +53,7 @@ export function driveRevision(state,p,memo={}){
   const climbStep=b&&b.phase!=='waiting'&&['climber','foundry'].includes(b.kind)&&w.platforms.find(s=>s.kind==='boss-step'&&s.y<feet-5&&s.y>feet-74&&ahead(s));
   const threat=w.enemies.find(e=>!e.dead&&e.stunned<=0&&e.x+e.w>p.x&&e.x-(p.x+p.w)<(e.dir<0?34:16)&&e.x>p.x&&Math.abs(e.y+e.h-feet)<35);
   if(p.onGround&&(obstacle||threat||climbStep))command.input.jump=true;
-  if(p.onGround&&b&&['climber','foundry'].includes(b.kind)&&b.phase!=='waiting'&&b.phase!=='escape'){
+  if(p.onGround&&b&&['climber','foundry'].includes(b.kind)&&!['waiting','escape','breach'].includes(b.phase)){
     const support=w.platforms.find(s=>Math.abs(feet-s.y)<2&&p.x+p.w>s.x&&p.x<s.x+s.w);
     if(support&&(dir>0?support.x+support.w-p.x<25:p.x-support.x<15))command.input.jump=true;
   }

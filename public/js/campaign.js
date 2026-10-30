@@ -1,5 +1,5 @@
 export const CAMPAIGN = [
-  { id: 1, title: 'Broken Boulevard', region: 'CITY', palette: 'city', summary: 'Escape the first wave through a shattered city street.', goal: 'Reach the blue-lit shelter gate.' },
+  { id: 1, title: 'Broken Boulevard', region: 'CITY', palette: 'city', summary: 'Escape the first wave through a shattered city street.', goal: 'Reach the blue-lit exit door.' },
   { id: 2, title: 'Subway Shadows', region: 'CITY', palette: 'city', summary: 'Cross the dead transit line while searchlights sweep the tracks.', goal: 'Reach the maintenance stairway.' },
   { id: 3, title: 'Rooftop Run', region: 'CITY', palette: 'city', summary: 'Climb fire escapes and cross rooftops above the patrols.', goal: 'Get across the rooftops.' },
   { id: 4, title: 'The Siren District', region: 'CITY', palette: 'city', summary: 'Move between shuttered shops and a robot dispatch tower.', goal: 'Slip past the dispatch tower.' },
@@ -8,8 +8,8 @@ export const CAMPAIGN = [
   { id: 7, title: 'River of Sparks', region: 'FOREST', palette: 'forest', summary: 'Cross fast water, fallen logs, and exposed power cables.', goal: 'Cross the river gorge.' },
   { id: 8, title: 'Watcher Canopy', region: 'FOREST', palette: 'forest', summary: 'Avoid flying search drones threading through the branches.', goal: 'Get beyond the canopy scanners.' },
   { id: 9, title: 'The Old Ranger Station', region: 'FOREST', palette: 'forest', summary: 'Search an abandoned station for a hidden route out.', goal: 'Open the forest gate.' },
-  { id: 10, title: 'The Covered Way', region: 'FOREST', palette: 'forest', summary: 'A covered human passage leads toward a terrifying revelation.', goal: 'Reach the sealed facility entrance.' },
-  { id: 11, title: 'Assembly Line A', region: 'FACTORY', palette: 'factory', summary: 'Enter the robot-making facility and cross its first production floor.', goal: 'Find a way through the assembly line.' },
+  { id: 10, title: 'Chainsaw Hollow', region: 'FOREST', palette: 'forest', summary: 'Climb and wall-jump through a tree maze ahead of a chainsaw hunter.', goal: 'Escape the falling tree and reach the service door.' },
+  { id: 11, title: 'A Hundred Eyes', region: 'FACTORY', palette: 'factory', summary: 'Follow the forest into a covered building beneath a swarm, then enter the factory.', goal: 'Stay under the roof and cross the first assembly floor.' },
   { id: 12, title: 'Furnace Hall', region: 'FACTORY', palette: 'factory', summary: 'Time jumps around molten channels and crushing machinery.', goal: 'Cross the furnace hall.' },
   { id: 13, title: 'Prototype Wing', region: 'FACTORY', palette: 'factory', summary: 'Unfinished machines test strange movement patterns.', goal: 'Reach the prototype control door.' },
   { id: 14, title: 'The Control Foundry', region: 'FACTORY', palette: 'factory', summary: 'Reroute power and evade the last lines of defenders.', goal: 'Disable the production controls.' },
@@ -43,6 +43,12 @@ export const STORY_BEATS = {
     ],
   },
   after10: {
+    title: 'THE FALLEN HUNTER',
+    panels: [
+      { heading: 'TIMBER!', caption: 'The ancient tree crushes the chainsaw machine. Beyond it, a human-sized passage leads into the factory grounds.', visual: 'treeFall' },
+    ],
+  },
+  after11: {
     title: 'THE COVERED WAY',
     panels: [
       { heading: 'A HUNDRED EYES ABOVE', caption: 'Only humans can pass beneath the low roof. Flying machines crowd the sky overhead.', visual: 'swarm' },
