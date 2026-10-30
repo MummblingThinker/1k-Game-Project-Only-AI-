@@ -21,7 +21,7 @@ try{
     const {buildLevel,createPlayer,drawGame}=window.bench,canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
     ctx.imageSmoothingEnabled=false;
     const quantile=(a,q)=>[...a].sort((x,y)=>x-y)[Math.floor((a.length-1)*q)];
-    const results=[];
+    const results=[],captures=[];
     for(const level of [10,12,14,15])for(const reducedEffects of [false,true]){
       const world=buildLevel(level,4),focus=level===10?world.coveredWay.x+200:world.boss?world.boss.x+310:world.width*.6;
       const players=Array.from({length:4},(_,slot)=>({...createPlayer('bench'+slot,focus-60+slot*22,129),slot,onGround:true,vx:1.28}));
@@ -37,9 +37,10 @@ try{
         if(frame>=30)samples.push(performance.now()-start);
       }
       results.push({level,reducedEffects,frames:samples.length,renderMedianMs:quantile(samples,.5),renderP95Ms:quantile(samples,.95),rafMedianMs:quantile(cadence,.5),rafP95Ms:quantile(cadence,.95)});
+      if(!reducedEffects&&[10,15].includes(level))captures.push({level,source:canvas.toDataURL('image/png')});
     }
     window.gc?.();
-    return {results,heapUsed:performance.memory?.usedJSHeapSize??null};
+    return {results,heapUsed:performance.memory?.usedJSHeapSize??null,captures};
   });
   for(const r of results.results){
     assert.equal(r.frames,240);assert.ok(Number.isFinite(r.renderP95Ms));
@@ -47,7 +48,13 @@ try{
   }
   assert.deepEqual(errors,[]);
   await mkdir('artifacts/performance',{recursive:true});
-  await writeFile('artifacts/performance/result.json',JSON.stringify({browser:browser.version(),scope:'headless CI native-canvas rendering, not physical hardware',...results},null,2));
+  const {captures,...measurements}=results;
+  await writeFile('artifacts/performance/result.json',JSON.stringify({browser:browser.version(),scope:'headless CI native-canvas rendering, not physical hardware',...measurements},null,2));
   await page.screenshot({path:'artifacts/performance/final-scene.png'});
-  console.log('Renderer benchmark PASS:',browser.version(),JSON.stringify(results));
+  await page.setContent('<style>body{margin:0;padding:20px;background:#101b2a;color:#eed9a4;font:18px system-ui}img{display:block;width:960px;height:540px;image-rendering:pixelated}h1{font-size:22px}</style><h1>Native renderer fixtures: full decorative effects</h1>');
+  await page.evaluate(captures=>{for(const c of captures){const label=document.createElement('h2');label.textContent='Level '+c.level+(c.level===10?' covered swarm':' background Colossus');const image=document.createElement('img');image.src=c.source;document.body.append(label,image);}},captures);
+  await page.waitForFunction(()=>[...document.images].every(i=>i.complete));
+  const review=await page.screenshot({path:'artifacts/performance/scene-review.jpg',type:'jpeg',quality:90,fullPage:true});
+  console.log('SCENES_BASE64_BEGIN'+review.toString('base64')+'SCENES_BASE64_END');
+  console.log('Renderer benchmark PASS:',browser.version(),JSON.stringify(measurements));
 }finally{await browser?.close();server.kill('SIGTERM');}
