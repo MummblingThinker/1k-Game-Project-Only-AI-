@@ -328,6 +328,27 @@ try {
   assert.ok(captionBounds.y >= artBounds.y + artBounds.height && artBounds.height > 240, 'phone artwork has dedicated space');
   const mobileStory = await phone.screenshot({ path: 'artifacts/mobile-story.jpg', type: 'jpeg', quality: 80 });
   console.log('MOBILE_BASE64_BEGIN' + mobileStory.toString('base64') + 'MOBILE_BASE64_END');
+  const accessibleContext=await browser.newContext({viewport:{width:390,height:844},forcedColors:'active',reducedMotion:'reduce'});
+  const accessible=await pageIn(accessibleContext);await accessible.goto(base);
+  assert.equal(await accessible.locator('body').getAttribute('data-motion'),'reduced','system reduced motion is respected');
+  await accessible.locator('#sound-toggle').click();
+  assert.equal(await accessible.locator('#sound-toggle').getAttribute('aria-pressed'),'false','sound can stay off during caption review');
+  await accessible.locator('#start-story').focus();await accessible.keyboard.press('Enter');
+  await accessible.waitForFunction(()=>document.querySelector('#game').dataset.state==='cutscene');
+  await accessible.locator('#story-next').focus();await accessible.keyboard.press('Enter');
+  await accessible.waitForFunction(()=>document.querySelector('#story-heading').textContent==='RUN!');
+  const accessibility=await accessible.evaluate(()=>({
+    forced:matchMedia('(forced-colors: active)').matches,
+    animations:[...document.querySelectorAll('.comic-cell')].map(e=>getComputedStyle(e).animationName),
+    captionSize:parseFloat(getComputedStyle(document.querySelector('#story-caption')).fontSize),
+    overflow:document.documentElement.scrollWidth>innerWidth
+  }));
+  assert.equal(accessibility.forced,true);assert.ok(accessibility.animations.every(a=>a==='none'));
+  assert.ok(accessibility.captionSize>=14);assert.equal(accessibility.overflow,false);
+  await accessible.evaluate(()=>scrollTo(0,0));
+  const accessibleImage=await accessible.screenshot({path:'artifacts/high-contrast-story.jpg',type:'jpeg',quality:80});
+  console.log('ACCESS_BASE64_BEGIN'+accessibleImage.toString('base64')+'ACCESS_BASE64_END');
+  await accessibleContext.close();
   assert.deepEqual(errors, [], `browser errors: ${JSON.stringify(errors)}`);
   console.log('Browser PASS: saved mute/volume and gesture-unlocked AudioContext; title/story/pause; all 15 stage loads and movement; two isolated browser contexts create/join/relay/bridge/victory and shared Level 2 transition; touch cancel; zero console/page errors.');
 } finally {

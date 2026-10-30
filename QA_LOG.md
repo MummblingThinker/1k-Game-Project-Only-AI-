@@ -514,3 +514,9 @@ Evidence: local npm test artifacts/gap-band-test-2.log; clean extraction artifac
 
 - 6d3e72f9 full matrix 41011665464: two-client job 123918687445 and four-client job 123918687712 PASS all 15/default stories. Three-client job 123918687706 passed 1-13, then lost remaining hearts in Level 14 pit at x1930-1984; last fallen player x1981.38, y178.32, no climbing state. This is a recorded controller loss, not a demonstrated ladder regression or softlock. Solo still active.
 - Full browser harness now records game-over snapshots/screenshots and can use the real host Retry stage button at most twice across the entire campaign. Every retry validates shared full hearts/all survivors. No retries for timeouts, unknown phases or console errors; failures remain in result/partial reports. This exercises supported recovery instead of requiring a deathless campaign. No gameplay difficulty or physics change. New run pending.
+
+## 2026-10-30 movement cadence and accessible presentation checks
+
+- Added browser-cadence-test.mjs: real keyboard movement/jump path with emulated requestAnimationFrame callback rates 30/60/120; checks elapsed movement, jump apex, held-jump landing without auto-repeat and second press. Explicitly not physical refresh-rate certification. CI execution pending. Existing pure fixed-step tests cover 1/5/30/60/120 Hz exactly.
+- Added sound-off, reduced-motion and forced-colors Chromium scenario at 390px. Native Enter activates story buttons; captions remain at least 14px, comic reveal motion is disabled and no horizontal overflow. Screenshot review pending.
+- Shelter crowding unit scenarios PASS for ground sentinels and overhead scanner, both left/right roof escapes, no heart loss and sheltered teammate remains protected. artifacts/shelter-crowding-test.log. Gameplay source unchanged by these new checks.

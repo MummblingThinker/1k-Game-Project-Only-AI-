@@ -47,11 +47,14 @@ jobs:
       - run: npm install --no-save --package-lock=false playwright
       - run: npx playwright install --with-deps chromium
       - run: node scripts/browser-flow-test.mjs
+      - run: node scripts/browser-cadence-test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: state-flow-evidence
-          path: artifacts/flow/
+          path: |
+            artifacts/flow/
+            artifacts/cadence/
   rescue:
     runs-on: ubuntu-latest
     timeout-minutes: 6

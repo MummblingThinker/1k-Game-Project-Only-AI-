@@ -65,6 +65,19 @@ check('a crate blocking the ladder hatch cannot embed a climbing survivor',()=>{
   p.input={left:true};for(let i=0;i<55;i++)stepRun(r);
   assert.ok(p.x<cp.x&&p.alive,'ground exit remains usable when hatch is blocked');
 });
+check('ground and overhead enemy crowding leave a timed shelter escape',()=>{
+  for(const crowd of ['ground','overhead'])for(const direction of [-1,1]){
+    const r=runAt(2,2),[p,q]=[...r.players.values()],cp=r.world.checkpoints[0];
+    Object.assign(p,{x:cp.x+cp.w/2-p.w/2,y:129,onGround:true,input:{}});
+    Object.assign(q,{x:cp.x+4,y:129,onGround:true,input:{}});
+    r.world.enemies=(crowd==='ground'?[cp.x-20,cp.x+cp.w]:[cp.x+cp.w/2]).map((x,i)=>({id:'crowd-'+i,kind:crowd==='ground'?'sentinel':'scanner',x,y:crowd==='ground'?123:75,w:20,h:28,minX:x,maxX:x,dir:1,speed:0,phase:'attack',timer:20,targetX:x,stunned:0}));
+    const hearts=r.hearts;interactRun(r,p.id);for(let i=0;i<35;i++)stepRun(r);
+    assert.equal(p.y,91);assert.ok(p.alive&&q.alive);
+    p.input={left:direction<0,right:direction>0,jump:true};for(let i=0;i<60;i++)stepRun(r);
+    assert.ok(p.alive&&q.alive,`${crowd} escape ${direction}`);assert.equal(r.hearts,hearts);
+    assert.ok(direction<0?p.x<cp.x-35:p.x>cp.x+cp.w+35);
+  }
+});
 check('capture expiry spends once and a real jump rescue releases without killing robot', () => {
   const r = runAt(), [a, b] = [...r.players.values()], e = r.world.enemies.find(e => e.kind === 'grabber');
   e.x = e.minX = e.maxX = 920;
