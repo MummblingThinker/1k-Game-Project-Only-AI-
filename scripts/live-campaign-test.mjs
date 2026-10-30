@@ -60,6 +60,7 @@ try {
   b.send('joinRoom', { roomCode: a.state.roomCode }); await until(() => b.id, 'guest');
   b.send('selectLevel', { level: 15 }); await sleep(100); assert.equal(a.state.level, 1, 'guest cannot select');
   a.send('selectLevel', { level: 15 }); await until(() => a.state.level === 15 && b.state.level === 15, 'shared stage selection');
+  b.send('ready',{ready:true}); await until(()=>a.state.players.every(p=>p.ready),'guest ready');
   a.send('startRun'); await until(() => a.state.phase === 'playing' && b.state.phase === 'playing', 'shared start');
   driver = setInterval(() => { drive(a); drive(b); }, 40);
   let observedBoss = false, observedStun = false, observedCore = false;

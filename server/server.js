@@ -53,7 +53,7 @@ function leaveCurrentRoom(socket, reason = 'left') {
     rooms.delete(code);
     return;
   }
-  if (room.hostId === socket.id) room.hostId = room.players.keys().next().value;
+  if (room.hostId === socket.id) { room.hostId = room.players.keys().next().value; room.players.get(room.hostId).ready = true; }
   // A running level keeps its original geometry/hearts and shared switch state.
   if (room.phase === 'lobby') configureLobby(room);
   broadcastRoom(room);
@@ -63,7 +63,7 @@ function leaveCurrentRoom(socket, reason = 'left') {
 function publicPlayer(p) {
   return {
     id: p.id, x: p.x, y: p.y, vx: p.vx, vy: p.vy, w: p.w, h: p.h,
-    alive: p.alive, colorIndex: p.colorIndex, face: p.face,
+    alive: p.alive, colorIndex: p.colorIndex, face: p.face, ready: !!p.ready,
     capture: p.capture, carriedBy: p.carriedBy, invulnerability: p.invulnerability, onGround: p.onGround, carryId: p.carryId, timeDead: p.timeDead || 0, slot: p.slot,
   };
 }
@@ -107,6 +107,7 @@ function joinRoom(socket, room) {
   leaveCurrentRoom(socket, 'switched rooms');
   const slot = [0, 1, 2, 3].find((index) => ![...room.players.values()].some((p) => p.slot === index));
   const p = makePlayer(socket.id, slot, room.world);
+  p.ready = socket.id === room.hostId;
   room.players.set(socket.id, p);
   configureLobby(room);
   socketRoom.set(socket.id, room.code);
@@ -190,7 +191,17 @@ io.on('connection', (socket) => {
   });
   socket.on('startRun', () => {
     const room = rooms.get(socketRoom.get(socket.id));
-    if (room && room.hostId === socket.id && room.phase === 'lobby') startRun(room);
+    if (room && room.hostId === socket.id && room.phase === 'lobby') {
+      if (![...room.players.values()].every(p => p.ready)) { socket.emit('roomError', 'Waiting for every survivor to be ready.'); return; }
+      startRun(room);
+    }
+  });
+  socket.on('ready', (data) => {
+    const room = rooms.get(socketRoom.get(socket.id));
+    const p = room?.players.get(socket.id);
+    if (!p || room.phase !== 'lobby' || typeof data?.ready !== 'boolean') return;
+    p.ready = socket.id === room.hostId ? true : data.ready;
+    broadcastRoom(room);
   });
   socket.on('restartRun', () => {
     const room = rooms.get(socketRoom.get(socket.id));

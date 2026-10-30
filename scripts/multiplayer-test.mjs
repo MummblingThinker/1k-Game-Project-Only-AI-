@@ -97,6 +97,12 @@ try {
   await until(() => a.state.players.length === 2 && b.id, 'two joined clients');
   b.send('startRun'); await sleep(100);
   assert.equal(a.state.phase, 'lobby', 'only host starts');
+  a.send('startRun'); await until(()=>a.errors.some(e=>e.includes('ready')),'host waits for readiness');
+  assert.equal(a.state.phase,'lobby');
+  b.send('ready',{ready:'true'}); await sleep(100); assert.equal(a.state.players.find(p=>p.id===b.id).ready,false,'malformed readiness rejected');
+  b.send('ready',{ready:true});await until(()=>a.state.players.every(p=>p.ready),'guest readiness shared');
+  b.send('ready',{ready:false});await until(()=>!a.state.players.find(p=>p.id===b.id).ready,'guest can wait again');
+  b.send('ready',{ready:true});await until(()=>a.state.players.every(p=>p.ready),'ready again');
   a.send('startRun');
   await until(() => a.state.phase === 'playing' && b.state.phase === 'playing', 'shared start');
   assert.equal(a.state.hearts, 4);
@@ -153,6 +159,12 @@ try {
   g.send('joinRoom', { roomCode: c.state.roomCode });
   await until(() => g.errors.length, 'room-full error');
   assert.match(g.errors.at(-1), /full/i);
+  e.send('ready',{ready:true});d.send('ready',{ready:true});
+  await until(()=>c.state.players.filter(p=>p.ready).length===3,'four-person ready order');
+  c.send('startRun');await until(()=>c.errors.some(e=>e.includes('ready')),'four-person host cannot rush last guest');
+  f.send('ready',{ready:true});await until(()=>c.state.players.every(p=>p.ready),'four-person readiness complete');
+  c.send('startRun');await until(()=>c.state.phase==='playing','four-person shared start');
+  const fourRun=c.state.runId;c.send('startRun');await sleep(100);assert.equal(c.state.runId,fourRun,'start cannot double-trigger');
   for (const peer of peers) peer.close();
   await until(() => peers.every((peer) => peer.ws.readyState === WebSocket.CLOSED), 'test sockets closed');
   let health;

@@ -97,6 +97,7 @@ export class NetworkClient {
 
   interact() { if (this.inRoom) this.socket.emit('interact'); }
   startRun() { if (this.inRoom) this.socket.emit('startRun'); }
+  setReady(ready) { if (this.inRoom) this.socket.emit('ready', { ready: !!ready }); }
   restartRun() { if (this.inRoom) this.socket.emit('restartRun'); }
   nextLevel() { if (this.inRoom) this.socket.emit('nextLevel'); }
   selectLevel(level) { if (this.inRoom) this.socket.emit('selectLevel', { level }); }

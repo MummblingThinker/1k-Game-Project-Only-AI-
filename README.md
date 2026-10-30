@@ -10,7 +10,7 @@ Node.js 22+ required (tested with 24.20.0). Run `npm ci`, then `npm start`, and 
 
 ## Play together
 
-Create a room, share its six-character code, and join before the host starts. The host can choose any starting stage. Activate route relays and get every living survivor to the gate. After victory the host selects Continue (N) or restarts (R). Story transitions after stages 5, 10 and 15 are shared.
+Create a room, share its six-character code, and join before the host starts. Guests choose Ready to escape; everyone sees the ready roster, and the host starts once everyone is ready. The host can choose any starting stage. Activate route relays and get every living survivor to the gate. After victory the host selects Continue (N) or restarts (R). Story transitions after stages 5, 10 and 15 are shared.
 
 ## Controls
 

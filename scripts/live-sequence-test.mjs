@@ -74,6 +74,8 @@ try {
   for (const peer of peers.slice(1)) { peer.send('joinRoom', { roomCode: host.state.roomCode }); await until(() => peer.id, 'guest join'); }
   host.send('selectLevel', { level: firstLevel });
   await until(() => peers.every(p => p.state.level === firstLevel), 'selected stage');
+  for(const peer of peers.slice(1))peer.send('ready',{ready:true});
+  await until(()=>host.state.players.every(p=>p.ready),'everyone ready');
   host.send('startRun');
   await until(() => peers.every(p => p.state.phase === 'playing'), 'start');
   driver = setInterval(() => peers.forEach(drive), 40);

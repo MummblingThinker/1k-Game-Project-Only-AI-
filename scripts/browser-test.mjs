@@ -135,6 +135,10 @@ try {
   const code = await a.locator('#game').getAttribute('data-room');
   await b.locator('#room-code').fill(code); await b.locator('#join-room').click();
   await a.waitForFunction(() => JSON.parse(document.querySelector('#game').dataset.players).length === 2);
+  assert.equal(await a.locator('#start-story').isDisabled(),true,'host waits for guests');
+  await b.locator('#room-ready').click();
+  await a.waitForFunction(()=>!document.querySelector('#start-story').disabled);
+  assert.ok((await a.locator('#room-roster').textContent()).includes('READY'));
   await a.locator('#start-story').click();
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.state === 'playing')));
   await Promise.all([walk(a, 256), walk(b, 256)]);

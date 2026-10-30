@@ -13,6 +13,8 @@
     "test": "npm run check && npm run test:systems && npm run test:campaign && npm run smoke && npm run verify:board && npm run test:client && npm run test:multiplayer",
     "test:systems": "node scripts/systems-test.mjs",
     "test:adversarial": "node scripts/adversarial-test.mjs",
+    "test:jitter": "node scripts/jitter-test.mjs",
+    "test:soak": "node scripts/soak-test.mjs",
     "test:campaign": "node scripts/campaign-test.mjs",
     "test:live-campaign": "node scripts/live-campaign-test.mjs",
     "test:sequence": "node scripts/live-sequence-test.mjs",

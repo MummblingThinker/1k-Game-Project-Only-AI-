@@ -131,6 +131,7 @@ const network = new NetworkClient({
       $('replay-level').disabled = false;
       $('result-menu').textContent = 'Return to title / Enter';
       $('room-roster').textContent = '';
+      $('room-ready').hidden = true;
       $('objective-status').textContent = 'Create or join a room to play the campaign together.';
       partySize = 1;
       maxHearts = maxHeartForParty(1);
@@ -163,18 +164,23 @@ const network = new NetworkClient({
     levelSelect.value = String(currentLevel);
     const host = data.hostId === data.playerId;
     const signature = JSON.stringify([data.roomCode, data.phase, data.hostId, data.objectiveVersion,
-      data.level, data.objective, data.players.map((p) => [p.id, p.slot, p.alive, !!p.capture, !!p.carriedBy, !!p.carryId])]);
+      data.level, data.objective, data.players.map((p) => [p.id, p.slot, p.alive, p.ready, !!p.capture, !!p.carriedBy, !!p.carryId])]);
     if (signature !== roomUiSignature) {
       roomUiSignature = signature;
-    startStoryButton.textContent = host ? 'Start co-op run' : 'Waiting for host to start';
-    startStoryButton.disabled = !host || data.phase !== 'lobby';
+    const allReady = data.players.every(p => p.ready);
+    startStoryButton.textContent = host ? allReady ? 'Start co-op run' : 'Waiting for teammates to be ready' : 'Waiting for host to start';
+    startStoryButton.disabled = !host || data.phase !== 'lobby' || !allReady;
+    $('room-ready').hidden = data.phase !== 'lobby';
+    $('room-ready').disabled = host;
+    $('room-ready').textContent = host ? 'Host is ready' : data.you.ready ? 'Ready / tap to wait' : 'Ready to escape';
+    $('room-ready').setAttribute('aria-pressed', String(!!data.you.ready));
     playSelectedButton.disabled = true;
     levelSelect.disabled = !(host && data.phase === 'lobby');
     $('replay-level').textContent = host ? 'Replay room / R' : 'Waiting for host to replay';
     $('replay-level').disabled = !host;
     $('result-menu').textContent = 'Leave room / Return to title';
-    $('objective-status').textContent = data.phase === 'lobby' ? 'Share the code. Host can choose a practice stage before starting.' : data.objective;
-    $('room-roster').textContent = data.players.map((p) => `${p.id === data.playerId ? 'YOU: ' : ''}Survivor ${p.slot + 1}${p.id === data.hostId ? ' (host)' : ''} - ${!p.alive ? 'down' : p.capture ? 'GRABBED' : p.carriedBy ? 'carried' : p.carryId ? 'carrying' : 'active'}`).join(' | ');
+    $('objective-status').textContent = data.phase === 'lobby' ? `${data.players.filter(p=>p.ready).length}/${data.players.length} ready. Everyone joins and readies before the host starts.` : data.objective;
+    $('room-roster').textContent = data.players.map((p) => `${p.id === data.playerId ? 'YOU: ' : ''}Survivor ${p.slot + 1}${p.id === data.hostId ? ' (host)' : ''} - ${data.phase === 'lobby' ? p.ready ? 'READY' : 'waiting' : !p.alive ? 'down' : p.capture ? 'GRABBED' : p.carriedBy ? 'carried' : p.carryId ? 'carrying' : 'active'}`).join(' | ');
     }
     updatePanel();
     if (phaseChanged) {
@@ -453,6 +459,7 @@ $('resume-solo').addEventListener('click', () => {
 });
 createRoomButton.addEventListener('click', () => network.createRoom());
 joinRoomButton.addEventListener('click', () => network.joinRoom(roomCodeInput.value));
+$('room-ready').addEventListener('click', () => network.setReady(!lastSnapshot?.you?.ready));
 leaveRoomButton.addEventListener('click', () => { network.leaveRoom(); partySize=1; buildWorld(1, false); returnToTitle(); });
 roomCodeInput.addEventListener('input', () => { roomCodeInput.value = roomCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6); });
 for (const button of document.querySelectorAll('[data-control]')) {
