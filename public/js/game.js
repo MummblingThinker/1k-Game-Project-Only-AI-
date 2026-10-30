@@ -133,9 +133,9 @@ function updatePanel() {
   const level = getLevel(currentLevel);
   missionTitle.textContent = level.title;
   missionCopy.textContent = level.summary;
-  regionBadge.textContent = `${level.region} Â· LEVEL ${String(level.id).padStart(2,'0')}`;
-  heartReadout.textContent = `${'â™¥ '.repeat(Math.max(0,hearts)).trim()}${hearts === 0 ? 'â€”' : ''}`;
-  if (!heartReadout.textContent) heartReadout.textContent = 'â€”';
+  regionBadge.textContent = `${level.region} · LEVEL ${String(level.id).padStart(2,'0')}`;
+  heartReadout.textContent = `${'♥ '.repeat(Math.max(0,hearts)).trim()}${hearts === 0 ? '—' : ''}`;
+  if (!heartReadout.textContent) heartReadout.textContent = '—';
 }
 function buildWorld(levelId, remember = true) {
   clearInput();
@@ -254,7 +254,7 @@ function startCutscene(key, done) {
   cutscenePanelStart = performance.now();
   cutsceneDone = done || null;
   gameState = 'cutscene';
-  announce(`${currentCutscene.title} Â· STORY SCENE`, 1000);
+  announce(`${currentCutscene.title} · STORY SCENE`, 1000);
   focusGameView();
 }
 function finishCutscene() {
@@ -276,14 +276,14 @@ function startStory() {
   startCutscene('opening', () => {
     buildWorld(1);
     gameState = 'playing';
-    announce('GET OUT OF THE CITY Â· REACH THE EXIT DOOR', 2800);
+    announce('GET OUT OF THE CITY · REACH THE EXIT DOOR', 2800);
   });
 }
 function loadSelectedLevel() {
   buildWorld(Number(levelSelect.value));
   gameState = 'playing';
   focusGameView();
-  announce(`LEVEL ${String(currentLevel).padStart(2,'0')} Â· ${getLevel(currentLevel).title}`, 2200);
+  announce(`LEVEL ${String(currentLevel).padStart(2,'0')} · ${getLevel(currentLevel).title}`, 2200);
 }
 function levelComplete() {
   gameState = 'victory'; clearInput();
@@ -308,7 +308,7 @@ function returnToTitle() {
   capture = null;
   currentCutscene = null;
   updatePanel();
-  announce('READY Â· PRESS START');
+  announce('READY · PRESS START');
 }
 function triggerDeath(reason) {
   if (!player.alive || gameState !== 'playing') return;
@@ -318,13 +318,13 @@ function triggerDeath(reason) {
   lastDeathTimestamp = performance.now();
   capture = null;
   updatePanel();
-  announce(`${reason} Â· ONE TEAM HEART LOST`, 2800);
+  announce(`${reason} · ONE TEAM HEART LOST`, 2800);
   // The solo fallback ends the run; multiplayer deaths remain dead until a segment boundary.
   if (network.inRoom) return;
   const anyOtherAlive = peers.some((p) => p.alive);
   if (!anyOtherAlive) {
     gameState = 'gameover';
-    announce(hearts === 0 ? 'NO TEAM HEARTS LEFT Â· RUN OVER' : 'YOU ARE DOWN Â· RESTART THE RUN', 5000);
+    announce(hearts === 0 ? 'NO TEAM HEARTS LEFT · RUN OVER' : 'YOU ARE DOWN · RESTART THE RUN', 5000);
   }
 }
 function restartRun() {
@@ -335,7 +335,7 @@ function restartRun() {
   buildWorld(currentLevel);
   gameState = 'playing';
   focusGameView();
-  announce('RUN RESTARTED Â· STAY TOGETHER', 2200);
+  announce('RUN RESTARTED · STAY TOGETHER', 2200);
 }
 
 function near(a, b, distance = 19) {
@@ -373,8 +373,8 @@ function syncTextUI() {
   const inArena = world.boss && viewed.x >= world.boss.x;
   const wakeSeconds = Math.ceil((world.giant.wakeTicks || 0) / 60);
   const secondsBehind = Math.max(0, Math.ceil((viewed.x + 4 - world.giant.x - 44) / world.giant.speed / 60)) + wakeSeconds;
-  const threat = inArena ? 'BLAST DOOR â€¢ The roaming giant cannot enter this arena.'
-    : ['playing', 'paused'].includes(gameState) ? wakeSeconds ? `PURSUER WAKES IN ${wakeSeconds}s â€¢ Start toward the route relays.` : `PURSUER â€¢ About ${secondsBehind}s to ${spectating?'the watched survivor':'your current position'}. Keep moving. Giant contact ends the run unless 3+ teammates are alive.`
+  const threat = inArena ? 'BLAST DOOR • The roaming giant cannot enter this arena.'
+    : ['playing', 'paused'].includes(gameState) ? wakeSeconds ? `PURSUER WAKES IN ${wakeSeconds}s • Start toward the route relays.` : `PURSUER • About ${secondsBehind}s to ${spectating?'the watched survivor':'your current position'}. Keep moving. Giant contact ends the run unless 3+ teammates are alive.`
     : 'The giant follows the route. Boss blast doors keep it outside.';
   if ($('threat-status').textContent !== threat) $('threat-status').textContent = threat;
   $('threat-status').dataset.urgent = String(!inArena && secondsBehind < 10 && gameState === 'playing');
@@ -384,7 +384,7 @@ function syncTextUI() {
   updateTextUI({ state: gameState, level: getLevel(currentLevel), hearts, maxHearts,
     roomCode: network.roomCode, isHost: lastSnapshot?.hostId === network.playerId,
     capture, panel: currentCutscene?.panels[cutscenePanelIndex] });
-  $('tactical-status').textContent = network.inRoom ? (lastSnapshot?.objective || '') : soloRun ? objectiveText(soloRun) : 'Solo story or 2â€“4 player co-op â€¢ 15 stages';
+  $('tactical-status').textContent = network.inRoom ? (lastSnapshot?.objective || '') : soloRun ? objectiveText(soloRun) : 'Solo story or 2–4 player co-op • 15 stages';
   $('continue-level').disabled = network.inRoom && lastSnapshot?.hostId !== network.playerId;
   $('result-kicker').textContent = `LEVEL ${String(currentLevel).padStart(2, '0')} COMPLETE`;
   $('replay-level').textContent = network.inRoom ? 'Replay stage / R' : 'Replay stage / R';
@@ -584,7 +584,7 @@ if (Number.isInteger(queryLevel) && queryLevel>=1 && queryLevel<=15) {
   announce(`TEST LEVEL ${queryLevel}`, 1800);
 } else {
   updatePanel();
-  announce('READY Â· PRESS START');
+  announce('READY · PRESS START');
 }
 requestAnimationFrame(frame);
 const invitedRoom=new URLSearchParams(location.search).get('room')?.toUpperCase();
