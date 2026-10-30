@@ -55,10 +55,12 @@
         <div id="live-status" class="screen-status" aria-live="polite">READY / PRESS START</div>
         <div id="tactical-status" class="tactical-status" aria-live="polite"></div>
         <p id="threat-status" class="threat-status"></p>
+        <p id="spectator-status" class="microcopy" hidden aria-live="polite"></p>
         <div class="route-readout"><span id="route-label">Reach the shelter gate. Jump the gaps. Evade the robots.</span><progress id="route-progress" max="100" value="0" aria-label="Route to shelter gate"></progress></div>
         <div class="audio-controls" aria-label="Audio settings">
           <button id="sound-toggle" class="text-button" type="button" aria-pressed="true">Sound on</button>
           <button id="pause-game" class="text-button" type="button" disabled>Pause</button>
+          <button id="watch-player" class="text-button" type="button" hidden>Watch next survivor / V</button>
           <label for="sound-volume">Volume</label>
           <input id="sound-volume" type="range" min="0" max="100" value="25" aria-label="Sound volume" />
           <span>Warnings also appear on screen.</span>

@@ -62,12 +62,12 @@ export function createGameAudio(button, slider) {
   });
   refresh();
   return {
-    observe({ state, world, player, hearts, storyVisual }) {
-      const warnings = world.enemies.filter(e => e.phase === 'warning' && Math.abs(e.x - player.x) < 260).map(e => e.id);
-      if (world.boss?.phase === 'warning' && player.x >= world.boss.x) warnings.push('boss');
+    observe({ state, world, player, listener = player, hearts, storyVisual }) {
+      const warnings = world.enemies.filter(e => e.phase === 'warning' && Math.abs(e.x - listener.x) < 260).map(e => e.id);
+      if (world.boss?.phase === 'warning' && listener.x >= world.boss.x) warnings.push('boss');
       const now = { state, level: world.id, hearts, vy: player.vy, capture: !!player.capture, captureSeconds: Math.ceil(player.capture?.remaining || 0),
         checkpoints: world.checkpoints.filter(c => c.active).length, storyVisual, breakTick: world.breakEffects?.at(-1)?.tick ?? -1,
-        blasts: world.enemies.filter(e => e.kind === 'creeper' && e.phase === 'attack' && Math.abs(e.x - player.x) < 260).map(e => e.id),
+        blasts: world.enemies.filter(e => e.kind === 'creeper' && e.phase === 'attack' && Math.abs(e.x - listener.x) < 260).map(e => e.id),
         relays: world.switches.filter(s => s.active).length + (world.boss?.activeRelay || 0), warnings };
       if (previous && previous.level === now.level) {
         if (state === 'cutscene' && storyVisual !== previous.storyVisual) cue('story');
@@ -86,7 +86,7 @@ export function createGameAudio(button, slider) {
           if (warnings.some(id => !previous.warnings.includes(id)) && performance.now() - lastCueAt > 250) {
             cue('warning'); lastCueAt = performance.now();
           }
-          if (!world.giant.wakeTicks && Math.abs(player.x - world.giant.x) < 260 && performance.now() - lastFootstepAt > 1100 && (!world.boss || player.x < world.boss.x)) {
+          if (!world.giant.wakeTicks && Math.abs(listener.x - world.giant.x) < 260 && performance.now() - lastFootstepAt > 1100 && (!world.boss || listener.x < world.boss.x)) {
             cue('footstep'); lastFootstepAt = performance.now();
           }
         }

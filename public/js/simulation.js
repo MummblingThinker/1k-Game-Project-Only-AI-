@@ -334,6 +334,10 @@ export function objectiveText(run) {
   const done = w.switches.filter(s => s.active).length;
   const hazard = w.enemies.find(e => ['warning','attack'].includes(e.phase) && playersOf(run).some(p => p.alive && Math.abs(p.x-e.targetX)<100));
   if (hazard) return hazard.kind === 'scanner' ? 'SCANNER: leave the marked column before it fires.' : `${hazard.kind === 'creeper' ? 'BLAST' : 'GROUND STRIKE'}: jump or move beyond the marked strip. Machines cannot be destroyed.`;
+  if (!b || b.phase === 'waiting') {
+    if (playersOf(run).some(p=>p.alive&&p.carryId)) return `RELAYS ${done}/${w.switches.length} • CARRYING: F throws forward / Q drops gently`;
+    if (w.crates.some(c=>!c.used&&!c.carriedBy&&playersOf(run).some(p=>p.alive&&!p.capture&&Math.abs(p.x-c.x)<35&&Math.abs(p.y-c.y)<30))) return `RELAYS ${done}/${w.switches.length} • CRATE: push, jump onto it, or E to lift / Q to drop`;
+  }
   const plate = w.plates?.find(s => playersOf(run).some(p => p.alive && p.x > s.x - 75 && p.x < s.bridgeX + s.bridgeW + 30));
   if (plate) return `RELAYS ${done}/${w.switches.length} • PRESSURE BRIDGE: ${plate.held ? 'HELD OPEN' : plate.remaining ? `${Math.ceil(plate.remaining / 60)}s TO CROSS` : 'stand on plate or leave a crate'} • fallback jump available`;
   if (w.platforms.some(s => s.kind === 'breakable' && playersOf(run).some(p => p.alive && Math.abs(p.x - s.x) < 90))) return `RELAYS ${done}/${w.switches.length} • CRACKED SALVAGE: stomp from above or throw a crate`;

@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict';
-import { createPlayer, stepPlayer } from '../public/js/physics.js';
+﻿import assert from 'node:assert/strict';
+import { createPlayer, stepPlayer, updateCrates, overlaps } from '../public/js/physics.js';
 import { startLevel, stepRun, interactRun, killPlayer, releaseParticipant, safeFromOrdinary } from '../public/js/simulation.js';
 const runAt = (level = 2, count = 2) => {
   const run = { players: new Map(Array.from({ length: count }, (_, slot) => [`p${slot}`, { ...createPlayer(`p${slot}`), slot }])) };
@@ -229,6 +229,23 @@ check('the exit accepts a living human stack and jumps without waiting for the p
   const hearts=r.hearts; stepRun(r);
   assert.equal(r.phase,'victory'); assert.equal(r.hearts,hearts);
   assert.ok([...r.players.values()].every(p=>p.alive));
+});
+check('loose crates can be pushed but cannot pass through a solid wall', () => {
+  const crate={id:'crate',x:100,y:137,w:14,h:14,vx:0,vy:0,used:false,carriedBy:null};
+  const wall={x:180,y:90,w:20,h:61};
+  const w={width:300,height:180,floorY:151,floors:[{x:0,y:151,w:300,h:30}],platforms:[wall],crates:[crate]};
+  const p=createPlayer('p',75,129);p.onGround=true;
+  for(let i=0;i<140;i++){stepPlayer(p,{right:true},w);updateCrates(w);assert.ok(p.x+p.w<=crate.x+.001,'no side clipping');}
+  assert.ok(crate.x>150,'walking pushes the crate');assert.ok(crate.x+crate.w<=wall.x);assert.ok(!overlaps(crate,wall));
+  crate.x=130;crate.vx=4;crate.vy=0;
+  for(let i=0;i<30;i++)updateCrates(w);
+  assert.ok(crate.x+crate.w<=wall.x,'thrown crate stops at wall');
+  const top=createPlayer('top',crate.x,crate.y-22);top.onGround=true;
+  for(let i=0;i<10;i++)stepPlayer(top,{},w);
+  assert.equal(top.y+top.h,crate.y,'crate still supports a survivor');
+  const upper={...crate,id:'upper',x:crate.x,y:80,vx:0,vy:0};w.crates.push(upper);
+  for(let i=0;i<80;i++)updateCrates(w);
+  assert.equal(upper.y+upper.h,crate.y,'loose crates can be stacked');
 });
 console.log('Shared systems regression complete.');
 

@@ -54,6 +54,7 @@ let maxHearts = 3;
 let hearts = 3;
 let player = createPlayer();
 let peers = [];
+let watchedPlayerId = null;
 let world = buildLevel(1, 1);
 let soloRun = null;
 let previousPlayerX = player.x;
@@ -80,6 +81,19 @@ let lastNotice = '';
 
 function maxHeartForParty(n) { return Math.min(10, n <= 1 ? 3 : 3 + Math.ceil((n - 1) / 2)); }
 function regionName(region) { return region === 'city' ? 'CITY' : region === 'forest' ? 'FOREST' : 'ROBOT FACTORY'; }
+function viewPlayer() {
+  if(!network.inRoom || player.alive || gameState!=='playing'){watchedPlayerId=null;return player;}
+  const living=peers.filter(p=>p.alive);
+  const watched=living.find(p=>p.id===watchedPlayerId)||living[0];
+  watchedPlayerId=watched?.id||null;
+  return watched||player;
+}
+function watchNextPlayer() {
+  if(!network.inRoom||player.alive||gameState!=='playing')return;
+  const living=peers.filter(p=>p.alive),index=living.findIndex(p=>p.id===watchedPlayerId);
+  watchedPlayerId=living.length?living[(index+1)%living.length].id:null;
+  syncTextUI();
+}
 function focusGameView() {
   canvas.focus({preventScroll:true});
   if(matchMedia('(max-width: 850px)').matches) canvas.closest('.screen-frame').scrollIntoView({block:'start',behavior:'auto'});
@@ -320,11 +334,16 @@ function updateOffline(dtFrames, input, dtMs) {
 
 function syncTextUI() {
   if (document.body.dataset.gameState !== gameState) document.body.dataset.gameState = gameState;
-  const inArena = world.boss && player.x >= world.boss.x;
+  const viewed=viewPlayer(),spectating=viewed.id!==player.id;
+  $('watch-player').hidden=!spectating||peers.filter(p=>p.alive).length<2;
+  $('spectator-status').hidden=!spectating;
+  const watchText=spectating?`YOU ARE DOWN • Watching Survivor ${viewed.slot+1}. A shelter can revive the longest-down teammate.`:'';
+  if($('spectator-status').textContent!==watchText)$('spectator-status').textContent=watchText;
+  const inArena = world.boss && viewed.x >= world.boss.x;
   const wakeSeconds = Math.ceil((world.giant.wakeTicks || 0) / 60);
-  const secondsBehind = Math.max(0, Math.ceil((player.x + 4 - world.giant.x - 44) / world.giant.speed / 60)) + wakeSeconds;
+  const secondsBehind = Math.max(0, Math.ceil((viewed.x + 4 - world.giant.x - 44) / world.giant.speed / 60)) + wakeSeconds;
   const threat = inArena ? 'BLAST DOOR • The roaming giant cannot enter this arena.'
-    : ['playing', 'paused'].includes(gameState) ? wakeSeconds ? `PURSUER WAKES IN ${wakeSeconds}s • Start toward the route relays.` : `PURSUER • About ${secondsBehind}s to your current position. Keep moving.`
+    : ['playing', 'paused'].includes(gameState) ? wakeSeconds ? `PURSUER WAKES IN ${wakeSeconds}s • Start toward the route relays.` : `PURSUER • About ${secondsBehind}s to ${spectating?'the watched survivor':'your current position'}. Keep moving.`
     : 'The giant follows the route. Boss blast doors keep it outside.';
   if ($('threat-status').textContent !== threat) $('threat-status').textContent = threat;
   $('threat-status').dataset.urgent = String(!inArena && secondsBehind < 10 && gameState === 'playing');
@@ -346,12 +365,14 @@ function syncTextUI() {
   data('alive', String(player.alive));
   data('hearts', String(hearts));
   data('room', network.roomCode || '');
+  data('watching',watchedPlayerId||'');
+  data('cameraX',cameraX.toFixed(2));
   data('players', JSON.stringify([player, ...peers].map(({ id, x, y, alive, carryId }) => ({ id, x, y, alive, carryId }))));
   data('switchActive', String(world.switches.some((s) => s.active)));
   data('objectiveVersion', String(lastSnapshot?.objectiveVersion || 0));
   const won = gameState === 'victory';
   if (resultPanel.hidden !== !won) resultPanel.hidden = !won;
-  const progress = Math.max(0, Math.min(100, Math.floor((player.x + player.w) / world.finish.x * 100)));
+  const progress = Math.max(0, Math.min(100, Math.floor((viewed.x + viewed.w) / world.finish.x * 100)));
   const routeValue = gameState === 'title' || gameState === 'cutscene' ? 0 : progress;
   if (routeProgress.value !== routeValue) routeProgress.value = routeValue;
   const routeText = won ? 'Shelter reached. Replay or return to the title.' : gameState === 'title' || gameState === 'cutscene'
@@ -361,7 +382,7 @@ function syncTextUI() {
 }
 
 function draw(dtMs = 1000 / 60) {
-  gameAudio.observe({ state: gameState, world, player, hearts, storyVisual: gameState === 'cutscene' ? currentCutscene?.panels[cutscenePanelIndex]?.visual : null });
+  gameAudio.observe({ state: gameState, world, player, listener: viewPlayer(), hearts, storyVisual: gameState === 'cutscene' ? currentCutscene?.panels[cutscenePanelIndex]?.visual : null });
   syncTextUI();
   if (gameState === 'title') {
     drawTitle(ctx, clock);
@@ -372,8 +393,10 @@ function draw(dtMs = 1000 / 60) {
 
   } else {
     const rendered = network.inRoom ? visualSnapshots.sample(performance.now()) : null;
-    const renderedPlayer = rendered?.get(player.id) || player;
-    const renderedPeers = rendered ? peers.map(p => rendered.get(p.id) || p) : peers;
+    const viewed=viewPlayer();
+    const renderedPlayer = rendered?.get(viewed.id) || viewed;
+    const otherPlayers=[player,...peers].filter(p=>p.id!==viewed.id);
+    const renderedPeers = rendered ? otherPlayers.map(p => rendered.get(p.id) || p) : otherPlayers;
     const cameraTarget = Math.max(0, Math.min(world.width - 320, renderedPlayer.x - 108));
     cameraX += (cameraTarget - cameraX) * (1 - Math.pow(.84, Math.min(100, dtMs) / (1000 / 60)));
     drawGame(ctx, world, renderedPlayer, renderedPeers, cameraX, { clock, state: gameState, tick: network.inRoom ? lastSnapshot?.tick : soloRun?.tick });
@@ -428,6 +451,7 @@ window.addEventListener('keydown', (event) => {
   }
   if (key === 'KeyF' && !event.repeat) interact('carry');
   if (key === 'KeyQ' && !event.repeat) interact('drop');
+  if (key === 'KeyV' && !event.repeat) watchNextPlayer();
   if (gameState === 'victory' && key === 'KeyN' && !event.repeat) nextLevel();
   if (network.inRoom && key === 'KeyE' && !event.repeat) network.interact();
   if (gameState === 'cutscene' && ['Space','Enter','ArrowRight'].includes(key) && !event.repeat) advanceCutscene();
@@ -446,6 +470,7 @@ window.addEventListener('keyup', (event) => { keys.delete(event.code); sendNetwo
 window.addEventListener('blur', () => { keys.clear(); touchInput.left=false; touchInput.right=false; touchInput.jump=false; touchInput.interact=false; sendNetworkInput(); });
 
 $('continue-level').addEventListener('click', nextLevel);
+$('watch-player').addEventListener('click', watchNextPlayer);
 $('story-next').addEventListener('click', advanceCutscene);
 $('pause-game').addEventListener('click', () => {
   if (network.inRoom) {

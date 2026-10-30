@@ -59,6 +59,19 @@ export function stepPlayer(player, input, world, dt = 1) {
     }
   }
 
+  for (const crate of (world.crates || []).filter(c => !c.used && !c.carriedBy)) {
+    if (!overlaps(p, crate) || p.y + p.h <= crate.y + 3) continue;
+    const movingRight = p.x > oldX;
+    const movingLeft = p.x < oldX;
+    if (!movingRight && !movingLeft) continue;
+    const proposed = { ...crate, x: movingRight ? p.x + p.w : p.x - crate.w };
+    const solids = [...world.floors, ...world.platforms, ...(world.crates || []).filter(c => c !== crate && !c.used && !c.carriedBy)];
+    const blocked = proposed.x < 0 || proposed.x + proposed.w > world.width || solids.some(s => overlaps(proposed, s));
+    if (!blocked) { crate.x = proposed.x; crate.vx = 0; }
+    p.x = movingRight ? crate.x - p.w : crate.x + crate.w;
+    if (blocked) p.vx = 0;
+  }
+
   const previousTop = p.y;
   const previousBottom = p.y + p.h;
   p.y += p.vy * dt;
@@ -85,13 +98,19 @@ export function stepPlayer(player, input, world, dt = 1) {
 
 export function updateCrates(world, dt = 1) {
   for (const crate of world.crates) {
-    if (crate.carriedBy) continue;
+    if (crate.carriedBy || crate.used) continue;
+    const oldX = crate.x;
     const oldBottom = crate.y + crate.h;
     crate.vy = Math.min(4.5, (crate.vy || 0) + 0.22 * dt);
+    const solids = [...world.floors, ...world.platforms, ...world.crates.filter(c => c !== crate && !c.used && !c.carriedBy)];
     crate.x += (crate.vx || 0) * dt;
+    for (const solid of solids) {
+      if (!overlaps(crate, solid)) continue;
+      if (oldX + crate.w <= solid.x) { crate.x = solid.x - crate.w; crate.vx = 0; }
+      else if (oldX >= solid.x + solid.w) { crate.x = solid.x + solid.w; crate.vx = 0; }
+    }
     crate.y += crate.vy * dt;
     crate.vx *= 0.94;
-    const solids = [...world.floors, ...world.platforms];
     for (const solid of solids) {
       const horizontally = crate.x + crate.w > solid.x && crate.x < solid.x + solid.w;
       if (horizontally && crate.vy >= 0 && oldBottom <= solid.y + 2 && crate.y + crate.h >= solid.y) {

@@ -70,7 +70,7 @@ function drive(r, id = 'p0') {
     if ((b.phase === 'warning' || b.phase === 'attack') && Math.abs(p.x - b.targetX) < 90) target = b.targetX + (p.x >= b.targetX && b.targetX < b.x + b.w - 110 ? 100 : -100);
   }
   const pit = w.pits.find(pit => p.x + p.w > pit.x - 8 && p.x < pit.x + pit.w && !w.platforms.some(s => s.kind === 'switch-bridge' && s.x === pit.x));
-  const blockedLedge = w.platforms.some(s => p.y + p.h > s.y + 3 && (target > p.x ? s.x >= p.x + p.w - 1 && s.x < p.x + p.w + 4 : p.x >= s.x + s.w - 1 && p.x < s.x + s.w + 4));
+  const blockedLedge = [...w.platforms,...w.crates.filter(c=>!c.used&&!c.carriedBy)].some(s => p.y + p.h > s.y + 3 && (target > p.x ? s.x >= p.x + p.w - 1 && s.x < p.x + p.w + 4 : p.x >= s.x + s.w - 1 && p.x < s.x + s.w + 4));
   const rescue = w.enemies.find(e => e.grabbedId && e.grabbedId !== p.id);
   if (rescue) target = rescue.x + 4;
   const robot = w.enemies.some(e => e.kind === 'grabber' && !e.stunned && Math.abs(p.x - e.x) < 36);

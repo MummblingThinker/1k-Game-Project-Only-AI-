@@ -195,6 +195,18 @@ try {
   assert.equal(await a.locator('#start-story').isDisabled(),true,'four-browser host waits for final guest');
   await c.locator('#room-ready').click();await a.locator('#start-story').click();
   await Promise.all([a,b,c,d].map(p=>p.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing'&&JSON.parse(document.querySelector('#game').dataset.players).length===4)));
+  await d.locator('#game').focus();await d.keyboard.down('ArrowRight');
+  try{await d.waitForFunction(()=>document.querySelector('#game').dataset.alive==='false',null,{timeout:7000});}
+  finally{await d.keyboard.up('ArrowRight');}
+  await d.waitForFunction(()=>document.querySelector('#game').dataset.watching.length>0);
+  assert.equal(await d.locator('#spectator-status').isVisible(),true);
+  const firstWatch=await d.locator('#game').getAttribute('data-watching');
+  await d.locator('#watch-player').click();
+  assert.notEqual(await d.locator('#game').getAttribute('data-watching'),firstWatch);
+  await b.locator('#game').focus();await b.keyboard.down('ArrowRight');
+  try{await b.waitForFunction(()=>Number(document.querySelector('#game').dataset.playerX)>170);}
+  finally{await b.keyboard.up('ArrowRight');}
+  await d.waitForFunction(()=>Number(document.querySelector('#game').dataset.cameraX)>25);
   await Promise.all([a,b,c,d].map(p=>p.locator('#leave-room').click()));
   await cContext.close();await dContext.close();
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });

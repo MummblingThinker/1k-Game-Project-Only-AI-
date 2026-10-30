@@ -51,7 +51,7 @@ function drive(peer) {
   const scan=w.enemies.find(e=>e.kind==='scanner' && ['warning','attack'].includes(e.phase) && Math.abs(p.x-e.targetX)<40);
   if(scan)target=Math.max(target,scan.targetX+65);
   const pit = w.pits.some(q => p.x + p.w > q.x - 8 && p.x < q.x + q.w && !w.platforms.some(t => ['switch-bridge','pressure-bridge'].includes(t.kind) && t.x === q.x));
-  const ledge = w.platforms.some(q => p.y + p.h > q.y + 3 && (target > p.x ? q.x >= p.x + p.w - 1 && q.x < p.x + p.w + 5 : p.x >= q.x + q.w - 1 && p.x < q.x + q.w + 5));
+  const ledge = [...w.platforms,...w.crates.filter(c=>!c.used&&!c.carriedBy)].some(q => p.y + p.h > q.y + 3 && (target > p.x ? q.x >= p.x + p.w - 1 && q.x < p.x + p.w + 5 : p.x >= q.x + q.w - 1 && p.x < q.x + q.w + 5));
   const rescue = w.enemies.find(e => e.grabbedId && e.grabbedId !== p.id);
   if (rescue) target = rescue.x + 4;
   const robot = w.enemies.some(e => e.kind === 'grabber' && !e.stunned && Math.abs(p.x - e.x) < 36);
