@@ -18,7 +18,7 @@ All PNG sprites under `public/assets/sprites/` are generated with simple shapes 
 
 Sprites: `human_amber.png`, `human_cyan.png`, `human_rose.png`, `robot_sentinel.png`, `robot_flyer.png`, `robot_creeper.png`, `giant_pursuer.png`, `crate.png`, `checkpoint_shelter.png`.
 
-The current sprite work is a placeholder-quality first pass; upgrade with custom sprite sheets, walk/jump/carry/throw/climb/captured/rescue animations, enemy telegraphs, environmental tiles, and proper frame timings. Keep assets original.
+The original base PNGs remain for title staging and machines. Gameplay survivors now use a cached sixteen-pose animation sheet generated from original pixel code, with four palettes and four frame slots per pose. Native-scale silhouettes, frame boundaries and browser rendering are checked in the QA harness.
 
 
 ## October 2026 campaign presentation
@@ -29,4 +29,4 @@ Sound cues are original Web Audio oscillator synthesis in public/js/audio.js, wi
 
 ## Original procedural motion, October 30
 
-Gameplay survivors now use original procedural pixel poses in art.js: idle, four-phase run, jump/fall, carry, throw/release, captured struggle, hit/kneel and down. Four coat palettes and numbered online labels distinguish participants. The original PNGs remain used for title/story staging. Robot patrol legs, grab arms, recovery sensors, scanner columns and named attack countdowns are drawn from original code. Hit/throw timers are authoritative visual metadata and do not change collision or heart rules. This is procedural animation, not a claimed external sprite sheet.
+Gameplay survivors use original pixel frames in art.js: idle breathing, four-phase run, jump/fall, stationary/running/airborne carry and throw, ladder climb, captured struggle, hit/kneel and down. The generated sheet is cached once and reused. Four coat palettes and numbered online labels distinguish participants. The original PNGs remain used for title/story staging. Robot patrol legs, grab arms, recovery sensors, scanner columns and named attack countdowns are drawn from original code. Hit/throw timers are authoritative visual metadata and do not change collision or heart rules. No external sprite sheet is used. The companion story-details.png atlas adds distinct rescue, covered-walkway, assembly and ambush artwork; see STORY_DETAILS_PROMPT.md. Water ripples and conveyor treads respect reduced motion, with fixed direction arrows retained. The Level 15 Colossus has warning/attack/stunned poses and a visible central core terminal with three progress lights.

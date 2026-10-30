@@ -20,10 +20,11 @@ try{
     },hz);
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
     await page.goto(base+'/?level=1&debug=1');await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing');
+    await page.evaluate(async()=>{window.readQaState=(await import('/js/game.js')).readDebugSnapshot;});
     await page.locator('#game').focus();await page.waitForTimeout(150);
     const start=await page.evaluate(async()=>{const s=(await import('/js/game.js')).readDebugSnapshot();return {tick:s.tick,x:s.you.x,frames:window.__qaFrames};});
     await page.keyboard.down('ArrowRight');
-    await page.waitForFunction(async tick=>(await import('/js/game.js')).readDebugSnapshot().tick>=tick+60,start.tick);
+    await page.waitForFunction(tick=>window.readQaState().tick>=tick+60,start.tick);
     await page.keyboard.up('ArrowRight');await page.waitForTimeout(150);
     const moved=await page.evaluate(async()=>{const s=(await import('/js/game.js')).readDebugSnapshot();return {tick:s.tick,x:s.you.x,frames:window.__qaFrames};});
     const distance=moved.x-start.x;

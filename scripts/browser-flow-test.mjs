@@ -46,6 +46,14 @@ try{
     if(cycle===2)console.log('FLOW_BASE64_BEGIN'+gameoverImage.toString('base64')+'FLOW_BASE64_END');
     await page.locator('#scene-retry').click();await phase('playing');
     assert.equal((await snapshot()).hearts,3);assert.ok((await snapshot()).players.every(p=>p.alive));
+    await page.locator('#game').focus();await page.keyboard.press('Space',{delay:80});
+    await page.waitForFunction(()=>Number(document.querySelector('#game').dataset.playerY)<120);
+    await page.keyboard.press('Escape');await phase('paused');
+    const paused=await snapshot();await page.waitForTimeout(500);const stillPaused=await snapshot();
+    assert.equal(stillPaused.tick,paused.tick);assert.equal(stillPaused.you.y,paused.you.y);
+    assert.equal(stillPaused.world.giant.x,paused.world.giant.x);assert.equal(stillPaused.world.giant.wakeTicks,paused.world.giant.wakeTicks);
+    await page.locator('#pause-game').click();await phase('playing');
+    await page.waitForFunction(()=>Number(document.querySelector('#game').dataset.playerY)===129);
     await clearTutorial();
     await page.locator('#replay-level').click();await phase('playing');assert.equal((await snapshot()).hearts,3);
     await clearTutorial();

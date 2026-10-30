@@ -231,24 +231,37 @@ function drawEncounter(ctx, world, cameraX, clock, reducedEffects=false) {
   if (bx > 380) return;
   RECT(ctx, bx - 7, 55, 7, 96, '#293c51'); RECT(ctx, bx - 4, 61, 2, 77, '#69c3c6');
   if (bx > -60 && bx < 330) outlinedText(ctx, 'PURSUER BLOCKED', bx + 4, 72, '#b7ece0');
-  for (const s of b.pylons) {
-    const x = s.x - cameraX;
-    if (x < -20 || x > 340) continue;
-    RECT(ctx, x, s.y, s.w, s.h, s.active ? '#60c9b2' : '#d28f53');
-    outlinedText(ctx, String(s.order + 1), x + 3, s.y - 4, s.active ? '#a4f7d6' : '#ffe6ae');
-  }
   const center = b.x + b.w / 2 - cameraX;
   if (b.kind === 'background') {
     // The Colossus stays behind the arena. Its targeted strikes are foreground hazards.
     const x = Math.max(-100, Math.min(210, center - 70));
     const pulse = b.phase === 'stunned' || b.solved ? '#6ce1cf' : '#ff7e6c';
-    RECT(ctx, x, 37, 126, 66, '#3a4c62'); RECT(ctx, x + 14, 18, 98, 48, '#61748c');
-    RECT(ctx, x + 23, 27, 80, 22, '#202b42'); RECT(ctx, x + 33, 32, 25, 6, pulse); RECT(ctx, x + 70, 32, 25, 6, pulse);
-    RECT(ctx, x - 22, 59, 32, 63, '#55667e'); RECT(ctx, x + 116, 59, 32, 63, '#55667e');
+    const stunned=b.phase==='stunned'||b.solved;
+    const headY=18+(stunned?5:Math.round(Math.sin(clock*.0018)));
+    const armY=b.phase==='warning'?47:b.phase==='attack'?69:stunned?67:59;
+    RECT(ctx, x, 37, 126, 66, '#3a4c62'); RECT(ctx, x + 14, headY, 98, 48, '#61748c');
+    RECT(ctx, x + 23, headY+9, 80, 22, '#202b42'); RECT(ctx, x + 33, headY+14, 25, stunned?3:6, pulse); RECT(ctx, x + 70, headY+14, 25, stunned?3:6, pulse);
+    RECT(ctx, x - 22, armY, 32, 63, '#55667e'); RECT(ctx, x + 116, armY, 32, 63, '#55667e');
+    RECT(ctx,x-17,armY+8,21,3,'#8093a6');RECT(ctx,x+121,armY+8,21,3,'#8093a6');
+    if(stunned&&!b.solved){RECT(ctx,x+39,headY-7,5,2,'#c1f4e9');RECT(ctx,x+82,headY-10,5,2,'#c1f4e9');}
     for (let i = 0; i < 5; i++) RECT(ctx, x + 30 + i * 14, 75, 6, 14, pulse);
+    // This matches the authoritative core interaction at b.x + 310.
+    const coreX=b.x+310-cameraX,available=b.phase==='stunned'&&!b.solved;
+    if(coreX>-65&&coreX<350){
+      RECT(ctx,coreX,126,20,25,'#172c3b');RECT(ctx,coreX+2,128,16,11,'#718291');
+      RECT(ctx,coreX+4,130,12,7,available?'#80e4cf':b.solved?'#283d47':'#b87757');
+      for(let i=0;i<3;i++)RECT(ctx,coreX+3+i*5,143,3,3,i<b.cycle?'#9ee4ca':'#415564');
+      outlinedText(ctx,b.solved?'CORE OFF':available?'CORE / E':'CORE LOCKED',coreX-17,121,available?'#b4ffdf':'#e1c493');
+    }
   } else if (b.kind === 'gatewarden') {
     const im = sprite('giant_pursuer.png');
     if (im?.complete && im.naturalWidth) { ctx.save(); ctx.globalAlpha = .85; ctx.drawImage(im, rnd(center - 30), 70, 76, 68); ctx.restore(); }
+  }
+  for (const s of b.pylons) {
+    const x = s.x - cameraX;
+    if (x < -20 || x > 340) continue;
+    RECT(ctx, x, s.y, s.w, s.h, s.active ? '#60c9b2' : '#d28f53');
+    outlinedText(ctx, String(s.order + 1), x + 3, s.y - 4, s.active ? '#a4f7d6' : '#ffe6ae');
   }
   if (['warning', 'attack'].includes(b.phase)) {
     const x = b.targetX - cameraX, radius = b.kind === 'background' ? 32 : 25;

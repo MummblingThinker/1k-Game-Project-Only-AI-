@@ -60,6 +60,9 @@ try{
     return peers.every(p=>p.captured);
   },'shared capture');
   const hearts=victim.state.hearts;
+  const captureBefore=victim.state.you.capture.remaining;
+  await victim.page.locator('#game').focus();await victim.page.keyboard.press('Escape');await sleep(200);
+  assert.ok(victim.state.you.capture.remaining<captureBefore-.05,'online input release does not pause the shared capture clock');
   await victim.page.screenshot({path:'artifacts/rescue/captured.png'});
   await until(async()=>{
     await input(victim,routeIntent(victim.state).input);

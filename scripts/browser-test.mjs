@@ -149,6 +149,14 @@ try {
       drawGame(ctx, world, player, [], Math.max(0, focus - 160), { clock: 1400, tick: 0, state: 'playing' });
     }
     const { drawSurvivor, buildLevel, createPlayer, drawGame } = window.renderTools;
+    {
+      const world=buildLevel(15),figure=document.createElement('figure'),label=document.createElement('figcaption'),canvas=document.createElement('canvas');
+      figure.id='core-fixture';label.textContent='COLOSSUS FIXTURE / stunned core / 2 of 3 circuits';
+      canvas.width=320;canvas.height=180;figure.append(label,canvas);document.body.append(figure);
+      world.boss.phase='stunned';world.boss.cycle=2;world.boss.pylons.forEach(s=>s.active=true);
+      const focus=world.boss.x+310,ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
+      drawGame(ctx,world,createPlayer('core',focus-35,129),[],focus-160,{clock:1400,tick:0,state:'playing'});
+    }
     for(const level of [6,11,12]){
       const world=buildLevel(level),terrain=world.terrain[0],figure=document.createElement('figure'),label=document.createElement('figcaption'),canvas=document.createElement('canvas');
       label.textContent='TERRAIN FIXTURE / '+terrain.kind+' / direction '+(terrain.direction||0);
@@ -181,6 +189,8 @@ try {
   });
   const stages = await fixture.screenshot({ path: 'artifacts/stage-fixtures.jpg', type: 'jpeg', quality: 85, fullPage: true });
   console.log('STAGES_BASE64_BEGIN' + stages.toString('base64') + 'STAGES_BASE64_END');
+  const coreFixture=await fixture.locator('#core-fixture').screenshot({path:'artifacts/core-fixture.jpg',type:'jpeg',quality:85});
+  console.log('CORE_BASE64_BEGIN'+coreFixture.toString('base64')+'CORE_BASE64_END');
   await fixture.close();
   // Render the real comic UI in an isolated document without the game loop.
   const comics=await pageIn(aContext);
@@ -285,10 +295,11 @@ try {
   assert.equal(await d.locator('#spectator-status').isVisible(),false,'revival returns camera to own survivor');
   await walk(b,491);
   const climberId=JSON.parse(await b.locator('#game').getAttribute('data-players'))[0].id;
+  await d.evaluate(async()=>{window.readQaState=(await import('/js/game.js')).readDebugSnapshot;});
   await b.keyboard.press('e');
   await Promise.all([
     b.waitForFunction(()=>Number(document.querySelector('#game').dataset.playerY)===91),
-    d.waitForFunction(async id=>{const s=(await import('/js/game.js')).readDebugSnapshot();return s?.players.find(p=>p.id===id)?.y===91;},climberId)
+    d.waitForFunction(id=>window.readQaState()?.players.find(p=>p.id===id)?.y===91,climberId)
   ]);
   assert.equal(await b.locator('#game').getAttribute('data-alive'),'true','ladder reaches shelter roof alive');
   const ladderImage=await b.screenshot({path:'artifacts/ladder.jpg',type:'jpeg',quality:80});
