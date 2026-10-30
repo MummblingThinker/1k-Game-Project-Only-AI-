@@ -60,7 +60,7 @@ jobs:
             artifacts/performance/
   rescue:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -73,6 +73,7 @@ jobs:
       - run: node scripts/browser-rescue-test.mjs
       - run: node scripts/browser-giant-test.mjs
       - run: node scripts/browser-memory-test.mjs
+      - run: node scripts/browser-hazards-test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -81,6 +82,7 @@ jobs:
             artifacts/rescue/
             artifacts/giant/
             artifacts/memory/
+            artifacts/hazards/
   compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15
