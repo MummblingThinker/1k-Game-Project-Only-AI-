@@ -52,6 +52,7 @@ jobs:
       - run: node scripts/browser-performance-test.mjs
       - run: node scripts/browser-restart-test.mjs
       - run: node scripts/browser-jitter-test.mjs
+      - run: node scripts/browser-pressure-test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -61,6 +62,7 @@ jobs:
             artifacts/cadence/
             artifacts/performance/
             artifacts/jitter-browser/
+            artifacts/pressure/
   rescue:
     runs-on: ubuntu-latest
     timeout-minutes: 10

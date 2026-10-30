@@ -154,7 +154,7 @@ These checks **do not** prove all mechanics work in a real browser, verify visua
 
 Never mark a gate `VERIFIED` while any acceptance criterion remains untested. Keep the full vision intact, but do not spend scarce work budget on polish while the public multiplayer entry is still blocked.
 
-- [ ] `EXTRA-01` · `P2` · Optional pressure bridges. **Acceptance:** humans/crates hold bridges; visible eight-second release countdown; solo fallback preserved; room state shared. **Status: IMPLEMENTED_UNVERIFIED** - Units and actual TCP-delayed two-client bridge holding/expiry PASS; complete routes retain solo stones. Human visual countdown/puzzle review remains pending.
+- [ ] `EXTRA-01` · `P2` · Optional pressure bridges. **Acceptance:** humans/crates hold bridges; visible eight-second release countdown; solo fallback preserved; room state shared. **Status: IN_PROGRESS** - Units and TCP-delayed shared bridge/expiry PASS; added actual two-browser crate-only holding and visible eight-second expiry check, awaiting CI/screenshot review.
 
 - [x] `EXTRA-02` · `P2` · Saved solo stage shortcut. **Acceptance:** reload offers the last solo stage, begins it with full hearts, rejects corrupt saves and survives blocked storage. **Status: VERIFIED** - Corrupt/blocked storage and Chromium/Firefox/WebKit reload/resume checks pass. See QA_LOG.md SYS audit.
 
