@@ -1,5 +1,9 @@
 # Start here in Codex
 
+## Current owner authorization (October 29-30, 2026)
+
+The owner explicitly deferred physical-device testing and authorized completing the campaign, remaining implementation, bug testing and optional art/features until 06:00 America/New_York October 30 (10:00 UTC). This supersedes the older gate-only restrictions below for that session. At the cutoff save a handoff and stop autonomous work. Never fabricate physical acceptance or submit the contest entry. The 15-stage game is deployed; consult docs/PROJECT_STATUS.md for the current source/live revisions and pending checks. Preserve the completed work rather than reverting to a single-level prototype.
+
 You are continuing the existing project **Tiny Teamwork: The Last Spark**. It is an early prototype, not a finished game. The user has limited ChatGPT/Codex budget, so **prioritize getting one real multiplayer slice hosted and playable before expanding the campaign or polishing art**.
 
 ## Mandatory order

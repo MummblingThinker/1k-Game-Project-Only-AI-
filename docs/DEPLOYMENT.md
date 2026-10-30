@@ -44,7 +44,7 @@ Render Free sleeps after 15 minutes without traffic and can take about a minute 
 
 - Device A: use the public HTTPS link, create a room, and record the random code.
 - Device B on a separate network (for example cellular): open the same link and join the code without a ChatGPT/hosting login or installation.
-- Host starts. Both move/jump; compare player positions, relay/bridge state and shared hearts.
+- Guest chooses Ready; host starts. Both move/jump; compare player positions, relay/bridge state and shared hearts.
 - One player activates the relay with E. Both cross the bridge and reach the shelter; both must see victory. Host replay must reset both.
 - Try an invalid code and a second isolated room; check browser errors, HTTPS assets, WebSocket traffic and `/health`.
 - Log URL, date, devices, browsers, networks, exact steps and results in QA_LOG.md. Any untested part stays unverified.

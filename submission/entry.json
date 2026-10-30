@@ -1,15 +1,15 @@
 {
   "status": "DRAFT_NOT_READY",
   "title": "Tiny Teamwork: The Last Spark",
-  "description": "Escape a robot-ruled world in a solo or 2?4-player cooperative platformer. Share a room code, carry and rescue teammates, solve relays and survive three giant encounters across 15 city, forest and factory stages. Original anime comic panels tell the story between regions. The hardest challenge was synchronizing shared lives, physics and boss progression; shared simulation and independent-client tests keep the team together.",
+  "description": "Escape a robot-ruled world in a solo or 2-4-player cooperative platformer. Share a room code, carry and rescue teammates, solve relays and survive three giant encounters across 15 city, forest and factory stages. Original anime comic panels tell the story between regions. The hardest challenge was synchronizing shared lives, physics and boss progression; shared simulation and independent-client tests keep the team together.",
   "projectUrl": "https://tiny-teamwork-last-spark.onrender.com",
   "coverImage": "submission/cover.jpg",
   "shareToShowcase": true,
   "controls": {
     "move": "A/D or arrow keys",
     "jump": "Space or Up",
-    "relay": "E: relays, pylons, terminal or crate",
-    "replay": "R or Restart after results (host online)",
+    "relay": "E: relays, pylons, terminal, crate or shelter ladder",
+    "replay": "R or Retry stage / Replay stage (host online)",
     "leave": "Leave button; Enter after victory",
     "pause": "Solo only. Online Esc releases input while the world continues.",
     "carry": "F: carry/throw; Q: drop",
