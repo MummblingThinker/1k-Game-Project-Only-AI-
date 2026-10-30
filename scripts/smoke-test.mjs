@@ -75,6 +75,8 @@ try {
     ['/assets/sprites/giant_pursuer.png', 'image/png'],
     ['/assets/sprites/crate.png', 'image/png'],
     ['/assets/sprites/checkpoint_shelter.png', 'image/png'],
+    ['/assets/story/story-atlas.png', 'image/png'],
+    ['/assets/story/story-details.png', 'image/png'],
   ];
 
   for (const [route, expectedType] of checks) {

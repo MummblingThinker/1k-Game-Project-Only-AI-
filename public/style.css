@@ -167,6 +167,11 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .comic-forest { background-position: 100% 0; }
 .comic-factory { background-position: 0 100%; }
 .comic-ending { background-position: 100% 100%; }
+.comic-detail { background-image: url('/assets/story/story-details.png'); }
+.comic-rescue { background-position: 0 0; }
+.comic-swarm { background-position: 100% 0; }
+.comic-assembly { background-position: 0 100%; }
+.comic-ambush { background-position: 100% 100%; }
 @keyframes comic-reveal { to { opacity: 1; transform: translateY(0) scale(1); } }
 #story-heading, #story-caption, .story-skip { z-index: 1; }
 .story-panel[data-scene=darkTwist] .comic-panels { animation: comic-blackout 8s steps(1,end) forwards; }

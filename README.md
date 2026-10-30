@@ -47,7 +47,7 @@ Shared hearts start at three solo, four for two/three players and five for four.
 
 `npm test` covers shared systems, 60 deterministic stage traversals (15 stages at 1–4 players), HTTP/assets, board evidence, client sessions and real Socket.IO integration. `npm run test:live-campaign` drives two socket clients through Level 15 and its shared ending. CI installs Playwright temporarily for `npm run test:browser`.
 
-Chromium 156 passed all stage loads, story/pause, two isolated browser contexts through tutorial victory and Continue, and emulated touch cancellation. Render deployed commit 9b3097d on October 30 UTC. Exact evidence and subsequent local changes are in [QA_LOG.md](QA_LOG.md).
+Chromium 156 passed all stage loads, story/pause, independent co-op contexts through tutorial victory and Continue, four-browser readiness, and emulated touch cancellation. Firefox 157 and WebKit 27.2 compatibility also pass. Exact source revisions, deployment state and subsequent changes are recorded in [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) and [QA_LOG.md](QA_LOG.md).
 
 Physical-device and separate-network acceptance remains pending at the owner's request. Automated traversal proves reachability, not human difficulty balance. Mobile emulation is not physical mobile testing. Original synthesized sound cues have saved mute/volume controls; cloud saves are not implemented. Rooms require joining before start; disconnect clears identity and requires a new lobby. Rooms disappear on server restart. One free Render instance can have cold starts.
 
@@ -65,4 +65,6 @@ Solo stage resume is saved in this browser and restarts the last begun solo/prac
 
 In a lobby, Copy invite link gives friends a URL with the room code filled in. They still choose Join and Ready before the host starts. The button is hidden once the run begins; if clipboard access is blocked, copy the selected code instead.
 
-Walk against a loose crate to push it. Boxes stop at walls and other boxes, can be stacked, and still support carry/throw. When down in co-op, the camera follows a living teammate; V or Watch next switches survivor. A shelter revives the longest-down teammate.
+Walk against loose crates to push them together. A wall stops the whole chain. Boxes can be stacked and still support carry/throw. When down in co-op, the camera follows a living teammate; V or Watch next switches survivor. A shelter revives the longest-down teammate.
+
+Comic scenes reveal three captioned panels in sequence, with original 2D anime artwork. The companion art adds distinct rescue, covered-walkway swarm, assembly and ambush compositions. Prompts/provenance: [original atlas](docs/STORY_ART_PROMPT.md), [companion atlas](docs/STORY_DETAILS_PROMPT.md).

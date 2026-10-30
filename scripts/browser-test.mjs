@@ -147,6 +147,28 @@ try {
   const stages = await fixture.screenshot({ path: 'artifacts/stage-fixtures.jpg', type: 'jpeg', quality: 85, fullPage: true });
   console.log('STAGES_BASE64_BEGIN' + stages.toString('base64') + 'STAGES_BASE64_END');
   await fixture.close();
+  // Render the real comic UI in an isolated document without the game loop.
+  const comics=await pageIn(aContext);
+  const markup=(await(await fetch(base)).text()).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+  await comics.route('**/comic-fixture',route=>route.fulfill({contentType:'text/html',body:markup}));
+  await comics.goto(base+'/comic-fixture');
+  await comics.evaluate(async()=>{
+    const {createTextUI}=await import('/js/text-ui.js'),{STORY_BEATS,getLevel}=await import('/js/campaign.js');
+    const update=createTextUI(),review=document.createElement('main');review.className='comic-review';
+    for(const panel of [STORY_BEATS.opening.panels[2],...STORY_BEATS.after10.panels.filter(p=>p.visual!=='factoryDoor'),STORY_BEATS.after15.panels[1]]){
+      update({state:'cutscene',level:getLevel(1),hearts:3,maxHearts:3,roomCode:'',isHost:false,capture:null,panel});
+      const clone=document.querySelector('#story-panel').cloneNode(true);
+      clone.removeAttribute('id');clone.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));review.append(clone);
+    }
+    document.body.replaceChildren(review);
+    const style=document.createElement('style');style.textContent='.comic-review{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;padding:12px}.comic-review .story-panel{position:relative;inset:auto;height:520px;min-width:0}.comic-review .comic-panels{animation:none!important}';document.head.append(style);
+    await Promise.all(['/assets/story/story-atlas.png','/assets/story/story-details.png'].map(src=>new Promise((resolve,reject)=>{const image=new Image();image.onload=resolve;image.onerror=reject;image.src=src;})));
+  });
+  await comics.waitForTimeout(2200);
+  assert.equal(await comics.locator('.comic-detail').count(),12,'four distinct detail scenes use the companion atlas');
+  const comicReview=await comics.screenshot({path:'artifacts/comic-details.jpg',type:'jpeg',quality:82,fullPage:true});
+  console.log('COMIC_BASE64_BEGIN'+comicReview.toString('base64')+'COMIC_BASE64_END');
+  await comics.close();
   const bContext = await browser.newContext({ viewport: { width: 1366, height: 900 } });
   const a = await pageIn(aContext), b = await pageIn(bContext);
   await Promise.all([a.goto(base), b.goto(base)]);

@@ -39,9 +39,10 @@ export function createTextUI() {
         previousPanel = panel.visual + panel.heading;
         const visual = panel.visual;
         story.dataset.scene = visual;
-        const quadrant = ['forestChase', 'gate'].includes(visual) ? 'forest'
+        const detailQuadrant={survivors:'rescue',swarm:'swarm',assemblyReveal:'assembly',darkTwist:'ambush'}[visual];
+        const quadrant = detailQuadrant || (['forestChase', 'gate'].includes(visual) ? 'forest'
           : ['swarm', 'factoryDoor', 'assemblyReveal'].includes(visual) ? 'factory'
-          : ['celebration', 'darkTwist'].includes(visual) ? 'ending' : 'city';
+          : ['celebration', 'darkTwist'].includes(visual) ? 'ending' : 'city');
           const notes = {
             invasion: ['Built to protect.', 'Ordered to obey.', 'Now, run.'],
             chase: ['Do not look back.', 'They are gaining.', 'Keep moving!'],
@@ -59,7 +60,7 @@ export function createTextUI() {
             cell.className = 'comic-cell';
           cell.style.setProperty('--panel', index);
             const art = document.createElement('div');
-            art.className = `comic-art comic-${quadrant}`;
+            art.className = `comic-art comic-${quadrant}${detailQuadrant?' comic-detail':''}`;
             art.setAttribute('aria-hidden', 'true');
             const caption = document.createElement('span');
             caption.className = 'comic-note';
