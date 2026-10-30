@@ -16,6 +16,8 @@ for (let id = 2; id <= 15; id++) for (let party = 1; party <= 4; party++) {
   assert.ok(Math.abs((w.width + 114) / (w.giant.speed * 60) - 120) < 1e-9);
   for (const s of w.switches) assert.ok(w.floors.some(f => s.x >= f.x && s.x + s.w <= f.x + f.w), `relay ${id} must stand on floor`);
   for (const cp of w.checkpoints) assert.ok(w.floors.some(f => cp.x >= f.x && cp.x + cp.w <= f.x + f.w), `shelter ${id} needs ground exits`);
+  assert.ok(w.floors.some(f => w.memory.x >= f.x && w.memory.x + 13 <= f.x + f.w), 'memory terminal has reachable floor ' + id);
+  for (const block of w.platforms.filter(p => p.kind === 'breakable')) assert.ok(w.floors.some(f => block.x >= f.x && block.x + block.w <= f.x + f.w), 'salvage stands on floor ' + id);
   for (const pit of w.pits) {
     const stones = w.platforms.filter(p => p.pitIndex === pit.index).sort((a, b) => a.x - b.x);
     const points = [pit.x, ...stones.map(s => s.x + s.w / 2), pit.x + pit.w];

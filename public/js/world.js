@@ -192,9 +192,27 @@ export function buildLevel(levelId = 1, partySize = 1) {
       pylons: [bossX + 100, bossX + 310, bossX + 520].map((x, i) => ({ x, y: 139, w: 12, h: 12, active: false, order: i })) };
     world.signs.push({ x: bossX - 80, text: 'BLAST DOOR • PURSUER CANNOT ENTER' });
     world.platforms.push({ x: bossX + 180, y: 116, w: 52, h: 6, kind: 'arena-cover' }, { x: bossX + 410, y: 108, w: 52, h: 6, kind: 'arena-cover' });
-    if (level.id === 10) world.coveredWay = { x: bossX - 480, w: 480, y: 107, drones: 100 };
+    if (level.id === 10) {
+      world.coveredWay = { x: bossX - 480, w: 480, y: 65, drones: 100 };
+      world.platforms.push({ x: bossX - 480, y: 65, w: 480, h: 7, kind: 'covered-roof' });
+    }
   }
   world.signs.push({ x: 100, text: `${route.theme.toUpperCase()} • ${world.switches.length} RELAYS` });
   world.memory = { x: Math.round(width * .4), read: false };
+  while (world.pits.some(p => world.memory.x + 20 > p.x && world.memory.x - 20 < p.x + p.w) ||
+    world.platforms.some(p => world.memory.x + 24 > p.x && world.memory.x - 24 < p.x + p.w)) world.memory.x += 55;
+  if ([3, 7, 9, 11, 14].includes(level.id)) {
+    world.breakEffects = [];
+    for (const [index, start] of [650, 1990].entries()) {
+      let x = start;
+      while (world.pits.some(p => x + 50 > p.x && x - 50 < p.x + p.w) ||
+        world.platforms.some(p => x + 50 > p.x && x - 50 < p.x + p.w) ||
+        world.switches.some(s => Math.abs(s.x - x) < 70) ||
+        world.checkpoints.some(c => Math.abs(c.x - x) < 100)) x += 60;
+      if (x > width - 180) continue;
+      world.platforms.push({ id: 'salvage-' + index, x, y: 133, w: 20, h: 18, kind: 'breakable' });
+      world.crates.push({ id: 'salvage-crate-' + index, x: x - 40, y: 137, w: 14, h: 14, vx: 0, vy: 0, carriedBy: null, used: false });
+    }
+  }
   return world;
 }

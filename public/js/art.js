@@ -79,6 +79,66 @@ function drawBackground(ctx, world, cameraX, clock) {
   }
 }
 
+function drawStageScenery(ctx, world, cameraX, clock) {
+  const theme = world.theme;
+  if (!theme || theme === 'tutorial') return;
+  const offset = ((cameraX * .6) % 240 + 240) % 240;
+  for (let i=-1;i<3;i++) {
+    const x = i * 240 - offset;
+    if (theme === 'transit') {
+      RECT(ctx,x,37,220,9,'#263c4b'); RECT(ctx,x+12,45,8,91,'#344d59');
+      RECT(ctx,x+28,87,172,43,'#2d4556'); RECT(ctx,x+28,119,172,4,'#a18255');
+      for(let j=0;j<5;j++) { RECT(ctx,x+36+j*30,94,23,16,'#152a3b'); RECT(ctx,x+38+j*30,94,19,2,'#657f83'); }
+      RECT(ctx,x+42,130,18,5,'#172737'); RECT(ctx,x+167,130,18,5,'#172737');
+    } else if (theme === 'rooftops') {
+      RECT(ctx,x+35,68,43,34,'#344858'); RECT(ctx,x+32,64,49,5,'#536878');
+      RECT(ctx,x+41,102,4,31,'#263848'); RECT(ctx,x+69,102,4,31,'#263848');
+      RECT(ctx,x+117,112,54,20,'#3c505d');
+      for(let j=0;j<6;j++) RECT(ctx,x+122+j*7,116,3,11,'#263b4a');
+    } else if (theme === 'searchlights' || theme === 'barricades') {
+      RECT(ctx,x+105,57,12,80,'#354657'); RECT(ctx,x+97,50,28,13,'#4a6070');
+      RECT(ctx,x+102,52,18,3,'#c89b67');
+      ctx.save(); ctx.globalAlpha=.12; ctx.fillStyle='#e8d9ac'; ctx.beginPath();
+      ctx.moveTo(x+110,59); ctx.lineTo(x+30+Math.sin(clock*.0005)*35,139); ctx.lineTo(x+120+Math.sin(clock*.0005)*35,139); ctx.closePath(); ctx.fill(); ctx.restore();
+      if(theme==='barricades') { RECT(ctx,x+145,96,70,41,'#344752'); for(let j=0;j<6;j++) RECT(ctx,x+151+j*10,101,3,33,'#233542'); }
+    } else if (theme === 'roots' || theme === 'canopy') {
+      RECT(ctx,x+30,40,17,103,'#263f3b'); RECT(ctx,x+37,43,5,94,'#3d5c47');
+      RECT(ctx,x+42,69,100,5,'#345345'); RECT(ctx,x+105,74,4,28,'#54734b');
+      if(theme==='canopy') {
+        RECT(ctx,x+48,48,140,2,'#45594a'); RECT(ctx,x+48,66,140,2,'#45594a');
+        for(let j=0;j<14;j++) RECT(ctx,x+50+j*10,50,2,17,'#304c40');
+      }
+    } else if (theme === 'river') {
+      RECT(ctx,x,103,240,38,'#234b56');
+      for(let j=0;j<16;j++) RECT(ctx,x+j*17+(clock*.006%17),108+(j*7%29),11,1,'#477b7d');
+      RECT(ctx,x+78,126,54,7,'#3b5146'); RECT(ctx,x+85,123,4,3,'#5d7254');
+    } else if (['conveyor','furnace','prototype','powergrid','core'].includes(theme)) {
+      RECT(ctx,x+20,42,7,94,'#3c4d60'); RECT(ctx,x+20,42,174,7,'#43596a');
+      if(theme==='furnace') {
+        RECT(ctx,x+55,76,105,60,'#493c42'); RECT(ctx,x+64,86,87,43,'#a85d3b');
+        for(let j=0;j<7;j++) RECT(ctx,x+68+j*12,86,5,43,'#45363d');
+      } else if(theme==='prototype') {
+        for(let j=0;j<3;j++) { RECT(ctx,x+48+j*53,71,36,62,'#35566a'); RECT(ctx,x+51+j*53,75,30,53,'#25414f'); RECT(ctx,x+61+j*53,94,11,27,'#63828a'); RECT(ctx,x+64+j*53,98,6,2,'#ce897a'); }
+      } else if(theme==='powergrid' || theme==='core') {
+        RECT(ctx,x+61,68,84,67,'#304454');
+        for(let j=0;j<7;j++) { RECT(ctx,x+67,74+j*8,72,3,'#667b80'); RECT(ctx,x+73,75+j*8,60,1,'#6c9a9b'); }
+        RECT(ctx,x+96,58,14,9,'#be945e');
+      } else {
+        RECT(ctx,x+35,125,155,6,'#5b6470');
+        for(let j=0;j<4;j++) { const dx=x+39+(j*39+clock*.012)%145; RECT(ctx,dx,106,14,19,'#3e596d'); RECT(ctx,dx+3,100,8,8,'#6a7c89'); RECT(ctx,dx+5,103,4,2,'#b8766a'); }
+        const arm=6+Math.sin(clock*.0015)*5;
+        RECT(ctx,x+113,49,7,28+arm,'#667482'); RECT(ctx,x+101,73+arm,30,6,'#4b6475');
+      }
+    }
+  }
+  if (theme === 'ranger' && world.memory) {
+    const x=world.memory.x-cameraX-60;
+    RECT(ctx,x,92,120,49,'#394c3b'); RECT(ctx,x-8,87,136,8,'#52664b');
+    for(let i=0;i<6;i++) RECT(ctx,x,96+i*7,120,2,'#283e36');
+    RECT(ctx,x+48,109,23,32,'#1b302d'); RECT(ctx,x+12,103,23,18,'#7c9160'); RECT(ctx,x+84,103,23,18,'#7c9160');
+  }
+}
+
 function drawFloor(ctx, world, cameraX) {
   const p = palettes[world.region] || palettes.city;
   for (const terrain of world.terrain || []) {
@@ -113,6 +173,12 @@ function drawFloor(ctx, world, cameraX) {
     const x=platform.x-cameraX;
     if(x+platform.w<0||x>320) continue;
     const color=platform.kind==='stone'?'#758b8a':p.ground;
+    if (platform.kind === 'breakable') {
+      RECT(ctx,x,platform.y,platform.w,platform.h,'#4b342a');
+      for (let row=0;row<3;row++) RECT(ctx,x+1,platform.y+1+row*6,platform.w-2,4,row%2?'#c59965':'#b88658');
+      RECT(ctx,x+8,platform.y+2,2,6,'#362b31'); RECT(ctx,x+10,platform.y+8,3,5,'#362b31'); RECT(ctx,x+7,platform.y+13,3,4,'#362b31');
+      continue;
+    }
     RECT(ctx,x,platform.y,platform.w,platform.h,color);
     RECT(ctx,x,platform.y,platform.w,2,platform.kind==='stone'?'#b6c7ae':p.top);
     RECT(ctx,x+2,platform.y+platform.h,platform.w-4,2,'#1b2937');
@@ -141,7 +207,7 @@ function drawEncounter(ctx, world, cameraX, clock) {
     const roof = world.coveredWay, x = roof.x - cameraX;
     RECT(ctx, x, roof.y, roof.w, 7, '#b0bbb0');
     for (let i = 0; i < 100; i++) {
-      const dx = roof.x + (i * 47 % roof.w) - cameraX, y = 27 + (i * 17 % 62) + Math.sin(clock * .002 + i) * 2;
+      const dx = roof.x + (i * 47 % roof.w) - cameraX, y = 17 + (i * 17 % 40) + Math.sin(clock * .002 + i) * 2;
       if (dx < -12 || dx > 330) continue;
       RECT(ctx, dx, y, 7, 3, '#668a9a'); RECT(ctx, dx + 3, y + 1, 2, 1, '#f47b70');
     }
@@ -180,6 +246,13 @@ function drawEncounter(ctx, world, cameraX, clock) {
 }
 
 function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
+  if (world.memory) {
+    const x = world.memory.x-cameraX;
+    if (x > -30 && x < 350) {
+      RECT(ctx,x,137,13,14,'#304b5b'); RECT(ctx,x+2,139,9,6,world.memory.read?'#547c79':'#8cd4dc'); RECT(ctx,x+5,146,3,3,'#e9c77f');
+      outlinedText(ctx,world.memory.read?'MEMORY SAVED':'MEMORY / E',x-12,132,'#b7e3e1');
+    }
+  }
   for(const cp of world.checkpoints) {
     const x=cp.x-cameraX;
     if(x < -45 || x>325 || cp.destroyed) continue;
@@ -265,10 +338,20 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
 export function drawGame(ctx, world, player, peerPlayers, cameraX, state) {
   const clock=state.clock||0;
   drawBackground(ctx,world,cameraX,clock);
+  drawStageScenery(ctx,world,cameraX,clock);
   drawEncounter(ctx,world,cameraX,clock);
   drawFloor(ctx,world,cameraX);
   // Checkpoint's interior is safe from ordinary enemies, but not from the giant pursuer.
   drawSprites(ctx,world,player,peerPlayers,cameraX,state);
+  for (const effect of world.breakEffects || []) {
+    const age = (state.tick || 0) - effect.tick;
+    if (age < 0 || age >= 30) continue;
+    for (let i=0;i<6;i++) {
+      const dx = (i - 2.5) * age * .33;
+      const y = Math.min(149, effect.y - age * (1 + i % 2) + age * age * .06);
+      RECT(ctx,effect.x-cameraX+dx,y,3,2,i%2?'#d4af7b':'#8b6246');
+    }
+  }
   const p=palettes[world.region]||palettes.city;
   RECT(ctx,0,177,320,3,'#111827');
   RECT(ctx,0,177,320*(Math.max(0,Math.min(world.width,player.x))/world.width),2,p.accent);

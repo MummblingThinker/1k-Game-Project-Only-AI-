@@ -162,5 +162,21 @@ check('a surviving heart retries the encounter explicitly without teleporting fr
   assert.equal(b.phase, 'recover'); assert.equal(b.elapsed, 0); assert.equal(b.activeRelay, 0);
   assert.ok(b.pylons.every(s => !s.active)); assert.equal(b.timer, 120);
 });
+check('cracked salvage breaks once from a stomp or thrown crate, never from resting contact', () => {
+  const r = runAt(3, 1), p = r.players.get('p0'), block = r.world.platforms.find(s => s.kind === 'breakable');
+  assert.ok(block); const ids = r.world.enemies.map(e => e.id), hearts = r.hearts;
+  p.x = block.x + 3; p.y = block.y - p.h - 2; p.vy = 3;
+  stepRun(r);
+  assert.ok(!r.world.platforms.includes(block)); assert.ok(p.vy < 0);
+  assert.equal(r.world.breakEffects.length, 1); assert.equal(r.hearts, hearts);
+  assert.deepEqual(r.world.enemies.map(e => e.id), ids);
+  stepRun(r); assert.equal(r.world.breakEffects.length, 1);
+  const other = runAt(3, 1), b = other.world.platforms.find(s => s.kind === 'breakable'), crate = other.world.crates[0];
+  crate.x = b.x - 15; crate.y = 137; crate.vx = 0; crate.vy = 0;
+  for (let i = 0; i < 20; i++) stepRun(other);
+  assert.ok(other.world.platforms.includes(b), 'resting crate cannot break salvage');
+  crate.x = b.x - 15; crate.y = 137; crate.vx = 2.6; stepRun(other);
+  assert.ok(!other.world.platforms.includes(b)); assert.equal(other.world.breakEffects.length, 1);
+});
 console.log('Shared systems regression complete.');
 

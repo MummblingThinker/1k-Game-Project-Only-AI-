@@ -47,6 +47,7 @@ export function createGameAudio(button, slider) {
     else if (kind === 'countdown') tone(740, 740, .06, 'square');
     else if (kind === 'blast') { tone(100, 25, .4, 'sawtooth'); tone(55, 30, .3, 'triangle'); }
     else if (kind === 'footstep') tone(65, 30, .22, 'triangle');
+    else if (kind === 'break') tone(180, 65, .14, 'triangle');
     else if (kind === 'story') { tone(220, 220, .4); tone(330, 330, .5, 'triangle', .16); }
     else if (kind === 'relay' || kind === 'rescue') { tone(330, 330, .12); tone(495, 495, .15, 'triangle', .1); tone(660, 660, .2, 'triangle', .2); }
     else if (kind === 'victory') [330, 440, 550, 660].forEach((f, i) => tone(f, f, .3, 'triangle', i * .12));
@@ -65,7 +66,7 @@ export function createGameAudio(button, slider) {
       const warnings = world.enemies.filter(e => e.phase === 'warning' && Math.abs(e.x - player.x) < 260).map(e => e.id);
       if (world.boss?.phase === 'warning' && player.x >= world.boss.x) warnings.push('boss');
       const now = { state, level: world.id, hearts, vy: player.vy, capture: !!player.capture, captureSeconds: Math.ceil(player.capture?.remaining || 0),
-        checkpoints: world.checkpoints.filter(c => c.active).length, storyVisual,
+        checkpoints: world.checkpoints.filter(c => c.active).length, storyVisual, breakTick: world.breakEffects?.at(-1)?.tick ?? -1,
         blasts: world.enemies.filter(e => e.kind === 'creeper' && e.phase === 'attack' && Math.abs(e.x - player.x) < 260).map(e => e.id),
         relays: world.switches.filter(s => s.active).length + (world.boss?.activeRelay || 0), warnings };
       if (previous && previous.level === now.level) {
@@ -78,6 +79,7 @@ export function createGameAudio(button, slider) {
           else if (!now.capture && previous.capture && player.alive) cue('rescue');
           else if (now.relays > previous.relays) cue('relay');
           else if (now.checkpoints > previous.checkpoints) cue('relay');
+          if (now.breakTick > previous.breakTick) cue('break');
           if (now.capture && previous.capture && now.captureSeconds < previous.captureSeconds) cue('countdown');
           if (now.blasts.some(id => !previous.blasts.includes(id))) cue('blast');
           if (now.vy < -3 && previous.vy >= 0) cue('jump');

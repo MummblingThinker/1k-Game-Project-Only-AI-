@@ -329,7 +329,7 @@ function draw() {
   } else {
     const cameraTarget = Math.max(0, Math.min(world.width - 320, player.x - 108));
     cameraX += (cameraTarget - cameraX) * 0.16;
-    drawGame(ctx, world, player, peers, cameraX, { clock, state: gameState });
+    drawGame(ctx, world, player, peers, cameraX, { clock, state: gameState, tick: network.inRoom ? lastSnapshot?.tick : soloRun?.tick });
   }
 }
 

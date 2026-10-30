@@ -73,6 +73,31 @@ try {
     if ([5, 10, 15].includes(level)) await solo.screenshot({ path: `artifacts/level-${level}.png` });
   }
   const aContext = await browser.newContext({ viewport: { width: 1800, height: 1200 } });
+  // Render fixtures inspect authored art states; these are not gameplay-completion evidence.
+  const fixture = await pageIn(soloContext);
+  await fixture.goto(base + '/health');
+  await fixture.setContent('<style>body{margin:0;background:#101b2a;color:#eed9a4;display:grid;grid-template-columns:640px 640px;font:16px system-ui}figure{margin:0;padding:0}figcaption{padding:8px}canvas{display:block;width:640px;height:360px;image-rendering:pixelated}</style>');
+  await fixture.evaluate(async () => {
+    window.renderTools = { ...await import('/js/world.js'), ...await import('/js/physics.js'), ...await import('/js/art.js') };
+  });
+  await fixture.waitForTimeout(500);
+  await fixture.evaluate(() => {
+    for (const level of [2, 3, 7, 9, 10, 11, 12, 13, 14, 15]) {
+      const { buildLevel, createPlayer, drawGame } = window.renderTools;
+      const world = buildLevel(level), figure = document.createElement('figure'), caption = document.createElement('figcaption'), canvas = document.createElement('canvas');
+      caption.textContent = 'RENDER FIXTURE / ' + level + ' / ' + world.title;
+      canvas.width = 320; canvas.height = 180; figure.append(caption, canvas); document.body.append(figure);
+      let focus = world.platforms.find(p => p.kind === 'breakable')?.x || 450;
+      if (level === 9) focus = world.memory.x;
+      if (level === 10) focus = world.coveredWay.x + 200;
+      if (level === 15) { focus = world.boss.x + 320; world.boss.phase = 'warning'; world.boss.targetX = focus + 40; }
+      const player = createPlayer('fixture', focus - 50, 129);
+      drawGame(canvas.getContext('2d'), world, player, [], Math.max(0, focus - 160), { clock: 1400, tick: 0, state: 'playing' });
+    }
+  });
+  const stages = await fixture.screenshot({ path: 'artifacts/stage-fixtures.jpg', type: 'jpeg', quality: 85, fullPage: true });
+  console.log('STAGES_BASE64_BEGIN' + stages.toString('base64') + 'STAGES_BASE64_END');
+  await fixture.close();
   const bContext = await browser.newContext({ viewport: { width: 1366, height: 900 } });
   const a = await pageIn(aContext), b = await pageIn(bContext);
   await Promise.all([a.goto(base), b.goto(base)]);

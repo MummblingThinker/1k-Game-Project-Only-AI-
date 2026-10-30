@@ -32,3 +32,6 @@ campaign-test.mjs completes all fifteen routes with 1, 2, 3 and 4 simulated part
 Missed route relays do not trap players in an arena: the encounter waits until every relay and all living players are inside. A party wipe with hearts left retries inside the arena with a short recovery window, resets encounter progress, and preserves the remaining heart count. Shelters remove their physical roofs/steps when breached. Side exits have full headroom, and water/conveyor motion respects solid collision.
 
 Original synthesized cues and saved mute/volume controls are implemented. Browser audio-context/settings tests are running; physical listening review is pending. All warning shapes/countdowns remain visible with audio off.
+
+
+Selected stages include cracked salvage: jump down onto it or throw a crate to break it. Debris is temporary; the barriers never gate an irreplaceable route and robots remain indestructible. Optional memory terminals now have visible E markers and grounded placement. Stage themes have distinct original background set pieces; these are decorative and do not hide collision rules. Covered Way has an actual overhead platform with enough clearance for the required jump.

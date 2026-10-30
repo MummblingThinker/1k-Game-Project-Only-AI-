@@ -220,14 +220,29 @@ function updateBoss(run) {
   }
 }
 
+function breakSalvage(run, block) {
+  if (!run.world.platforms.includes(block)) return;
+  run.world.platforms = run.world.platforms.filter(p => p !== block);
+  run.world.breakEffects ||= [];
+  run.world.breakEffects.push({ x: block.x + block.w / 2, y: block.y + 6, tick: run.tick });
+  run.notice = 'Cracked salvage cleared. Machines cannot be broken.';
+}
+
 export function stepRun(run) {
   if (run.phase !== 'playing') return;
   run.tick++;
   const world = run.world;
   const participants = playersOf(run);
+  if (world.breakEffects) world.breakEffects = world.breakEffects.filter(e => run.tick - e.tick < 30);
   for (const p of participants) {
     if (!p.alive || p.carriedBy || p.capture) continue;
     const previousX = p.x;
+    for (const block of world.platforms.filter(s => s.kind === 'breakable')) {
+      if (p.vy > 2 && p.x + p.w > block.x && p.x < block.x + block.w &&
+        p.y + p.h <= block.y + 3 && p.y + p.h + p.vy + .24 >= block.y) {
+        breakSalvage(run, block); p.vy = -3; p.onGround = false;
+      }
+    }
     const supports = participants.filter(o => o.id !== p.id && o.alive && !o.carriedBy && !o.capture && p.y + p.h <= o.y + 3).map(o => ({ x: o.x, y: o.y, w: o.w, h: 2, kind: 'teammate' }));
     const playerWorld = { ...world, platforms: [...world.platforms, ...supports] };
     for (const t of world.terrain || []) if (p.onGround && p.x + p.w > t.x && p.x < t.x + t.w) {
@@ -246,7 +261,11 @@ export function stepRun(run) {
     p.x = carrier.x; p.y = carrier.y - p.h - 2; p.vx = p.vy = 0;
     if (p.input?.jump) { carrier.carryId = null; p.carriedBy = null; p.vy = -5.2; p.invulnerability = 20; }
   }
+  const crateImpacts = world.crates.filter(c => !c.carriedBy && !c.used && (Math.abs(c.vx) > 1 || c.vy > 2));
   updateCrates(world);
+  for (const c of crateImpacts) for (const block of world.platforms.filter(s => s.kind === 'breakable')) {
+    if (overlaps(c, { x: block.x - 2, y: block.y - 2, w: block.w + 4, h: block.h + 4 })) breakSalvage(run, block);
+  }
   updateEnemies(run);
   updateBoss(run);
   const b = world.boss;
@@ -287,6 +306,7 @@ export function stepRun(run) {
 export function objectiveText(run) {
   const w = run.world, b = w.boss;
   const done = w.switches.filter(s => s.active).length;
+  if (w.platforms.some(s => s.kind === 'breakable' && playersOf(run).some(p => p.alive && Math.abs(p.x - s.x) < 90))) return `RELAYS ${done}/${w.switches.length} • CRACKED SALVAGE: stomp from above or throw a crate`;
   if (done < w.switches.length) return `ROUTE RELAYS ${done}/${w.switches.length} • E near the red terminals`;
   if (b && !b.solved) {
     if (b.phase === 'waiting') return 'Reach the blast door together. The pursuer cannot enter.';
