@@ -20,15 +20,16 @@ try{
   await page.locator('#menu-settings').click();assert.ok(await page.locator('#sound-volume').isVisible());assert.ok(await page.locator('#motion-setting').isVisible());
   await page.locator('#menu-back').click();await page.locator('#menu-multi').click();assert.ok(await page.locator('#create-room').isVisible());assert.ok(await page.locator('#join-room').isVisible());
   await page.locator('#menu-back').click();await page.locator('#menu-single').click();await page.locator('#level-select').selectOption('1');await page.locator('#play-selected').click();await page.locator('#game').focus();
+  await page.locator('#title-menu').waitFor({state:'hidden'});
   const snapshot=()=>page.evaluate(async()=> (await import('/js/game.js')).readDebugSnapshot());
   let manual=await snapshot();const ladder=manual.world.ladders[0];
   await page.keyboard.down('ArrowRight');
   for(let i=0;i<200;i++){manual=await snapshot();if(manual.you.x>=ladder.x-4)break;await sleep(30);}
   await page.keyboard.up('ArrowRight');await sleep(90);
-  const floorY=(await snapshot()).you.y;await page.keyboard.down('KeyW');await sleep(500);await page.keyboard.up('KeyW');await sleep(80);
+  const floorY=(await snapshot()).you.y;await page.keyboard.down('KeyW');await page.waitForFunction(y=>Number(document.querySelector('#game').dataset.playerY)<y-25,floorY);await page.keyboard.up('KeyW');await sleep(80);
   const heldY=(await snapshot()).you.y;assert.ok(heldY<floorY-20,'W grabs facade ladder and climbs');
   await sleep(250);assert.ok(Math.abs((await snapshot()).you.y-heldY)<.1,'releasing W holds still');
-  await page.keyboard.down('KeyS');await sleep(200);await page.keyboard.up('KeyS');assert.ok((await snapshot()).you.y>heldY+8,'S descends');
+  await page.keyboard.down('KeyS');await page.waitForFunction(y=>Number(document.querySelector('#game').dataset.playerY)>y+10,heldY);await page.keyboard.up('KeyS');assert.ok((await snapshot()).you.y>heldY+8,'S descends');
   const facade=await page.locator('.screen-frame').screenshot({path:'artifacts/revision/facade-ladder.jpg',type:'jpeg',quality:86});console.log('FACADE_BASE64_BEGIN'+facade.toString('base64')+'FACADE_BASE64_END');
   console.log('MENU / MANUAL LADDER PASS: title branches, reachable facade, W climb, release hold, S descend.');
   let s=await snapshot(),held={},memo={},lastUse=0;const deadline=Date.now()+90000;
@@ -84,6 +85,7 @@ try{
     console.log('AUDIO STATE',zone,await page.locator('#sound-toggle').getAttribute('data-audio-state'));
     await page.locator('#sound-toggle').click();assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');await page.locator('#sound-toggle').click();await page.locator('#menu-back').click();
     await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing');
+    assert.equal(await page.evaluate(()=>document.activeElement.id),'game','returning from Settings restores keyboard control');
   }
   console.log('ZONE CONTROLS PASS: city/forest/factory selection, mute and settings pause/resume. AudioContext state logged separately; physical listening not claimed.');
   await page.goto(base+'/?debug=1');await page.locator('#menu-single').click();await page.locator('#start-story').click();await sleep(1800);

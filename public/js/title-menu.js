@@ -29,7 +29,7 @@ export function createTitleMenu({pause, resume, release, readState, quit}) {
     if(view==='settings'&&state!=='title'&&state!=='lobby'){overlay=true;pausedByMenu=pause();}
     root.hidden=false;root.querySelector(`[data-menu-view="${view}"] button, [data-menu-view="${view}"] input`)?.focus();
   }
-  function back(){if(overlay){overlay=false;if(pausedByMenu)resume();pausedByMenu=false;root.hidden=true;release();}else show(inRoom?'multi':'home');}
+  function back(){if(overlay){overlay=false;if(pausedByMenu)resume();pausedByMenu=false;root.hidden=true;release();$('game').focus({preventScroll:true});}else show(inRoom?'multi':'home');}
   $('menu-single').onclick=()=>show('solo');$('menu-multi').onclick=()=>show('multi');$('menu-settings').onclick=()=>show('settings');gear.onclick=()=>show('settings');$('menu-back').onclick=back;
   $('menu-quit').onclick=()=>{overlay=false;pausedByMenu=false;quit();};
   root.addEventListener('keydown',e=>{

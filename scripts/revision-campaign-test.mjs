@@ -74,7 +74,7 @@ try {
   const sample=async()=>{if(party===1)host.state=await host.page.evaluate(async()=>{const game=await import('/js/game.js');return game.readDebugSnapshot();});};
   for(let level=first;level<=last;level++){
     await until(async()=>{await sample();return peers.every(p=>p.state?.level===level&&p.state.phase==='playing');},'stage '+level);
-    await Promise.all(peers.map(async p=>{p.held={};await p.page.locator('#game').focus();}));
+    await Promise.all(peers.map(async p=>{p.held={};await p.page.locator('#title-menu').waitFor({state:'hidden'});await p.page.locator('#game').focus();}));
     const stageStarted=Date.now();let attempt=0;
     assert.ok(peers.every(p=>p.state.hearts===(party===1?3:party===4?5:4)),'fresh stage heart pool');
     while(true){
@@ -100,7 +100,7 @@ try {
       await host.page.locator('#scene-retry').click();
       await until(async()=>{await sample();return peers.every(p=>p.state.phase==='playing'&&p.state.level===level);},'shared replay');
       assert.ok(peers.every(p=>p.state.hearts===(party===1?3:party===4?5:4)&&p.state.players.every(q=>q.alive)),'replay resets hearts and survivors');
-      await Promise.all(peers.map(async p=>{p.held={};await p.page.locator('#game').focus();}));
+      await Promise.all(peers.map(async p=>{p.held={};await p.page.locator('#title-menu').waitFor({state:'hidden'});await p.page.locator('#game').focus();}));
     }
     assert.equal(host.state.phase,'victory',JSON.stringify({level,hearts:host.state.hearts,notice:host.state.notice,boss:host.state.world.boss,players:host.state.players}));
     await until(()=>peers.every(p=>p.state.phase==='victory'),'shared victory');
@@ -131,7 +131,7 @@ try {
     }
   }
   if(last===15)assert.ok(peers.every(p=>p.state.phase==='ending'),'shared default ending');
-  if(party>1)await Promise.all(peers.map(p=>p.page.locator('#leave-room').click()));
+  if(party>1)await Promise.all(peers.map(async p=>{await p.page.locator('#open-settings').click();await p.page.locator('#menu-quit').click();}));
   if(server)await until(async()=> (await(await fetch(base+'/health')).json()).rooms===0,'cleanup');
   else if(createdRoom){
     await Promise.all(peers.map(p=>p.page.waitForFunction(()=>document.querySelector('#game').dataset.room==='')));
