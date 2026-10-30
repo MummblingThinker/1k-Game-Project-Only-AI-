@@ -1,5 +1,5 @@
 name: October revision public acceptance
-# Final factory attack/lava revision: runtime 913a4342.
+# Runtime 913a4342 follow-up: full solo plus focused final-factory co-op.
 on:
   workflow_dispatch:
   push:
@@ -15,7 +15,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        party: [1, 2, 4]
+        include:
+          - {party: 1, first: 1}
+          - {party: 2, first: 15}
+          - {party: 4, first: 15}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,6 +41,7 @@ jobs:
       - run: node scripts/revision-campaign-test.mjs
         env:
           TEST_PARTY: ${{ matrix.party }}
+          TEST_FIRST_LEVEL: ${{ matrix.first }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

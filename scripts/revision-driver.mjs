@@ -73,7 +73,7 @@ export function driveRevision(state,p,memo={}){
   const ahead=o=>dir>0?o.x>=p.x+p.w-3&&o.x<p.x+p.w+26:o.x+o.w<=p.x+3&&o.x+o.w>p.x-26;
   const obstacle=[...w.platforms,...w.crates.filter(c=>!c.used&&!c.carriedBy)].find(s=>ahead(s)&&feet>s.y+3&&p.y<s.y+s.h);
   const climbStep=b&&b.phase!=='waiting'&&['climber','foundry'].includes(b.kind)&&w.platforms.find(s=>s.kind==='boss-step'&&s.y<feet-5&&s.y>feet-74&&ahead(s));
-  const threat=w.enemies.find(e=>!e.dead&&e.stunned<=0&&e.x+e.w>p.x&&e.x-(p.x+p.w)<(e.dir<0?34:16)&&e.x>p.x&&Math.abs(e.y+e.h-feet)<35);
+  const threat=w.enemies.find(e=>!e.dead&&e.stunned<=0&&e.x+e.w>p.x-12&&e.x-(p.x+p.w)<(e.dir<0?34:16)&&Math.abs(e.y+e.h-feet)<35);
   if(p.onGround&&(obstacle||threat||climbStep))command.input.jump=true;
   if(p.onGround&&b&&['climber','foundry'].includes(b.kind)&&!['waiting','escape','breach'].includes(b.phase)){
     const support=w.platforms.find(s=>Math.abs(feet-s.y)<2&&p.x+p.w>s.x&&p.x<s.x+s.w);
