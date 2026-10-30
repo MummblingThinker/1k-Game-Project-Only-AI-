@@ -4,7 +4,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {delayedProxy} from './delayed-proxy.mjs';
 import {snapshotAudit} from './snapshot-audit.mjs';
-const sleep=ms=>new Promise(r=>setTimeout(r,ms)),port=4190;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms)),port=4189;
 const server=spawn(process.execPath,['server/server.js'],{env:{...process.env,PORT:String(port)},stdio:'inherit'});
 let browser,proxy;const peers=[],errors=[];
 const audit=snapshotAudit(2,message=>errors.push(message));

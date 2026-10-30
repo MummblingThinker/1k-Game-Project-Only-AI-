@@ -189,6 +189,19 @@ check('blast affects each player once, never a negative heart pool', () => {
   assert.equal(r.hearts, 0); assert.equal(r.phase, 'gameover');
   killPlayer(r, p, 'duplicate'); assert.equal(r.hearts, 0);
 });
+check('bomber radius boundary spares escaping players and never permits weapon pickup',()=>{
+  const r=runAt(2,4),all=[...r.players.values()];
+  for(const [index,p]of all.entries())Object.assign(p,{x:[1000,1020,1048,1060][index],y:129,onGround:true});
+  r.world.enemies=[{id:'radius',kind:'creeper',x:1000,y:123,w:20,h:28,minX:1000,maxX:1000,dir:1,speed:0,phase:'attack',timer:24,targetX:1000,stunned:0}];
+  stepRun(r);assert.deepEqual(all.map(p=>p.alive),[false,false,true,true]);
+  assert.equal(r.hearts,3);assert.equal(r.deathEvents.length,2);
+  for(let tick=0;tick<25;tick++)stepRun(r);
+  assert.equal(r.hearts,3);assert.equal(r.deathEvents.length,2);assert.equal(r.world.enemies[0].phase,'recover');
+  const alone=runAt(2,1),p=alone.players.get('p0');Object.assign(p,{x:1000,y:129,onGround:true});
+  alone.world.crates=[];alone.world.enemies=[{id:'not-a-weapon',kind:'creeper',x:1000,y:123,w:20,h:28,minX:1000,maxX:1000,dir:1,speed:0,phase:'recover',timer:180,stunned:0}];
+  for(const action of ['use','carry','drop']){alone.tick+=13;assert.equal(interactRun(alone,p.id,action),false);assert.ok(!p.carryId);assert.ok(!alone.world.enemies[0].carriedBy);}
+  assert.equal(alone.world.enemies.length,1);
+});
 check('checkpoints provide exactly one benefit once; full-cap recovery cannot bank hearts', () => {
   const r = runAt(5, 4), [a, b, c] = [...r.players.values()];
   killPlayer(r, a, 'pit'); r.tick++; killPlayer(r, b, 'pit');
