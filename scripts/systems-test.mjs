@@ -8,6 +8,18 @@ const runAt = (level = 2, count = 2) => {
   startLevel(run, level, true); return run;
 };
 const check = (label, fn) => { fn(); console.log('Systems PASS: ' + label); };
+check('arena ledges allow returning to a relay beneath adjacent cover',()=>{
+  const r=runAt(5,4),p=r.players.get('p2');
+  // Exact public failure corner: ledge ends at 4764, cover starts at 4770.
+  Object.assign(p,{x:4764,y:129,onGround:true,lastJump:false,vx:0,vy:0});
+  for(let tick=0;tick<100;tick++)stepPlayer(p,{left:true,jump:p.onGround},r.world);
+  assert.ok(p.x<4695,'grounded survivor can return left through the arena corner');
+  for(const level of [5,10,15]){
+    const w=runAt(level,1).world;
+    for(const ledge of w.platforms.filter(s=>s.kind==='ledge'&&s.x+s.w>w.boss.x))
+      assert.ok(w.floorY-ledge.y-ledge.h>=p.h+2,'arena overhead clearance '+level);
+  }
+});
 check('all authored robot patrols remain on their floor and outside protected zones',()=>{
   let observed=0;
   for(let level=2;level<=15;level++){

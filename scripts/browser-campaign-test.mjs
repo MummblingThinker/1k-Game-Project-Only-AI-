@@ -96,7 +96,7 @@ try {
       assert.ok(peers.every(p=>p.state.hearts===(party===1?3:party===4?5:4)&&p.state.players.every(q=>q.alive)),'replay resets hearts and survivors');
       await Promise.all(peers.map(async p=>{p.held={};await p.page.locator('#game').focus();}));
     }
-    assert.equal(host.state.phase,'victory',JSON.stringify({level,hearts:host.state.hearts,notice:host.state.notice,players:host.state.players}));
+    assert.equal(host.state.phase,'victory',JSON.stringify({level,hearts:host.state.hearts,notice:host.state.notice,boss:host.state.world.boss,players:host.state.players}));
     await until(()=>peers.every(p=>p.state.phase==='victory'),'shared victory');
     assert.ok(peers.every(p=>p.state.hearts===host.state.hearts),'shared hearts');
     if(party>1)assert.ok(consistency.count(level)>100,'complete shared-world snapshots agree throughout stage '+level);

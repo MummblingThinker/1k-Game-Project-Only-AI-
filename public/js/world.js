@@ -1,4 +1,5 @@
 import { getLevel } from './campaign.js';
+import { PLAYER_H } from './physics.js';
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
@@ -174,6 +175,10 @@ export function buildLevel(levelId = 1, partySize = 1) {
       { x: cp.x - 31, y: 132, w: 15, h: 5, kind: 'step', shelterX: cp.x }, { x: cp.x + 64, y: 132, w: 15, h: 5, kind: 'step', shelterX: cp.x });
   }
   const bossX = milestone ? width - 690 : width;
+  // A 21px underside beside arena cover traps a 22px survivor's jump in a
+  // tiny corner. Keep a clear ground route back to the ordered relay puzzle.
+  if(milestone)for(const ledge of world.platforms)
+    if(ledge.kind==='ledge'&&ledge.x+ledge.w>bossX)ledge.y=Math.min(ledge.y,floorY-PLAYER_H-ledge.h-2);
   const switchXs = milestone ? [600, 1800, 3000] : [560, 1160, 2280];
   switchXs.filter(x => x < bossX - 150).forEach((x, i) => {
     const ledge = world.platforms.find(s => x + 20 >= s.x && x - 20 <= s.x + s.w);
