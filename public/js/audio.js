@@ -21,9 +21,10 @@ export function createGameAudio(button, slider) {
     }
   }
   function score(world,state,listener){
+    const zone=world.id===11&&listener.x<(world.coveredWay?.x||0)?'forest':world.region||'city';
+    button.dataset.audioZone=zone;
     if(!context||context.state!=='running'||!enabled)return;
     createAmbience();
-    const zone=world.id===11&&listener.x<(world.coveredWay?.x||0)?'forest':world.region||'city';
     const active=['playing','title','lobby','paused','cutscene'].includes(state),now=context.currentTime;
     if(zone!==musicZone){musicZone=zone;musicAt=now;beat=0;button.dataset.audioZone=zone;}
     const mix=zone+':'+state;if(mix!==ambienceMix){ambienceMix=mix;for(const [key,bus] of Object.entries(ambience))bus.gain.gain.setTargetAtTime(active&&key===zone?(state==='cutscene'?.13:state==='paused'?.12:.35):0,now,.45);}

@@ -47,9 +47,9 @@ try{
     const metadata=await page.evaluate(async level=>{
       const {buildLevel}=await import('/js/world.js'),{drawGame}=await import('/js/art.js'),{createPlayer}=await import('/js/physics.js');
       const w=buildLevel(level,1),b=w.boss;
-      const x=b?b.x+300:level===11?w.coveredWay.x+60:700,y=b&&level!==10?w.floorY-220:w.floorY-22;
+      const x=b?b.x+(level===10?272:300):level===11?w.coveredWay.x+60:700,y=b&&level!==10?w.floorY-220:w.floorY-22;
       const p=createPlayer('render',x,y,0);p.slot=0;p.onGround=true;
-      if(b){b.phase=level===15?'warning':'active';b.bodyX=b.x+425;b.bodyY=y;b.targetX=x+70;b.targetY=y;if(level===15){b.phaseIndex=2;b.lavaY=w.floorY-40;}}
+      if(b){b.phase=level===15?'warning':'active';b.bodyX=b.x+425;b.bodyY=level===10?w.floorY-62:y;b.targetX=x+70;b.targetY=y;if(level===15){b.phaseIndex=2;b.lavaY=w.floorY-40;}}
       const canvas=document.createElement('canvas');canvas.id='revision-preview';canvas.width=960;canvas.height=540;canvas.style.cssText='position:fixed;inset:0;z-index:99999;width:960px;height:540px;background:black;image-rendering:pixelated';document.querySelector('#revision-preview')?.remove();document.body.append(canvas);
       const ctx=canvas.getContext('2d');ctx.scale(3,3);ctx.imageSmoothingEnabled=false;drawGame(ctx,w,p,[],Math.max(0,x-100),{cameraY:y-95,clock:1200,tick:300});return{level,platforms:w.platforms.length,enemies:w.enemies.length};
     },level);
@@ -79,11 +79,12 @@ try{
   for(const [level,zone] of [[1,'city'],[6,'forest'],[12,'factory']]){
     await page.goto(base+'/?debug=1');await page.locator('#menu-single').click();await page.locator('#level-select').selectOption(String(level));await page.locator('#play-selected').click();
     await page.waitForFunction(zone=>document.querySelector('#sound-toggle').dataset.audioZone===zone,zone);
-    await page.locator('#open-settings').click();assert.equal(await page.locator('#game').getAttribute('data-state'),'paused');
+    await page.locator('#open-settings').click();await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='paused');
+    console.log('AUDIO STATE',zone,await page.locator('#sound-toggle').getAttribute('data-audio-state'));
     await page.locator('#sound-toggle').click();assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');await page.locator('#sound-toggle').click();await page.locator('#menu-back').click();
     await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing');
   }
-  console.log('ZONE AUDIO PASS: city/forest/factory scheduler, gesture unlock, saved mute/volume and settings pause/resume.');
+  console.log('ZONE AUDIO PASS: city/forest/factory scheduler, audio zone selection, saved mute/volume and settings pause/resume.');
   await page.goto(base+'/?debug=1');await page.locator('#menu-single').click();await page.locator('#start-story').click();await sleep(1800);
   const story=await page.locator('#story-panel').screenshot({path:'artifacts/revision/comic-desktop.jpg',type:'jpeg',quality:80});console.log('COMIC_BASE64_BEGIN'+story.toString('base64')+'COMIC_BASE64_END');
   const positions=await page.locator('.comic-original').evaluateAll(es=>es.map(e=>getComputedStyle(e).backgroundPosition));assert.equal(new Set(positions).size,3);

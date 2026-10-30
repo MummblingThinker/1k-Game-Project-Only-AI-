@@ -56,10 +56,27 @@ export function drawFacade(c,s,biome){
 
 export function drawSurface(c,s,P,biome,cameraX,cy){
   const x=s.x,y=s.y,bridge=s.kind?.includes('bridge'),wood=['canopy','maze-tree','branch','cabin','fallen-tree'].includes(s.kind);
+  if(!s.kind){
+    const left=Math.max(x,cameraX-8),right=Math.min(x+s.w,cameraX+328);
+    r(c,left,y,right-left,s.h,biome==='forest'?'#463f32':biome==='city'?'#283b43':'#253e48');
+    r(c,left,y,right-left,3,biome==='forest'?'#8da56b':biome==='city'?'#a7b6a6':'#94a9a2');
+    if(biome==='forest'){
+      r(c,left,y+3,right-left,5,'#66734b');
+      for(let xx=Math.floor(left/17)*17;xx<right;xx+=17){
+        r(c,xx+3,y-3-xx%3,1,5,'#abc480');r(c,xx+7,y-1,2,3,'#78945e');
+        for(let j=0;j<4;j++){const yy=y+13+j*13+(xx%7);r(c,xx+(j*7%13),yy,3+j%3,2,j%2?'#74684b':'#5a513a');}
+        if(xx%51===0){line(c,xx,y+6,xx+9,y+24,'#99815a',2);line(c,xx+9,y+24,xx+24,y+29,'#99815a');}
+      }
+    }else{
+      for(let xx=Math.floor(left/24)*24;xx<right;xx+=24){r(c,xx,y+5,20,2,biome==='city'?'#6f8486':'#587781');r(c,xx+21,y+2,1,8,'#3b535b');if(biome==='factory'){r(c,xx+4,y+13,14,2,'#42636c');r(c,xx+4,y+18,14,2,'#42636c');r(c,xx+1,y+32,2,2,'#96a497');}}
+      r(c,left,y+36,right-left,3,biome==='city'?'#495d61':'#6b7b72');r(c,left,y+41,right-left,2,'#172f3a');
+    }
+    return;
+  }
   if(bridge){
     // Riveted decks, load-bearing triangles and guardrails; the bright deck
     // line is the collision surface, while the rails sit behind the players.
-    r(c,x,y,s.w,8,'#294550');r(c,x,y,s.w,2,'#e5c689');r(c,x,y+2,s.w,2,'#7d9e9c');
+    r(c,x,y,s.w,8,biome==='forest'?'#785e42':'#294550');r(c,x,y,s.w,2,'#e5c689');r(c,x,y+2,s.w,2,biome==='forest'?'#af9461':'#7d9e9c');
     for(let xx=x+4;xx<x+s.w-3;xx+=12){r(c,xx,y+4,8,2,'#4e7078');r(c,xx+3,y,1,1,'#f7ddb0');}
     for(let xx=x;xx<x+s.w;xx+=36){r(c,xx,y-16,2,16,'#6f8987');line(c,xx,y-15,Math.min(xx+36,x+s.w),y-15,'#96aba0');line(c,xx,y+9,Math.min(xx+18,x+s.w),y+23,'#43616b',2);line(c,Math.min(xx+18,x+s.w),y+23,Math.min(xx+36,x+s.w),y+9,'#43616b',2);}
     return;

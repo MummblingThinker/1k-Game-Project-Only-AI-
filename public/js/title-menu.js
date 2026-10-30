@@ -1,5 +1,5 @@
 // Reuse the real controls and their listeners, so menu and room state cannot diverge.
-export function createTitleMenu({pause, resume, release}) {
+export function createTitleMenu({pause, resume, release, readState}) {
   const $=id=>document.getElementById(id), root=document.createElement('section');
   root.id='title-menu';root.setAttribute('aria-label','Game menu');
   root.innerHTML=`<div class="menu-brand"><p class="panel-kicker">ONE SMALL SPARK IN A MACHINE WORLD</p><h2>Tiny Teamwork<span>The Last Spark</span></h2></div>
@@ -20,12 +20,12 @@ export function createTitleMenu({pause, resume, release}) {
   const gear=document.createElement('button');gear.id='open-settings';gear.className='text-button';gear.textContent='Settings';$('pause-game').after(gear);
   let view='home',state='title',previousState='',inRoom=false,overlay=false,pausedByMenu=false;
   function show(next){
-    release();view=next;root.dataset.view=view;
+    state=readState();release();view=next;root.dataset.view=view;
     for(const page of root.querySelectorAll('[data-menu-view]'))page.hidden=page.dataset.menuView!==view;
     $('menu-back').hidden=view==='home';$('menu-back').textContent=overlay?'Return to game':'Back';
     const parent=view==='multi'?$('host-controls'):solo;
-    parent.append(levelRow,story);if(view==='solo')solo.append(resumeButton,resumeNote,levelRow,practice,story);
-    story.textContent=view==='multi'?'Start Co-op Run':'Start Story';
+    parent.append(levelRow,story);if(view==='solo')solo.append(story,resumeButton,resumeNote,levelRow,practice);
+    if(!inRoom)story.textContent='Start Story';
     if(view==='settings'&&state!=='title'&&state!=='lobby'){overlay=true;pausedByMenu=pause();}
     root.hidden=false;root.querySelector(`[data-menu-view="${view}"] button, [data-menu-view="${view}"] input`)?.focus();
   }
@@ -41,7 +41,7 @@ export function createTitleMenu({pause, resume, release}) {
   return {get visible(){return !root.hidden;},update(next,room){
     state=next;inRoom=room;
     if(next==='lobby'&&previousState!=='lobby')show('multi');
-    if(next==='title'&&previousState!=='title')show('home');
+    if(next==='title'&&previousState!=='title')show(!previousState&&new URLSearchParams(location.search).has('room')?'multi':'home');
     if(next!==previousState&&!['title','lobby','paused'].includes(next)){overlay=false;pausedByMenu=false;}
     root.hidden=!overlay&&!['title','lobby'].includes(next);document.body.dataset.menuOpen=String(!root.hidden);
     $('host-controls').hidden=!room;

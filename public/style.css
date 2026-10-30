@@ -266,3 +266,5 @@ body[data-menu-open="true"] .quick-controls,body[data-menu-open="true"] .mobile-
  .mobile-controls { flex-wrap:wrap; gap:8px; }
  .mobile-group { flex-wrap:wrap; }
 }
+
+#title-menu .co-op-card .panel-heading { display:flex; }
