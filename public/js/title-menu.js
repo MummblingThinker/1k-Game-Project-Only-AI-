@@ -1,12 +1,12 @@
 // Reuse the real controls and their listeners, so menu and room state cannot diverge.
-export function createTitleMenu({pause, resume, release, readState}) {
+export function createTitleMenu({pause, resume, release, readState, quit}) {
   const $=id=>document.getElementById(id), root=document.createElement('section');
   root.id='title-menu';root.setAttribute('aria-label','Game menu');
   root.innerHTML=`<div class="menu-brand"><p class="panel-kicker">ONE SMALL SPARK IN A MACHINE WORLD</p><h2>Tiny Teamwork<span>The Last Spark</span></h2></div>
     <div class="menu-home" data-menu-view="home"><button id="menu-single" class="primary-button">Single Player</button><button id="menu-multi" class="secondary-button">Multiplayer</button><button id="menu-settings" class="secondary-button">Settings</button><p>City rooftops. Forest trails. A factory that never sleeps.</p></div>
     <div class="menu-page" data-menu-view="solo" hidden><h3>Single Player</h3><div id="solo-controls"></div></div>
     <div class="menu-page" data-menu-view="multi" hidden><h3>Multiplayer</h3><div id="multi-controls"></div><div id="host-controls"></div></div>
-    <div class="menu-page" data-menu-view="settings" hidden><h3>Settings</h3><div id="settings-controls"></div><p class="menu-legend">W / S: climb and hold ladders · Space: jump<br>Bright edged walls are solid. Recessed facades sit behind your path.<br>Flags restore hearts up to your limit. Solo has three hearts.</p></div>
+    <div class="menu-page" data-menu-view="settings" hidden><h3>Settings</h3><div id="settings-controls"></div><p class="menu-legend">W / S: climb and hold ladders · Space: jump<br>Bright edged walls are solid. Recessed facades sit behind your path.<br>Flags restore hearts up to your limit. Solo has three hearts.</p><p id="menu-context" class="microcopy"></p><button id="menu-quit" class="secondary-button">Return to title</button></div>
     <button id="menu-back" class="text-button" hidden>Back</button>`;
   document.querySelector('.screen-frame').append(root);
   const solo=$('solo-controls'),multi=$('multi-controls'),settings=$('settings-controls');
@@ -31,6 +31,7 @@ export function createTitleMenu({pause, resume, release, readState}) {
   }
   function back(){if(overlay){overlay=false;if(pausedByMenu)resume();pausedByMenu=false;root.hidden=true;release();}else show(inRoom?'multi':'home');}
   $('menu-single').onclick=()=>show('solo');$('menu-multi').onclick=()=>show('multi');$('menu-settings').onclick=()=>show('settings');gear.onclick=()=>show('settings');$('menu-back').onclick=back;
+  $('menu-quit').onclick=()=>{overlay=false;pausedByMenu=false;quit();};
   root.addEventListener('keydown',e=>{
     if(e.key==='Escape'){e.preventDefault();e.stopPropagation();back();}
     if(e.key==='Tab'){
@@ -45,6 +46,8 @@ export function createTitleMenu({pause, resume, release, readState}) {
     if(next!==previousState&&!['title','lobby','paused'].includes(next)){overlay=false;pausedByMenu=false;}
     root.hidden=!overlay&&!['title','lobby'].includes(next);document.body.dataset.menuOpen=String(!root.hidden);
     $('host-controls').hidden=!room;
+    $('menu-quit').hidden=next==='title';$('menu-quit').textContent=room?'Leave room / Return to title':'Return to title';
+    $('menu-context').textContent=room?'Online play keeps going while Settings is open.':overlay?'Solo play is paused.':'';
     previousState=next;
   }};
 }

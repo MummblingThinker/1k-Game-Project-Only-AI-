@@ -60,6 +60,7 @@ function clearInput() {
 let gameState = 'title';
 const titleMenu=createTitleMenu({
   readState:()=>gameState,
+  quit:()=>returnToTitle(),
   release:()=>{clearInput();if(typeof network!=='undefined')network.sendInput({},true);},
   pause:()=>{if(!network.inRoom&&gameState==='playing'){gameState='paused';return true;}return false;},
   resume:()=>{if(gameState==='paused')gameState='playing';}

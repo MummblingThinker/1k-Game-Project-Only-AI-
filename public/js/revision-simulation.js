@@ -82,7 +82,7 @@ function projectiles(run){
     const bossHit=b?.kind==='climber'&&!b.solved&&b.phase!=='waiting'&&b.bodyY<w.floorY-130&&overlaps(c,{x:b.bodyX,y:b.bodyY,w:b.bodyW,h:b.bodyH});
     const barrier=w.platforms.find(s=>s.kind==='breakable'&&overlaps(c,{x:s.x-3,y:s.y-3,w:s.w+6,h:s.h+6}));
     if(barrier){breakBlock(run,barrier);c.flightTicks=0;if(!c.durable){c.used=true;effect(w,c.x,c.y,run.tick);}}
-    if(hit){hit.stunned=hit.size==='big'?100:120;hit.hp-=hit.size==='big'?0:1;if(hit.hp<=0){hit.dead=true;hit.deathTick=run.tick;effect(w,hit.x,hit.y,run.tick,'robot');}c.flightTicks=0;run.notice=hit.dead?'Robot destroyed!':hit.size==='big'?'Heavy armor! Briefly stunned—keep moving.':'Robot stunned. Another hit can finish it.';}
+    if(hit){hit.stunned=hit.size==='big'?100:120;hit.hp-=hit.size==='big'?0:1;if(hit.hp<=0){hit.dead=true;hit.deathTick=run.tick;effect(w,hit.x,hit.y,run.tick,'robot');}c.flightTicks=0;run.notice=hit.dead?'Robot destroyed!':hit.size==='big'?'Heavy armor! Briefly stunnedâ€”keep moving.':'Robot stunned. Another hit can finish it.';}
     if(bossHit){b.hp--;b.hitTick=run.tick;c.flightTicks=0;run.notice=`Climb Warden damaged: ${b.hp}/${b.maxHp}`;if(b.hp<=0){deadBoss(run);const y=w.floorY-80*(b.highestTier+1);w.platforms.push({x:b.x+30,y:y-60,w:400,h:10,kind:'exit-floor',essential:true});w.ladders.push({id:'final-ladder',x:b.x+290,y:y-60,w:12,h:140});w.finish={x:b.x+350,y:y-90,w:28,h:30,locked:false};run.notice='WARDEN DESTROYED! Climb the final ladder to the exit.';}}
     if(hit||bossHit){if(!c.durable){c.used=true;effect(w,c.x,c.y,run.tick);}else{c.vx*=-.3;c.vy=-2;}}
     if(!hit&&!bossHit&&c.flightTicks<96&&c.vy===0){if(!c.durable){c.used=true;effect(w,c.x,c.y,run.tick);}c.flightTicks=0;}
@@ -118,7 +118,7 @@ function bossStep(run,api){
     const tree=b.tree;
     b.bodyX=Math.min(tree.x-20,b.bodyX+(tree.phase==='upright'?.85:Math.max(1.45,(tree.x-20-b.bodyX)/Math.max(1,tree.timer))));b.bodyY=w.floorY-62;
     for(const p of people)if(tree.phase==='upright'&&overlaps(p,{x:b.bodyX,y:b.bodyY,w:b.bodyW+36,h:b.bodyH}))api.killPlayer(run,p,'Chainsaw caught you',true);
-    if(tree.phase==='upright'&&people.some(p=>p.x>tree.x+tree.w)){tree.phase='warning';tree.timer=45;run.notice='TREE FALLING! Leave the striped zone—players underneath are crushed too!';}
+    if(tree.phase==='upright'&&people.some(p=>p.x>tree.x+tree.w)){tree.phase='warning';tree.timer=45;run.notice='TREE FALLING! Leave the striped zoneâ€”players underneath are crushed too!';}
     if(tree.phase==='warning'&&--tree.timer<=0){tree.phase='falling';tree.timer=20;tree.fallTick=run.tick;}
     else if(tree.phase==='falling'&&--tree.timer<=0){tree.phase='fallen';for(const p of people)if(p.x+p.w>tree.x-35&&p.x<tree.x+tree.w)api.killPlayer(run,p,'Falling tree',true);deadBoss(run);w.platforms.push({x:tree.x-35,y:w.floorY-18,w:tree.w+35,h:18,kind:'fallen-tree'});run.notice='The tree crushed the chainsaw. Jump the trunk and reach the exit!';}
   }else{
@@ -180,19 +180,22 @@ export function stepRevision(run,api){
   for(const c of w.crates)if(c.durable&&c.used){c.used=false;c.x=c.homeX;c.y=c.homeY;c.vx=c.vy=0;}
   enemies(run,api);bossStep(run,api);
   if(w.giant.wakeTicks>0)w.giant.wakeTicks--;else w.giant.x=Math.min(b?b.x-65:w.width,w.giant.x+w.giant.speed);
-  for(const p of alive(run)){
+  const livingAtPursuit=alive(run);
+  const caught=livingAtPursuit.filter(p=>{
     const inArena=b&&(p.x>=b.x||(b.kind==='foundry'&&p.x>=b.x-650&&p.y<w.floorY-250));
-    if(!inArena&&p.x+4<w.giant.x+44){
-      if(alive(run).length>2){
-        api.killPlayer(run,p,'The pursuer caught you',true);
-        if(run.hearts>0){p.pursuerRecovery=90;run.notice='A teammate was caught. One heart lost; rescue returns them to the group.';}
-      }else{
-        // With at most two active survivors the giant ends the whole escape.
-        for(const q of alive(run))api.killPlayer(run,q,'The pursuer caught the team',true);
-        run.hearts=0;run.phase='gameover';run.notice='The giant caught the last survivors. The escape is over.';
-        break;
-      }
+    return !inArena&&p.x+4<w.giant.x+44;
+  });
+  if(caught.length&&livingAtPursuit.length<=2){
+    // End the team run atomically, even when only one shared heart remained.
+    for(const q of livingAtPursuit){
+      api.releaseParticipant(run,q);q.alive=false;q.hitTicks=14;q.vx=q.vy=0;q.timeDead=q.lastDeathAt=run.tick;q.pursuerRecovery=0;
+      run.deathEvents.push({id:`${run.runId}:${run.tick}:${q.id}`,playerId:q.id,cause:'The pursuer caught the team'});
+      recordRunEvent(run,'death',{survivor:q.slot+1,cause:'The pursuer caught the team',x:Math.round(q.x),y:Math.round(q.y)});
     }
+    run.deathEvents=run.deathEvents.slice(-30);run.hearts=0;run.phase='gameover';run.notice='The giant caught the last survivors. The escape is over.';
+  }else for(const p of caught){
+    api.killPlayer(run,p,'The pursuer caught you',true);
+    if(run.hearts>0){p.pursuerRecovery=90;run.notice='A teammate was caught. One heart lost; rescue returns them to the group.';}
   }
   for(const p of people)if(!p.alive&&p.pursuerRecovery>0&&run.phase==='playing'&&--p.pursuerRecovery===0){
     const anchor=alive(run).sort((a,b)=>b.x-a.x)[0];
@@ -224,13 +227,13 @@ function projectilesAfterMotion(run){for(const c of run.world.crates)if(c.flight
 
 export function revisionObjective(run){
   const w=run.world,b=w.boss;
-  if(b&&b.phase!=='waiting'&&!b.solved){if(b.kind==='climber')return `WARDEN ${b.hp}/${b.maxHp} • Climb (W/S at ladders), lift debris (E), throw (E/F).`;
-    if(b.kind==='chainsaw')return b.tree.phase==='warning'?'FALLING TREE! Clear the striped area now.':'CHAINSAW CHASE • Climb trunks / Space wall-jump • Escape right';
-    return ['escape','breach'].includes(b.phase)?'RUN LEFT • Jump machinery • Reach the emergency door':`FACTORY ${b.phaseIndex||0}/3 • Climb above lava • E breaks consoles`;}
-  if(b?.solved)return 'BOSS DESTROYED • Reach the exit together';
+  if(b&&b.phase!=='waiting'&&!b.solved){if(b.kind==='climber')return `WARDEN ${b.hp}/${b.maxHp} â€¢ Climb (W/S at ladders), lift debris (E), throw (E/F).`;
+    if(b.kind==='chainsaw')return b.tree.phase==='warning'?'FALLING TREE! Clear the striped area now.':'CHAINSAW CHASE â€¢ Climb trunks / Space wall-jump â€¢ Escape right';
+    return ['escape','breach'].includes(b.phase)?'RUN LEFT â€¢ Jump machinery â€¢ Reach the emergency door':`FACTORY ${b.phaseIndex||0}/3 â€¢ Climb above lava â€¢ E breaks consoles`;}
+  if(b?.solved)return 'BOSS DESTROYED â€¢ Reach the exit together';
   const p=alive(run)[0];const ladder=w.ladders.find(l=>p&&Math.abs(p.x-l.x)<35&&Math.abs(p.y+p.h-(l.y+l.h))<50);
-  if(ladder)return 'LADDER: W up / S down • Release to hold / sideways to step off • Space against walls to wall-jump';
+  if(ladder)return 'LADDER: W up / S down â€¢ Release to hold / sideways to step off â€¢ Space against walls to wall-jump';
   const plate=w.plates.find(s=>p&&p.x>s.x-80&&p.x<s.bridgeX+s.bridgeW+30);
-  if(plate)return `LONG BRIDGE • ${plate.held?'WEIGHT HELD':plate.remaining?Math.ceil(plate.remaining/60)+' seconds':'Put the yellow weight on the plate (Q)'}`;
-  return `RELAYS ${w.switches.filter(s=>s.active).length}/${w.switches.length} • Flags save + heal • E lifts/throws debris • Ground lights show facing`;
+  if(plate)return `LONG BRIDGE â€¢ ${plate.held?'WEIGHT HELD':plate.remaining?Math.ceil(plate.remaining/60)+' seconds':'Put the yellow weight on the plate (Q)'}`;
+  return `RELAYS ${w.switches.filter(s=>s.active).length}/${w.switches.length} â€¢ Flags save + heal â€¢ E lifts/throws debris â€¢ Ground lights show facing`;
 }

@@ -54,3 +54,13 @@ const tick=(r,n=1)=>{for(let i=0;i<n;i++)stepRun(r);};
  tick(r,60);assert.equal(b.solved,true);assert.ok(r.deathEvents.some(e=>e.playerId===p.id&&e.cause==='Falling tree'));assert.equal(a.alive,true);
  console.log('FOLLOWUP PASS: crossing triggers immediate tree finale; fast boss arrival, lethal tree and safe leading survivor.');
 }
+
+{
+ const r=runAt(1,2);r.hearts=1;r.world.enemies=[];r.world.giant.wakeTicks=0;r.world.giant.x=30;tick(r);
+ assert.equal(r.phase,'gameover');assert.ok([...r.players.values()].every(p=>!p.alive));assert.equal(r.deathEvents.length,2);
+ const group=runAt(1,3);group.world.enemies=[];group.world.giant.wakeTicks=0;group.world.giant.x=40;
+ for(const p of group.players.values())p.x=35;tick(group);
+ assert.equal(group.hearts,1,'simultaneous catches spend one per person using starting survivor count');
+ assert.equal(group.phase,'playing');assert.equal(group.deathEvents.length,3);assert.ok([...group.players.values()].every(p=>p.alive));
+ console.log('FOLLOWUP PASS: final-heart team defeat is atomic; simultaneous 3+ catches do not depend on player iteration order.');
+}

@@ -80,16 +80,30 @@ try{
     await page.goto(base+'/?debug=1');await page.locator('#menu-single').click();await page.locator('#level-select').selectOption(String(level));await page.locator('#play-selected').click();
     await page.waitForFunction(zone=>document.querySelector('#sound-toggle').dataset.audioZone===zone,zone);
     await page.locator('#open-settings').click();await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='paused');
+    if(process.env.TEST_BROWSER!=='firefox')await page.waitForFunction(()=>document.querySelector('#sound-toggle').dataset.audioState==='running');
     console.log('AUDIO STATE',zone,await page.locator('#sound-toggle').getAttribute('data-audio-state'));
     await page.locator('#sound-toggle').click();assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');await page.locator('#sound-toggle').click();await page.locator('#menu-back').click();
     await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing');
   }
-  console.log('ZONE AUDIO PASS: city/forest/factory scheduler, audio zone selection, saved mute/volume and settings pause/resume.');
+  console.log('ZONE CONTROLS PASS: city/forest/factory selection, mute and settings pause/resume. AudioContext state logged separately; physical listening not claimed.');
   await page.goto(base+'/?debug=1');await page.locator('#menu-single').click();await page.locator('#start-story').click();await sleep(1800);
   const story=await page.locator('#story-panel').screenshot({path:'artifacts/revision/comic-desktop.jpg',type:'jpeg',quality:80});console.log('COMIC_BASE64_BEGIN'+story.toString('base64')+'COMIC_BASE64_END');
   const positions=await page.locator('.comic-original').evaluateAll(es=>es.map(e=>getComputedStyle(e).backgroundPosition));assert.equal(new Set(positions).size,3);
   await page.setViewportSize({width:430,height:932});await sleep(300);await page.screenshot({path:'artifacts/revision/comic-mobile.png'});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no mobile horizontal overflow');
   console.log('COMIC PASS: 11 unique triptychs / 33 distinct illustrations; desktop and mobile layouts.');
+  await page.goto(base+'/?debug=1');await page.locator('#menu-settings').click();
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'mobile settings fit width');
+  await page.locator('#menu-back').click();await page.locator('#menu-multi').click();await page.locator('#create-room').click();
+  await page.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);
+  const code=await page.locator('#game').getAttribute('data-room');
+  const guest=await context.newPage();await guest.goto(base+'/?room='+code);await guest.locator('#join-room').click();
+  await guest.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);await guest.locator('#room-ready').click();
+  await page.locator('#start-story').click();await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing');
+  await page.locator('#open-settings').click();await sleep(100);assert.equal(await page.locator('#game').getAttribute('data-state'),'playing','online Settings must not pause the room');
+  await page.locator('#menu-quit').click();await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='title'&&!document.querySelector('#game').dataset.room);
+  await guest.locator('#open-settings').click();await guest.locator('#menu-quit').click();await guest.close();
+  const mobile=await page.locator('.screen-frame').screenshot({path:'artifacts/revision/title-mobile.jpg',type:'jpeg',quality:80});console.log('MOBILE_TITLE_BASE64_BEGIN'+mobile.toString('base64')+'MOBILE_TITLE_BASE64_END');
+  console.log('MOBILE / ROOM MENU PASS: settings layout, invite opens Multiplayer, actual host/guest ready/start, online Settings keeps play running, both leave through Settings.');
   assert.deepEqual(errors,[]);await writeFile('artifacts/revision/result.json',JSON.stringify({browser:browser.version(),errors,level1:'victory'},null,2));
 }finally{await browser?.close();child?.kill();}
