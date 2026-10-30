@@ -83,10 +83,14 @@ try {
   assert.equal(a.state.world.boss.cycle, 3);
   assert.equal(b.state.world.boss.solved, true);
   b.send('nextLevel'); await sleep(100); assert.equal(a.state.phase, 'victory', 'guest cannot advance');
-  a.send('nextLevel'); await until(() => a.state.phase === 'cutscene' && b.state.phase === 'cutscene', 'shared ending scene');
+  a.send('nextLevel'); a.send('nextLevel');
+  await until(() => a.state.phase === 'cutscene' && b.state.phase === 'cutscene', 'shared ending scene');
   assert.equal(a.state.storyKey, 'after15'); assert.equal(b.state.storyKey, 'after15');
-  a.send('nextLevel'); await until(() => a.state.phase === 'ending' && b.state.phase === 'ending', 'shared ending');
+  b.send('skipStory');await sleep(250);
+  assert.equal(a.state.phase,'cutscene','duplicate Continue and guest Skip cannot collapse the story');
+  a.send('skipStory');a.send('skipStory');
+  await until(() => a.state.phase === 'ending' && b.state.phase === 'ending', 'shared ending');
   assert.equal(a.errors.length, 0); assert.equal(b.errors.length, 0);
-  console.log('Live campaign PASS: actual two-client room, host-only stage selection, full Level 15 input-only route and three background-boss core cycles, pursuer exclusion, shared victory/story/ending, guest authority rejection.');
+  console.log('Live campaign PASS: actual two-client room, host-only stage selection, full Level 15 input-only route and three background-boss core cycles, pursuer exclusion, shared victory/story/ending, duplicate-Continue protection and host-only explicit Skip.');
 } catch (e) { console.error(e.stack); console.error(logs); process.exitCode = 1; }
 finally { clearInterval(driver); a?.close(); b?.close(); server.kill('SIGTERM'); }

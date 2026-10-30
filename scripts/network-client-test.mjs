@@ -16,6 +16,9 @@ try {
   const state = { roomCode: 'ABC234', runId:1, players: [{ id: 'one' }], phase: 'playing' };
   handlers.get('roomJoined')({ roomCode: state.roomCode, playerId: 'one', playerCount: 1, state });
   assert.equal(client.inRoom, true);
+  client.latestState={...state,phase:'victory'};client.nextLevel();assert.equal(sent.at(-1)[0],'nextLevel');
+  client.latestState={...state,phase:'cutscene'};client.nextLevel();assert.equal(sent.at(-1)[0],'skipStory');
+  client.latestState=state;const actions=sent.length;client.nextLevel();assert.equal(sent.length,actions,'playing cannot advance');
   handlers.get('roomState')({ ...state, roomCode: 'XYZ567' });
   assert.equal(states.length, 1, 'foreign-room packet must be ignored');
   handlers.get('diagnostics')({roomCode:'XYZ567',runId:1,report:{stage:1}});

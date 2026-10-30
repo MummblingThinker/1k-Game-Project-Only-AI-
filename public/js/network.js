@@ -104,7 +104,11 @@ export class NetworkClient {
   startRun() { if (this.inRoom) this.socket.emit('startRun'); }
   setReady(ready) { if (this.inRoom) this.socket.emit('ready', { ready: !!ready }); }
   restartRun() { if (this.inRoom) this.socket.emit('restartRun'); }
-  nextLevel() { if (this.inRoom) this.socket.emit('nextLevel'); }
+  nextLevel() {
+    if (!this.inRoom) return;
+    if (this.latestState?.phase === 'victory') this.socket.emit('nextLevel');
+    else if (this.latestState?.phase === 'cutscene') this.socket.emit('skipStory');
+  }
   selectLevel(level) { if (this.inRoom) this.socket.emit('selectLevel', { level }); }
   action(action) { if (this.inRoom && ['carry', 'drop'].includes(action)) this.socket.emit(action); }
 

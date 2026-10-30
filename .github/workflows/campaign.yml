@@ -50,6 +50,7 @@ jobs:
       - run: node scripts/browser-flow-test.mjs
       - run: node scripts/browser-cadence-test.mjs
       - run: node scripts/browser-performance-test.mjs
+      - run: node scripts/browser-restart-test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

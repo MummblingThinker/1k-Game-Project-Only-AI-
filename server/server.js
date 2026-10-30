@@ -223,7 +223,11 @@ io.on('connection', (socket) => {
   });
   socket.on('nextLevel', () => {
     const room = rooms.get(socketRoom.get(socket.id));
-    if (room?.hostId === socket.id && ['victory', 'cutscene'].includes(room.phase)) continueCampaign(room);
+    if (room?.hostId === socket.id && room.phase === 'victory') continueCampaign(room);
+  });
+  socket.on('skipStory', () => {
+    const room = rooms.get(socketRoom.get(socket.id));
+    if (room?.hostId === socket.id && room.phase === 'cutscene') continueCampaign(room);
   });
   for (const action of ['carry', 'drop']) socket.on(action, () => {
     const room = rooms.get(socketRoom.get(socket.id));

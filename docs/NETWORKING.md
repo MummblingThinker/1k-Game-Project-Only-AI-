@@ -4,6 +4,8 @@ Express serves the client and Socket.IO owns separate in-memory rooms. Random si
 
 ## Authority and shared state
 
+Continue after victory and Skip story are separate host-only intents. nextLevel is accepted only in victory; skipStory only during a cutscene. Duplicate Continue packets cannot skip the chapter they just opened. Stage/run changes, disconnect and focus loss clear pending and held input before another run starts.
+
 One simulation owns movement, collision, carried players/crates, rescue, enemies, shelters, ladders, pressure bridges, route relays, boss phases, hearts, revival and completion. Clients send intentions only. Running geometry and heart cap retain the original lobby size when somebody leaves. A full stage transition revives everyone and restores that cap; a checkpoint grants one oldest-dead revival OR one heart, once.
 
 Physics advances at 60 fixed steps per second; snapshots normally arrive at 20Hz. Input heartbeat is independent of drawing. Release/blur clears movement; stale input expires after 90 simulation ticks. Escape releases online input and does not pause the shared world. Remote visual interpolation is bounded; death, teleports, run changes and long stalls reset it. It never changes authoritative collision.

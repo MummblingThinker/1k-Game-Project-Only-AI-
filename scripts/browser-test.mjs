@@ -106,6 +106,11 @@ try {
   await solo.keyboard.press('f');
   await solo.waitForFunction(()=>!!JSON.parse(document.querySelector('#game').dataset.players)[0].carryId);
   await solo.keyboard.press('q');
+  await solo.keyboard.down('ArrowRight');
+  await solo.locator('#play-selected').click();
+  await solo.waitForTimeout(250);
+  assert.ok(Math.abs(await x(solo)-27)<1,'fresh stage clears movement held in the previous run');
+  await solo.keyboard.up('ArrowRight');
   for (const level of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]) {
     await solo.goto(`${base}/?level=${level}`);
     await solo.waitForFunction(level => document.querySelector('#region-badge').textContent.includes(String(level).padStart(2, '0')), level);

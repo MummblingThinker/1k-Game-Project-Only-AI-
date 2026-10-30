@@ -47,7 +47,8 @@ try {
         if(random()<.08)p.send(['interact','carry','drop'][Math.floor(random()*3)]);
       }
       else if(['gameover','ending'].includes(s.phase)){host.send('restartRun');restarts++;}
-      else if(['victory','cutscene'].includes(s.phase))host.send('nextLevel');
+      else if(s.phase==='victory')host.send('nextLevel');
+      else if(s.phase==='cutscene')host.send('skipStory');
       checks++;
     }
     if(metrics.length)assert.ok(metrics.at(-1).rss<512*1024*1024,'local server RSS remains below 512 MiB');

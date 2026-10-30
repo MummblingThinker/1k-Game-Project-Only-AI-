@@ -52,6 +52,10 @@ updateResumeButton();
 const keys = new Set();
 const justPressed = new Set();
 const touchInput = { left: false, right: false, jump: false, interact: false };
+function clearInput() {
+  keys.clear();justPressed.clear();
+  touchInput.left=touchInput.right=touchInput.jump=touchInput.interact=false;
+}
 let gameState = 'title';
 let currentLevel = 1;
 let partySize = 1;
@@ -124,6 +128,7 @@ function updatePanel() {
   if (!heartReadout.textContent) heartReadout.textContent = '—';
 }
 function buildWorld(levelId, remember = true) {
+  clearInput();
   currentLevel = Math.max(1, Math.min(15, Number(levelId) || 1));
   soloRun = { players: new Map([['local', createPlayer('local')]]), partySize: 1, runId: 0 };
   startLevel(soloRun, currentLevel, true);
@@ -157,7 +162,7 @@ const network = new NetworkClient({
       roomUiSignature = '';
       peers = [];
       gameState = 'title';
-      keys.clear();
+      clearInput();
       startStoryButton.textContent = 'Start Story';
       startStoryButton.disabled = false;
       playSelectedButton.disabled = false;
@@ -218,9 +223,9 @@ const network = new NetworkClient({
     $('room-roster').textContent = data.players.map((p) => `${p.id === data.playerId ? 'YOU: ' : ''}Survivor ${p.slot + 1}${p.id === data.hostId ? ' (host)' : ''} - ${data.phase === 'lobby' ? p.ready ? 'READY' : 'waiting' : !p.alive ? 'down' : p.capture ? 'GRABBED' : p.carriedBy ? 'carried' : p.carryId ? 'carrying' : 'active'}`).join(' | ');
     }
     updatePanel();
-    if (phaseChanged) {
+    if (phaseChanged || runChanged) {
       if (['playing','cutscene'].includes(data.phase)) focusGameView();
-      keys.clear();
+      clearInput();
       announce(data.phase === 'victory' ? `TEAM ESCAPED / LEVEL ${currentLevel} COMPLETE`
         : data.phase === 'gameover' ? 'RUN OVER / HOST CAN RESTART WITH R'
         : data.phase === 'lobby' ? 'ROOM READY / SHARE THE CODE'
@@ -271,12 +276,12 @@ function loadSelectedLevel() {
   announce(`LEVEL ${String(currentLevel).padStart(2,'0')} · ${getLevel(currentLevel).title}`, 2200);
 }
 function levelComplete() {
-  gameState = 'victory'; keys.clear();
+  gameState = 'victory'; clearInput();
   announce(`LEVEL ${currentLevel} COMPLETE / N TO CONTINUE / R TO REPLAY`, 5000);
 }
 function nextLevel() {
-  if (network.inRoom) { network.nextLevel(); return; }
   if (gameState !== 'victory') return;
+  if (network.inRoom) { network.nextLevel(); return; }
   const completed = currentLevel;
   const proceed = () => {
     if (completed === 15) { gameState = 'ending'; return; }
@@ -287,6 +292,7 @@ function nextLevel() {
   else proceed();
 }
 function returnToTitle() {
+  clearInput();
   if (network.inRoom) network.leaveRoom();
   gameState = 'title';
   capture = null;
@@ -460,11 +466,11 @@ window.addEventListener('keydown', (event) => {
   keys.add(key);
   if (key === 'Escape' && !event.repeat) {
     if (network.inRoom) {
-      keys.clear();justPressed.clear();touchInput.left=touchInput.right=touchInput.jump=false;
+      clearInput();
       network.sendInput({}, true); announce('ONLINE RUN KEEPS GOING / INPUT RELEASED');
     }
     else if (gameState === 'playing' || gameState === 'paused') {
-      keys.clear();justPressed.clear();touchInput.left=touchInput.right=touchInput.jump=false;
+      clearInput();
       gameState = gameState === 'playing' ? 'paused' : 'playing';
     }
   }
@@ -486,17 +492,17 @@ window.addEventListener('keydown', (event) => {
   syncTextUI();
 });
 window.addEventListener('keyup', (event) => { keys.delete(event.code); sendNetworkInput(); });
-window.addEventListener('blur', () => { keys.clear(); justPressed.clear(); touchInput.left=false; touchInput.right=false; touchInput.jump=false; touchInput.interact=false; sendNetworkInput(); });
+window.addEventListener('blur', () => { clearInput(); sendNetworkInput(); });
 
 $('continue-level').addEventListener('click', nextLevel);
 $('watch-player').addEventListener('click', watchNextPlayer);
 $('story-next').addEventListener('click', advanceCutscene);
 $('pause-game').addEventListener('click', () => {
   if (network.inRoom) {
-    keys.clear(); justPressed.clear(); touchInput.left = touchInput.right = touchInput.jump = false;
+    clearInput();
     network.sendInput({}, true); announce('ONLINE RUN KEEPS GOING / INPUT RELEASED');
   } else if (gameState === 'playing' || gameState === 'paused') {
-    keys.clear();justPressed.clear();touchInput.left=touchInput.right=touchInput.jump=false;
+    clearInput();
     gameState = gameState === 'playing' ? 'paused' : 'playing'; syncTextUI();
   }
 });
