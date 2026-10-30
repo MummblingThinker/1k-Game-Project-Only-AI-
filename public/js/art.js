@@ -245,6 +245,50 @@ function drawEncounter(ctx, world, cameraX, clock) {
   }
 }
 
+export function drawSurvivor(ctx, p, x, clock = 0) {
+  const colors = ['#e7aa55', '#73c5d2', '#d995a7', '#b9a2df'];
+  const coat = colors[(p.slot ?? p.colorIndex ?? 0) % colors.length];
+  const skin = (p.slot ?? 0) % 2 ? '#d5a77f' : '#edc39a';
+  const walking = p.onGround && Math.abs(p.vx || 0) > .1;
+  const frame = Math.floor(clock / 95) % 4;
+  const bob = walking && frame % 2 ? -1 : 0;
+  ctx.save(); ctx.translate(rnd(x), rnd(p.y));
+  if (p.face < 0) { ctx.translate(p.w, 0); ctx.scale(-1, 1); }
+  if (p.invulnerability > 0 && Math.floor(clock / 90) % 2) ctx.globalAlpha = .45;
+  if (!p.alive) {
+    RECT(ctx,0,17,12,4,'#283846'); RECT(ctx,8,16,5,4,skin); RECT(ctx,1,16,7,4,coat);
+    ctx.restore(); return;
+  }
+  const airborne = !p.onGround;
+  const torso = p.capture ? Math.sin(clock * .025) > 0 ? -1 : 0 : bob;
+  // Original pixel geometry gives each pose a clear silhouette at 12x22.
+  RECT(ctx,2,8+torso,9,10,'#172735'); RECT(ctx,3,9+torso,7,8,coat);
+  RECT(ctx,6,10+torso,2,7,'#e4d7b8'); RECT(ctx,3,15+torso,7,2,'#435269');
+  RECT(ctx,3,1+torso,7,7,'#172735'); RECT(ctx,4,3+torso,6,5,skin);
+  RECT(ctx,2,0+torso,8,3,'#35313b'); RECT(ctx,2,2+torso,3,4,'#35313b'); RECT(ctx,7,0+torso,4,2,'#35313b');
+  RECT(ctx,8,4+torso,1,1,'#192b37');
+  RECT(ctx,8,7+torso,2,1,p.capture?'#783f43':'#a37665');
+  // Scarf streams behind running/jumping survivors.
+  RECT(ctx,3,8+torso,7,2,coat);
+  if (walking || airborne) RECT(ctx,-2,9+torso+(frame%2),5,2,coat);
+  if (p.capture || p.carryId) {
+    RECT(ctx,0,5+torso,3,7,coat); RECT(ctx,10,5+torso,3,7,coat);
+    RECT(ctx,0,3+torso,3,3,skin); RECT(ctx,10,3+torso,3,3,skin);
+  } else if (airborne) {
+    RECT(ctx,0,7+torso,3,6,coat); RECT(ctx,10,8+torso,3,5,coat);
+    RECT(ctx,-1,6+torso,3,3,skin); RECT(ctx,11,7+torso,3,3,skin);
+  } else {
+    const swing = walking ? [1, -1, -2, 1][frame] : 0;
+    RECT(ctx,1,10+torso+swing,3,5,coat); RECT(ctx,10,10+torso-swing,2,5,coat);
+    RECT(ctx,1,14+torso+swing,3,2,skin); RECT(ctx,10,14+torso-swing,2,2,skin);
+  }
+  const stride = walking ? [-2,0,2,0][frame] : 0;
+  const raised = airborne && p.vy < 0 ? 2 : 0;
+  RECT(ctx,3+stride,17,3,5-raised,'#36445b'); RECT(ctx,7-stride,17,3,5,'#273748');
+  RECT(ctx,2+stride,21-raised,4,1,'#d0b38a'); RECT(ctx,7-stride,21,4,1,'#d0b38a');
+  ctx.restore();
+}
+
 function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
   if (world.memory) {
     const x = world.memory.x-cameraX;
@@ -292,28 +336,14 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
   // Player avatars are tiny and bright so their silhouette stays readable against the scenery.
   const all = [player, ...peerPlayers.filter(p => p.id !== player.id)];
   for(const p of all) {
-    if(!p?.alive) continue;
+    if(!p) continue;
     const runClock = gameState.clock || 0;
-    const walk = p.onGround && Math.abs(p.vx || 0) > .1;
     const x=p.x-cameraX;
-    const bob = walk ? Math.sin(runClock * .022) * 1.1 : 0;
     if(x<-24||x>335) continue;
-    const variants=['human_amber.png','human_cyan.png','human_rose.png'];
-    const im=sprite(variants[(p.colorIndex??0)%variants.length]);
-    if(im?.complete&&im.naturalWidth) {
-      ctx.save();
-      if (p.invulnerability > 0 && Math.floor(runClock / 90) % 2) ctx.globalAlpha = .45;
-      if(p.face<0) { ctx.translate(rnd(x+p.w),0); ctx.scale(-1,1); ctx.drawImage(im,0,rnd(p.y + bob)); }
-      else ctx.drawImage(im,rnd(x),rnd(p.y + bob));
-      ctx.restore();
-      if (walk) {
-        const stride = Math.sin(runClock * .025) * 3;
-        RECT(ctx, x + 2 + stride, p.y + p.h - 3, 3, 3, '#e3bc83');
-        RECT(ctx, x + 7 - stride, p.y + p.h - 3, 3, 3, '#405067');
-      }
-      if (!p.onGround && p.vy < 0) RECT(ctx, x - 2, p.y + 9, 3, 5, '#e1be85');
-      if (p.capture) outlinedText(ctx, `HELP ${Math.max(0, p.capture.remaining).toFixed(1)}`, x - 12, p.y - 8, '#ffcc8a');
-    }
+    drawSurvivor(ctx, p, x, runClock);
+    if (p.capture) outlinedText(ctx, `HELP ${Math.max(0, p.capture.remaining).toFixed(1)}`, x - 12, p.y - 8, '#ffcc8a');
+    else if (all.length > 1) outlinedText(ctx, `P${(p.slot ?? 0) + 1}${p.alive ? '' : ' DOWN'}`, x - 2, Math.min(168,p.y - 8), p.id === player.id ? '#fff0c6' : '#bdd7df');
+    if (!p.alive) continue;
     if(p.id===player.id) {
       RECT(ctx,x+3,p.y-5,7,1,'#ffe9a8'); RECT(ctx,x+5,p.y-4,3,1,'#ffe9a8');
       if(p.carryId) { RECT(ctx,x+1,p.y-6,10,3,'#d7a35f'); RECT(ctx,x+2,p.y-5,8,1,'#e9c57c'); }
@@ -322,8 +352,16 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
   const giant=world.giant;
   if(giant && !giant.caught) {
     const gx=giant.x-cameraX;
-    if(gx>-55&&gx<330) {
-      const im=sprite('giant_pursuer.png'); if(im?.complete&&im.naturalWidth) ctx.drawImage(im,rnd(gx),rnd(giant.y));
+    if(gx>-55&&gx<375) {
+      const im=sprite('giant_pursuer.png');
+      if(im?.complete&&im.naturalWidth) {
+        const step=Math.sin((gameState.clock||0)*.004);
+        ctx.drawImage(im,0,0,im.naturalWidth,im.naturalHeight-6,rnd(gx-52),rnd(world.floorY-88+Math.abs(step)),96,76);
+        RECT(ctx,gx-28+step*3,world.floorY-13,17,13,'#40536b');
+        RECT(ctx,gx+10-step*3,world.floorY-13,17,13,'#40536b');
+        RECT(ctx,gx-31+step*3,world.floorY-3,23,3,'#718397');
+        RECT(ctx,gx+7-step*3,world.floorY-3,23,3,'#718397');
+      }
     }
   }
   const finishX=world.finish.x-cameraX;

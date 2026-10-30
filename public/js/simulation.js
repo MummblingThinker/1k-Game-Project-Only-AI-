@@ -32,7 +32,11 @@ function detach(run, player, throwing = false) {
     object.y = Math.max(0, player.y - 12);
     object.vx = throwing ? player.face * 2.6 : 0;
     object.vy = throwing ? -4.3 : 0;
-    if (run.players.has(object.id)) { object.throwTicks = throwing ? 32 : 0; object.throwVx = object.vx; }
+    if (run.players.has(object.id)) {
+      object.throwTicks = throwing ? 32 : 0; object.throwVx = object.vx;
+      object.onGround = false; object.coyoteTicks = 0; object.jumpBufferTicks = 0;
+      object.lastJump = !!object.input?.jump;
+    }
   }
   player.carryId = null;
 }
@@ -259,7 +263,10 @@ export function stepRun(run) {
     const carrier = run.players.get(p.carriedBy);
     if (!carrier?.alive) { p.carriedBy = null; continue; }
     p.x = carrier.x; p.y = carrier.y - p.h - 2; p.vx = p.vy = 0;
-    if (p.input?.jump) { carrier.carryId = null; p.carriedBy = null; p.vy = -5.2; p.invulnerability = 20; }
+    if (p.input?.jump) {
+      carrier.carryId = null; p.carriedBy = null; p.vy = -5.2; p.invulnerability = 20;
+      p.onGround = false; p.coyoteTicks = 0; p.jumpBufferTicks = 0; p.lastJump = true;
+    }
   }
   const crateImpacts = world.crates.filter(c => !c.carriedBy && !c.used && (Math.abs(c.vx) > 1 || c.vy > 2));
   updateCrates(world);

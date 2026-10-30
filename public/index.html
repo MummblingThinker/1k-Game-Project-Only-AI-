@@ -36,11 +36,11 @@
           </section>
           <div id="story-panel" class="story-panel" hidden>
             <div id="comic-panels" class="comic-panels" aria-hidden="true"></div>
-            <h2 id="story-heading"></h2><p id="story-caption"></p><span class="story-skip">Space to skip panel</span>
+            <h2 id="story-heading"></h2><p id="story-caption"></p><button id="story-next" class="story-skip" type="button">Next panel / Space</button>
           </div>
           <section id="capture-panel" class="capture-panel" hidden aria-labelledby="capture-heading">
             <h2 id="capture-heading"></h2><progress id="capture-time" value="3.2" max="3.2" aria-label="Time until capture"></progress>
-            <p>Alternate A / D to buy time. A teammate must rescue you.</p>
+            <p>Alternate A / D or tap Jump to buy time. A teammate must jump onto the grabbing robot to rescue you.</p>
           </section>
           <div id="result-panel" class="result-panel" hidden role="region" aria-labelledby="result-title">
             <p id="result-kicker" class="panel-kicker">LEVEL 01 COMPLETE</p>
@@ -54,9 +54,11 @@
         </div>
         <div id="live-status" class="screen-status" aria-live="polite">READY / PRESS START</div>
         <div id="tactical-status" class="tactical-status" aria-live="polite"></div>
+        <p id="threat-status" class="threat-status"></p>
         <div class="route-readout"><span id="route-label">Reach the shelter gate. Jump the gaps. Evade the robots.</span><progress id="route-progress" max="100" value="0" aria-label="Route to shelter gate"></progress></div>
         <div class="audio-controls" aria-label="Audio settings">
           <button id="sound-toggle" class="text-button" type="button" aria-pressed="true">Sound on</button>
+          <button id="pause-game" class="text-button" type="button" disabled>Pause</button>
           <label for="sound-volume">Volume</label>
           <input id="sound-volume" type="range" min="0" max="100" value="25" aria-label="Sound volume" />
           <span>Warnings also appear on screen.</span>

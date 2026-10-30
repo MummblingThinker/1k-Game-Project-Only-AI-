@@ -9,6 +9,7 @@ export function createPlayer(id = 'local', x = 26, y = 110, colorIndex = 0) {
     id, x, y, vx: 0, vy: 0, w: PLAYER_W, h: PLAYER_H,
     onGround: false, alive: true, colorIndex, face: 1, carryId: null,
     heartsLost: 0, timeDead: 0, lastJump: false, invulnerability: 0,
+    coyoteTicks: 0, jumpBufferTicks: 0,
   };
 }
 
@@ -33,9 +34,13 @@ export function stepPlayer(player, input, world, dt = 1) {
     p.vx *= 0.65;
     if (Math.abs(p.vx) < 0.08) p.vx = 0;
   }
-  if (jump && !p.lastJump && p.onGround) {
+  p.coyoteTicks = p.onGround ? 5 : Math.max(0, (p.coyoteTicks || 0) - dt);
+  p.jumpBufferTicks = jump && !p.lastJump ? 6 : Math.max(0, (p.jumpBufferTicks || 0) - dt);
+  if (p.jumpBufferTicks > 0 && p.coyoteTicks > 0) {
     p.vy = JUMP_SPEED;
     p.onGround = false;
+    p.coyoteTicks = 0;
+    p.jumpBufferTicks = 0;
   }
   p.lastJump = jump;
   p.vy = Math.min(5.1, p.vy + GRAVITY * dt);

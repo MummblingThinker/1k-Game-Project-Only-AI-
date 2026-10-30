@@ -40,7 +40,7 @@
   "limitations": [
     "15-stage solo/co-op campaign implemented; full human playthrough and difficulty balance remain unverified.",
     "Physical-device and separate-network acceptance remains pending.",
-    "No audio; mobile emulation passed but physical touch/performance testing is pending.",
+    "Optional synthesized sound and saved settings implemented; physical headphone, touch and performance review remains pending.",
     "Rooms live in one server process and are lost on restart; disconnect requires a new lobby.",
     "Final entry, eligibility, disclosures and publication require human review."
   ]

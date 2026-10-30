@@ -26,11 +26,11 @@ Create a room, share its six-character code, and join before the host starts. Th
 | Pause solo / release online input | Esc |
 | Advance solo story | Space |
 
-Touch controls appear on narrow screens. Online Esc releases input while the world continues. Practice a stage or `?level=15` starts a selected stage directly.
+Touch controls stay at the screen bottom during play on narrow screens. Pause/resume and story advance have touch-accessible buttons. Online Esc releases input while the world continues. Practice a stage or `?level=15` starts a selected stage directly.
 
 ## Campaign
 
-Level 1 is the 960-unit tutorial. Normal later maps are 3x as wide; Levels 5/10/15 are 5.5x/6x/6.5x. Routes have authored pits, ledges, shelters, relays, enemy mixes, water and conveyors. The giant crosses a normal map in about two minutes without catch-up teleportation. Boss boundaries exclude it.
+Level 1 is the 960-unit tutorial. Normal later maps are 3x as wide; Levels 5/10/15 are 5.5x/6x/6.5x. Routes have authored pits, ledges, shelters, relays, enemy mixes, water, conveyors and cracked salvage that breaks under a stomp or thrown crate. The giant crosses a normal map in about two minutes without catch-up teleportation. Boss boundaries exclude it.
 
 - Level 5: evade the Warden slam, then use relays 2–1–3 during its exposed window.
 - Level 10: activate three beacons and survive 45 seconds. A covered route shelters the team beneath a drone swarm.
@@ -55,3 +55,5 @@ Submission materials remain drafts. A real 1800×1200 browser screenshot is incl
 Read [PRIORITY_ROADMAP.md](PRIORITY_ROADMAP.md), [TASK_LIST.md](TASK_LIST.md), [QA_LOG.md](QA_LOG.md), and [AGENTS.md](AGENTS.md). The owner authorized campaign expansion while deferring physical testing. Unverified acceptance criteria remain unchecked.
 
 `public/` contains client/shared simulation/art; `server/` the authoritative service; `scripts/` tests and source packaging; `submission/` draft materials; `docs/` design and implementation notes. Original story-art provenance and exact prompt: [STORY_ART_PROMPT.md](docs/STORY_ART_PROMPT.md).
+
+`npm run test:adversarial` checks stack stability and seeded carry/capture/disconnect invariants. `node scripts/live-sequence-test.mjs` runs the entire campaign with real socket clients and unskipped synchronized story timing; TEST_PARTY chooses 2?4 players. These remain automated tests, not physical devices.

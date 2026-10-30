@@ -1,32 +1,29 @@
 # Implementation status
 
-Updated October 30, 2026, 02:44 UTC.
+Updated October 30, 2026, 03:24 UTC.
 
-The 15-stage campaign is implemented in solo and authoritative co-op. Render My Workspace reports commit 9b3097d4db6e71241da785d6b5a95d2b4726134e live (deploy dep-dbhvpbajnfac73cgdc4g). GitHub identity is MummblingThinker with push/admin access to the requested repository.
+The 15-stage solo/co-op campaign is implemented and published. GitHub identity: MummblingThinker, with write access to MummblingThinker/1k-Game-Project-Only-AI-. Render uses My Workspace, service srv-dbhnfcm1egvs73817n4g, https://tiny-teamwork-last-spark.onrender.com.
 
-## Evidence
+## Evidence and deployment
 
-- Original MVP-01/MVP-02 browser acceptance is preserved in QA_LOG.md.
-- Campaign/browser CI runs 40984883655 and 40985355657 passed in Chromium 156.0.8078.4: 15 stage loads/movement, story/pause, two-context tutorial relay/victory/Continue, emulated touch cancellation and no console/page errors.
-- Deterministic input-driven traversal passed all 15 stages at party sizes 1–4 (60 routes). This establishes reachability, not human balance.
-- Local real two-client Level 15 traversal passed all three Colossus cycles, giant exclusion, shared victory/story/ending and guest authority rejection.
-- Local systems tests passed capture/rescue/struggle, shelter breach, multi-victim blast deduplication, checkpoint revival order and boss sequencing/timing.
-- Original anime atlas is committed with provenance. Actual browser cover is saved at submission/cover.jpg (1800×1200).
+Original MVP-01/MVP-02 acceptance is recorded in QA_LOG.md. MVP-03/MVP-04 remain IMPLEMENTED_UNVERIFIED: physical-device acceptance and human submission review were deferred. No submission has occurred.
 
-Hosted campaign HTTP/WSS regression 40984883623 passed against 9b3097d. Further source commits 5add33b, 5ea0b42 and d56fc94 passed campaign, live-finale and Chromium CI (40991256223 / 40992225925 / 40992830727). The last includes shelter exit/headroom fixes, terrain collision, stricter boss entry and safe encounter retries. Deploy dep-dbi08ics728c73buufu0 for d56fc94 is LIVE (finished 02:44:12 UTC). Audio commit fe2e996c2f2a35bfa2b4f42fd9850568e533399d is on main awaiting CI. A local keyboard-button activation fix and browser assertion are not yet committed.
+Sound/native-button source 377f8a0 passed CI 40993686881 and deployment dep-dbi0cp1srm7s73csh340. Hosted HTTP/assets/WSS rerun 40993335495 passed.
 
-## Implementation and outstanding acceptance
+Salvage/scenery source bbf65369bb613adfb39dd161e3e5f7a615f674d6 passed CI 40994918612: shared systems, 60 campaign routes, seeded adversarial co-op, actual-client finale, Chromium and ten inspected art fixtures. Deployment dep-dbi0nkdg1s2s73dkoc90 was triggered at 03:15 UTC; verify live status.
 
-See CAMPAIGN_BUILD.md for authored routes, map scales, giant timing, milestone encounters, shared carry/throw/rescue/lives/checkpoints and synchronized stage/story transitions.
+Two actual local socket clients completed all 15 consecutive stages, default timed story transitions and ending in 779 seconds. Four completed 1–13 then failed Level 14. After adding short coyote/landing-buffer input tolerance, four passed focused 14–15 and ending; full rerun pending. Logs: artifacts/live-sequence-*.log. Automated tests do not establish human balance.
 
-MVP-03/MVP-04 remain IMPLEMENTED_UNVERIFIED. Physical-device/network testing was deferred by the owner. Human submission review is pending; no entry was submitted. Broader backlog tasks are not automatically verified by campaign automation.
+## Current work and handles
 
-Rooms support up to four, require joining before start, and are memory-only on one Node instance. Persistent reconnect identity and cloud saves are absent. Original synthesized sound cues and saved mute/volume are now implemented, with browser verification pending and physical listening review unverified. Physical mobile performance, human difficulty balance and a full manual campaign playthrough remain unverified. Free Render cold starts may delay connection.
+Current local changes: larger giant with aligned front boundary, procedural survivor poses/four colors/number labels, bottom-fixed phone controls, accessible pause/story buttons, pursuer position countdown, short jump timing buffer, roster carrying refresh, and real-client sequence harness. Full npm test passed; new browser/visual acceptance pending.
 
-Continue testing, refining shelters/presentation, refreshing evidence and publishing tested changes until 06:00 America/New_York October 30 (10:00 UTC), then save a handoff.
+One test process remains: session 87523, full three-player sequence on bbf6536 (started before buffer edits). Inspect artifacts/live-sequence-3.log and poll that handle. Other sequence jobs are complete. Do not restart live work merely because observation times out.
 
-## Current continuation handles
+Next: publish current changes, check CI/mobile/pose images, repeat focused four-player crossings and full sequence, then deploy tested updates. Useful future work includes consistent pursuer speed on giant maps, level-entry grace, additional puzzle types, saved solo stage and more browser/performance checks. These are proposals, not implemented claims.
 
-No local test process remains active. Latest local npm test and real-client finale passed before audio presentation changes. GitHub main is fe2e996; its tree is retained by connector history. Watch CI for this commit, publish the keyboard activation fix, verify the new audio browser pass, then deploy the tested revision. Current Render deployment LIVE: dep-dbi08ics728c73buufu0 (d56fc94). No physical-device test or contest submission. Continue until 10:00 UTC.
+## Limits
 
-Continuation update 02:48 UTC: audio source fe2e996 passed CI 40993335493 (job 123860654544), including saved mute/volume and running AudioContext. Main now includes the follow-up native-button Space/Enter fix; inspect branches/main and its CI. No local process is active. After that CI passes, trigger Render deploy and rerun failed public smoke 40993335495 (its predeploy failure expected missing audio.js). Current live source remains d56fc94. Next useful work: adversarial carry/stack/physics tests, distinct stage set pieces and breakable objects, mobile/story visual checks, clean docs/package refresh. Goal remains active until 10:00 UTC.
+Rooms support 1–4 players, require joining before start and live in one Node process. Persistent reconnect identity/cloud saves are absent. Saved mute/volume and original sound cues exist; physical listening and mobile performance remain unverified. No contest entry submitted.
+
+Continue until 06:00 America/New_York October 30 (10:00 UTC), then save a handoff and stop. Canonical statuses: TASK_LIST.md; evidence: QA_LOG.md; gameplay: CAMPAIGN_BUILD.md.

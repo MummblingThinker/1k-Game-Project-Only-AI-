@@ -321,3 +321,20 @@ Deployment/packaging follow-up: Render dep-dbi08ics728c73buufu0 for d56fc94 repo
 - Optional memory terminals were previously invisible and could be placed over a pit. They now render with a clear interaction marker and are positioned on clear floor. Automated placement checks pass for all stages and party sizes 1–4.
 - Covered Way now has a physical roof and its 100 decorative drones remain above it. Initial lower ceiling shortened the solo jump over its last gap; raised it to preserve the full jump arc. All 60 routes pass with the final roof height. Rendering fixtures added for ten themed states; these are art inspection, not gameplay evidence.
 - Sound + native-button keyboard source 377f8a0832ae58c338b05fb7b5df118a9bc2020b passed CI 40993686881 and is LIVE on Render (dep-dbi0cp1srm7s73csh340, finished 02:53:10 UTC). Public audio-source smoke 40993335495 rerun requested after deployment.
+
+## 2026-10-30 ART-01 / mobile usability / long-session testing
+
+- Salvage/scenery source bbf65369bb613adfb39dd161e3e5f7a615f674d6 passed CI 40994918612 (job 123865694338): npm test, adversarial scenarios, actual-client finale and Chromium browser regression. Ten render fixtures were inspected; stage identities, grounded memory marker, physical covered roof/swarm and salvage are visible. Fixtures are art-only evidence, not gameplay completion.
+- New input-only real Socket.IO sequence harness walks consecutive stages, checks full-level lives/revival and shared victories, and lets post-5/10/15 scenes run on their real default timers. Two-player and four-player full-campaign jobs are active; both have passed city/forest arcs and timed story transitions and reached the factory. Three-player job started. Final results pending; do not claim complete campaigns yet.
+- Gameplay survivors now use original procedural pixel poses (idle/run/jump/fall/carry/captured/down), four distinct coat colors, and numbered co-op labels. The roaming giant is drawn much larger, with its visible front aligned to the existing lethal boundary. Pose/giant visual fixtures added; inspection pending. Static title/story sprites remain unchanged.
+- Local UI changes add a truthful countdown to the pursuer reaching the current position, touch-accessible pause/resume and story advance, bottom-fixed touch controls sized to fit narrow screens, and a fuller rescue hint. Browser checks now include held touch movement/cancel, pause/resume, native button keyboard activation, no horizontal overflow and a phone story screenshot. Execution pending.
+- Hosted sound-source HTTP/assets/WSS rerun 40993335495 (job 123865669861) PASS against live 377f8a0. Physical-device/headphone acceptance remains pending.
+
+## 2026-10-30 long campaign results and input timing
+
+- Two actual local socket clients completed consecutive stages 1–15 and default timed after5/after10/after15 scenes in 779 seconds on bbf6536. Shared victories, host authority and full-level life/revival assertions passed. Log: artifacts/live-sequence-2.log. This is automated evidence, not physical devices.
+- Four-client sequence passed stages 1–13 and the first two scenes, then exhausted hearts at Level 14's narrow crossing. Failure retained in artifacts/live-sequence-4.log; not a full four-player pass.
+- Added 5-tick coyote time and 6-tick landing buffer. Edge/early-landing presses are accepted once; repeated air jumps remain rejected. Carry release clears stale ground/buffer state. Focused tests, all 60 deterministic routes and full npm test PASS.
+- Four actual clients passed focused stages 14–15 and timed ending after this change (156 seconds), with one heart left after the finale route. Log: artifacts/live-sequence-4-late.log. Further full/repeat checks remain useful; this is not human balance proof.
+- Three-client full sequence on earlier bbf6536 remains active in session 87523. Do not restart on observation timeout.
+- Roster signature now refreshes carrying status. New pose/giant/mobile browser inspection is pending.

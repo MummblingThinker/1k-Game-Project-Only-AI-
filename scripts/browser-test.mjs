@@ -75,6 +75,7 @@ try {
   const aContext = await browser.newContext({ viewport: { width: 1800, height: 1200 } });
   // Render fixtures inspect authored art states; these are not gameplay-completion evidence.
   const fixture = await pageIn(soloContext);
+  await fixture.setViewportSize({ width: 1280, height: 720 });
   await fixture.goto(base + '/health');
   await fixture.setContent('<style>body{margin:0;background:#101b2a;color:#eed9a4;display:grid;grid-template-columns:640px 640px;font:16px system-ui}figure{margin:0;padding:0}figcaption{padding:8px}canvas{display:block;width:640px;height:360px;image-rendering:pixelated}</style>');
   await fixture.evaluate(async () => {
@@ -94,6 +95,24 @@ try {
       const player = createPlayer('fixture', focus - 50, 129);
       drawGame(canvas.getContext('2d'), world, player, [], Math.max(0, focus - 160), { clock: 1400, tick: 0, state: 'playing' });
     }
+    const { drawSurvivor, buildLevel, createPlayer, drawGame } = window.renderTools;
+    const poses = document.createElement('figure'), label = document.createElement('figcaption'), canvas = document.createElement('canvas');
+    label.textContent = 'POSE FIXTURE / idle, run, jump, fall, carry, captured, down'; canvas.width=320; canvas.height=180; poses.append(label,canvas); document.body.append(poses);
+    const ctx=canvas.getContext('2d'); ctx.fillStyle='#203345'; ctx.fillRect(0,0,320,180);
+    for(let slot=0;slot<4;slot++) for(let pose=0;pose<7;pose++) {
+      const p=createPlayer('pose',0,12+slot*40); p.slot=slot; p.onGround=true;
+      if(pose===1)p.vx=1.28;
+      if(pose===2){p.onGround=false;p.vy=-3;}
+      if(pose===3){p.onGround=false;p.vy=3;}
+      if(pose===4)p.carryId='crate';
+      if(pose===5)p.capture={remaining:2};
+      if(pose===6)p.alive=false;
+      drawSurvivor(ctx,p,20+pose*43,1400);
+    }
+    const giantFigure=document.createElement('figure'), giantLabel=document.createElement('figcaption'), giantCanvas=document.createElement('canvas');
+    giantLabel.textContent='RENDER FIXTURE / roaming giant footprint'; giantCanvas.width=320;giantCanvas.height=180;giantFigure.append(giantLabel,giantCanvas);document.body.append(giantFigure);
+    const w=buildLevel(2);w.giant.x=80;
+    drawGame(giantCanvas.getContext('2d'),w,createPlayer('fixture',180,129),[],0,{clock:1400,tick:0,state:'playing'});
   });
   const stages = await fixture.screenshot({ path: 'artifacts/stage-fixtures.jpg', type: 'jpeg', quality: 85, fullPage: true });
   console.log('STAGES_BASE64_BEGIN' + stages.toString('base64') + 'STAGES_BASE64_END');
@@ -127,7 +146,28 @@ try {
   await phone.locator('[data-control=right]').tap();
   await phone.waitForTimeout(300);
   await phone.locator('[data-control=right]').dispatchEvent('pointercancel', { pointerId: 1 });
+  const controls = await phone.locator('.mobile-controls').boundingBox();
+  assert.ok(controls.y + controls.height <= 844 && controls.y > 650, 'touch controls stay at viewport bottom');
+  const right = await phone.locator('[data-control=right]').boundingBox();
+  const touch = await mobile.newCDPSession(phone), beforeTouch = await x(phone);
+  await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: right.x + right.width / 2, y: right.y + right.height / 2, id: 1 }] });
+  await phone.waitForTimeout(350);
+  await touch.send('Input.dispatchTouchEvent', { type: 'touchCancel', touchPoints: [] });
+  assert.ok(await x(phone) > beforeTouch + 8, 'held touch moves survivor');
+  await phone.waitForTimeout(200); const stopped = await x(phone);
+  await phone.waitForTimeout(200); assert.ok(Math.abs(await x(phone) - stopped) < .2, 'touch cancellation stops movement');
+  assert.ok(await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'phone has no horizontal overflow');
+  await phone.locator('#pause-game').tap(); assert.equal(await state(phone), 'paused');
+  await phone.locator('#pause-game').tap(); assert.equal(await state(phone), 'playing');
+  await phone.evaluate(() => scrollTo(0, 0));
   await phone.screenshot({ path: 'artifacts/mobile.png' });
+  await phone.goto(base);
+  await phone.locator('#start-story').tap(); await phone.evaluate(() => scrollTo(0, 0));
+  await phone.locator('#story-next').tap();
+  assert.equal(await phone.locator('#story-heading').textContent(), 'RUN!');
+  await phone.waitForTimeout(1600);
+  const mobileStory = await phone.screenshot({ path: 'artifacts/mobile-story.jpg', type: 'jpeg', quality: 80 });
+  console.log('MOBILE_BASE64_BEGIN' + mobileStory.toString('base64') + 'MOBILE_BASE64_END');
   assert.deepEqual(errors, [], `browser errors: ${JSON.stringify(errors)}`);
   console.log('Browser PASS: saved mute/volume and gesture-unlocked AudioContext; title/story/pause; all 15 stage loads and movement; two isolated browser contexts create/join/relay/bridge/victory and shared Level 2 transition; touch cancel; zero console/page errors.');
 } finally {

@@ -148,7 +148,7 @@ const network = new NetworkClient({
     levelSelect.value = String(currentLevel);
     const host = data.hostId === data.playerId;
     const signature = JSON.stringify([data.roomCode, data.phase, data.hostId, data.objectiveVersion,
-      data.level, data.objective, data.players.map((p) => [p.id, p.slot, p.alive, !!p.capture, !!p.carriedBy])]);
+      data.level, data.objective, data.players.map((p) => [p.id, p.slot, p.alive, !!p.capture, !!p.carriedBy, !!p.carryId])]);
     if (signature !== roomUiSignature) {
       roomUiSignature = signature;
     startStoryButton.textContent = host ? 'Start co-op run' : 'Waiting for host to start';
@@ -287,6 +287,16 @@ function updateOffline(dtFrames, input, dtMs) {
 
 
 function syncTextUI() {
+  if (document.body.dataset.gameState !== gameState) document.body.dataset.gameState = gameState;
+  const inArena = world.boss && player.x >= world.boss.x;
+  const secondsBehind = Math.max(0, Math.ceil((player.x + 4 - world.giant.x - 44) / world.giant.speed / 60));
+  const threat = inArena ? 'BLAST DOOR • The roaming giant cannot enter this arena.'
+    : ['playing', 'paused'].includes(gameState) ? `PURSUER • About ${secondsBehind}s to your current position. Keep moving.`
+    : 'The giant follows the route. Boss blast doors keep it outside.';
+  if ($('threat-status').textContent !== threat) $('threat-status').textContent = threat;
+  $('threat-status').dataset.urgent = String(!inArena && secondsBehind < 10 && gameState === 'playing');
+  $('pause-game').disabled = !['playing', 'paused'].includes(gameState);
+  $('pause-game').textContent = network.inRoom ? 'Release input' : gameState === 'paused' ? 'Resume' : 'Pause';
   updateTextUI({ state: gameState, level: getLevel(currentLevel), hearts, maxHearts,
     roomCode: network.roomCode, isHost: lastSnapshot?.hostId === network.playerId,
     capture, panel: currentCutscene?.panels[cutscenePanelIndex] });
@@ -397,6 +407,15 @@ window.addEventListener('keyup', (event) => { keys.delete(event.code); sendNetwo
 window.addEventListener('blur', () => { keys.clear(); touchInput.left=false; touchInput.right=false; touchInput.jump=false; touchInput.interact=false; sendNetworkInput(); });
 
 $('continue-level').addEventListener('click', nextLevel);
+$('story-next').addEventListener('click', advanceCutscene);
+$('pause-game').addEventListener('click', () => {
+  if (network.inRoom) {
+    keys.clear(); touchInput.left = touchInput.right = touchInput.jump = false;
+    network.sendInput({}, true); announce('ONLINE RUN KEEPS GOING / INPUT RELEASED');
+  } else if (gameState === 'playing' || gameState === 'paused') {
+    gameState = gameState === 'playing' ? 'paused' : 'playing'; syncTextUI();
+  }
+});
 $('replay-level').addEventListener('click', restartRun);
 levelSelect.addEventListener('change', () => { if (network.inRoom) network.selectLevel(Number(levelSelect.value)); });
 $('result-menu').addEventListener('click', returnToTitle);

@@ -178,5 +178,20 @@ check('cracked salvage breaks once from a stomp or thrown crate, never from rest
   crate.x = b.x - 15; crate.y = 137; crate.vx = 2.6; stepRun(other);
   assert.ok(!other.world.platforms.includes(b)); assert.equal(other.world.breakEffects.length, 1);
 });
+check('short coyote and landing buffer help timing without granting repeated air jumps', () => {
+  const w = { width: 300, floors: [{x:0,y:151,w:80,h:30},{x:180,y:151,w:120,h:30}], platforms:[], crates:[] };
+  const p = createPlayer('p',80,129); p.onGround=true;
+  stepPlayer(p,{right:true},w); assert.equal(p.onGround,false);
+  stepPlayer(p,{right:true,jump:true},w); assert.ok(p.vy < -4);
+  const rising = p.vy; stepPlayer(p,{jump:false},w); stepPlayer(p,{jump:true},w);
+  assert.ok(p.vy > rising, 'cannot reset upward velocity in mid-air');
+  const late = createPlayer('late',100,129); late.onGround=true;
+  for(let i=0;i<8;i++)stepPlayer(late,{},w);
+  stepPlayer(late,{jump:true},w); assert.ok(late.vy>0,'grace expires');
+  const landing=createPlayer('landing',200,120);landing.vy=2;
+  stepPlayer(landing,{jump:true},w);
+  for(let i=0;i<4;i++)stepPlayer(landing,{jump:false},w);
+  assert.ok(landing.vy<0,'press just before landing is buffered once');
+});
 console.log('Shared systems regression complete.');
 

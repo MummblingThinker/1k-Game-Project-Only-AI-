@@ -31,6 +31,8 @@ export function createTextUI() {
     story.hidden = state !== 'cutscene' || !panel;
     if (story.hidden) previousPanel = '';
     if (!story.hidden) {
+        text('story-next', roomCode ? (isHost ? 'Skip scene' : 'Host controls scene') : 'Next panel / Space');
+        $('story-next').disabled = !!roomCode && !isHost;
       text('story-heading', panel.heading);
       text('story-caption', panel.caption);
       if (previousPanel !== panel.visual + panel.heading) {
