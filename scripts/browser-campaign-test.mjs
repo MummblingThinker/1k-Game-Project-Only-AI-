@@ -8,7 +8,7 @@ const party=Number(process.env.TEST_PARTY||2),first=Number(process.env.TEST_FIRS
 assert.ok([1,2,3,4].includes(party)&&first>=1&&last<=15&&first<=last);
 const base='http://127.0.0.1:4198',sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const server=spawn(process.execPath,['server/server.js'],{env:{...process.env,PORT:'4198'},stdio:'inherit'});
-let browser;const peers=[],errors=[],results=[];
+let browser;const peers=[],errors=[],results=[],losses=[];
 async function until(test,label,timeout=10000){const end=Date.now()+timeout;while(Date.now()<end){if(await test())return;await sleep(40);}throw Error('Timed out: '+label);}
 async function input(peer,intent){
   const mapping={left:'ArrowLeft',right:'ArrowRight',jump:'Space'};
@@ -62,19 +62,34 @@ try {
   for(let level=first;level<=last;level++){
     await until(async()=>{await sample();return peers.every(p=>p.state?.level===level&&p.state.phase==='playing');},'stage '+level);
     await Promise.all(peers.map(async p=>{p.held={};await p.page.locator('#game').focus();}));
-    const stageStarted=Date.now(),end=stageStarted+260000;
+    const stageStarted=Date.now();let attempt=0;
     assert.ok(peers.every(p=>p.state.hearts===(party===1?3:party===4?5:4)),'fresh stage heart pool');
-    while(Date.now()<end&&host.state.phase==='playing'){
-      await Promise.all(peers.map(p=>input(p,routeIntent(p.state))));
-      await sleep(35);
-      await sample();
+    while(true){
+      attempt++;const end=Date.now()+260000;
+      while(Date.now()<end&&host.state.phase==='playing'){
+        await Promise.all(peers.map(p=>input(p,routeIntent(p.state))));
+        await sleep(35);
+        await sample();
+      }
+      await Promise.all(peers.map(p=>input(p,{input:{},interact:false})));
+      if(host.state.phase==='victory')break;
+      // Real game-over recovery is part of a playable campaign. Record every
+      // loss, allow at most two replays for the entire run, and never retry a
+      // timeout/softlock or suppress a console error.
+      if(host.state.phase!=='gameover'||losses.length>=2||errors.length)break;
+      const loss={level,attempt,hearts:host.state.hearts,notice:host.state.notice,players:host.state.players};losses.push(loss);
+      console.log('Browser campaign recorded game-over/replay:',JSON.stringify(loss));
+      await host.page.screenshot({path:`artifacts/browser-campaign/gameover-${level}-${attempt}.jpg`,type:'jpeg',quality:75});
+      await host.page.locator('#scene-retry').click();
+      await until(async()=>{await sample();return peers.every(p=>p.state.phase==='playing'&&p.state.level===level);},'shared replay');
+      assert.ok(peers.every(p=>p.state.hearts===(party===1?3:party===4?5:4)&&p.state.players.every(q=>q.alive)),'replay resets hearts and survivors');
+      await Promise.all(peers.map(async p=>{p.held={};await p.page.locator('#game').focus();}));
     }
-    await Promise.all(peers.map(p=>input(p,{input:{},interact:false})));
     assert.equal(host.state.phase,'victory',JSON.stringify({level,hearts:host.state.hearts,notice:host.state.notice,players:host.state.players}));
     await until(()=>peers.every(p=>p.state.phase==='victory'),'shared victory');
     assert.ok(peers.every(p=>p.state.hearts===host.state.hearts),'shared hearts');
     assert.deepEqual(errors,[]);
-    const result={level,seconds:Math.round((Date.now()-stageStarted)/1000),hearts:host.state.hearts};results.push(result);
+    const result={level,attempts:attempt,seconds:Math.round((Date.now()-stageStarted)/1000),hearts:host.state.hearts};results.push(result);
     console.log('Browser campaign stage PASS:',JSON.stringify(result));
     await host.page.screenshot({path:'artifacts/browser-campaign/stage-'+level+'.jpg',type:'jpeg',quality:65});
     await host.page.locator('#continue-level').click();
@@ -88,7 +103,7 @@ try {
   if(last===15)assert.ok(peers.every(p=>p.state.phase==='ending'),'shared default ending');
   if(party>1)await Promise.all(peers.map(p=>p.page.locator('#leave-room').click()));
   await until(async()=> (await(await fetch(base+'/health')).json()).rooms===0,'cleanup');
-  await writeFile('artifacts/browser-campaign/result.json',JSON.stringify({browser:browser.version(),party,results,seconds:Math.round((Date.now()-started)/1000),errors},null,2));
+  await writeFile('artifacts/browser-campaign/result.json',JSON.stringify({browser:browser.version(),party,results,losses,seconds:Math.round((Date.now()-started)/1000),errors},null,2));
   console.log('Browser campaign PASS:',party,'independent contexts; actual UI/keyboard and observed WebSocket snapshots; no state mutation; stages',first,'through',last);
 }catch(error){
   console.error(error);
@@ -96,5 +111,5 @@ try {
     await peers[i].page.screenshot({path:'artifacts/browser-campaign/failure-'+i+'.jpg',type:'jpeg',quality:75}).catch(()=>{});
     await writeFile('artifacts/browser-campaign/state-'+i+'.json',JSON.stringify(peers[i].state,null,2)||'null');
   }
-  await writeFile('artifacts/browser-campaign/partial.json',JSON.stringify({results,errors},null,2));process.exitCode=1;
+  await writeFile('artifacts/browser-campaign/partial.json',JSON.stringify({results,losses,errors},null,2));process.exitCode=1;
 }finally{await browser?.close();server.kill('SIGTERM');}

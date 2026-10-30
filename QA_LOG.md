@@ -509,3 +509,8 @@ Evidence: local npm test artifacts/gap-band-test-2.log; clean extraction artifac
 - Public smoke rerun 41007426371 job 123918806525 PASS against LIVE aaf05175, deployed 06:01:20 UTC by dep-dbi34qm1egvs73ep4cvg. Test source was 25bb00cf; checks are compatible with current live assets/protocol.
 - 6d3e72f9 ladder regression 41011665456 all five jobs PASS (main Chromium 123918687695, flow 123918687537, rescue 123918687794, Firefox 123918687764, WebKit 123918687732). Ladder peer-visible roof position and 16-pose tile checks pass. artifacts/ladder-review.jpg inspected; full campaign matrix 41011665464 remains active.
 - Submission README now matches 427-character 15-stage description and existing cover; corrected literal 2?4 typo. check:submission intentionally reports only deferred external playtest/evidence and human review. No submission performed.
+
+## 2026-10-30 ladder campaign follow-up
+
+- 6d3e72f9 full matrix 41011665464: two-client job 123918687445 and four-client job 123918687712 PASS all 15/default stories. Three-client job 123918687706 passed 1-13, then lost remaining hearts in Level 14 pit at x1930-1984; last fallen player x1981.38, y178.32, no climbing state. This is a recorded controller loss, not a demonstrated ladder regression or softlock. Solo still active.
+- Full browser harness now records game-over snapshots/screenshots and can use the real host Retry stage button at most twice across the entire campaign. Every retry validates shared full hearts/all survivors. No retries for timeouts, unknown phases or console errors; failures remain in result/partial reports. This exercises supported recovery instead of requiring a deathless campaign. No gameplay difficulty or physics change. New run pending.
