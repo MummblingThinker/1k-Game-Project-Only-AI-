@@ -40,6 +40,8 @@ There are 15 stages. Normal maps are about three times the Level 1 reference; Le
 
 The game uses shared hearts. A fatal hit costs one; downed players watch a living teammate until revived. Completing a stage restores the original party's heart pool and all remaining survivors.
 
+Optional blue MEMORY / E terminals in stages 2-15 reveal fourteen story fragments. Discoveries are shared with your current teammates and collected in the Memory archive below the game. The archive saves in this browser when storage is available. It never changes the required objectives or ending.
+
 ## Run locally
 
 Use the current source checkout or extract `release/TinyTeamwork-source.zip`. Node 22 or newer is required. In the project folder:

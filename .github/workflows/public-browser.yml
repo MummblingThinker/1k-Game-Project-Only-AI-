@@ -1,5 +1,5 @@
 name: Public browser acceptance
-# Live 1f92e662 includes robot frames and the remote ladder alignment check.
+# Live b724817d: memory archive, fixed mixed-touch release and settled relay/hatch alignment.
 on:
   workflow_dispatch:
   push:

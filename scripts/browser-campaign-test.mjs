@@ -3,12 +3,14 @@ import {spawn} from 'node:child_process';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {routeIntent} from './route-driver.mjs';
+import {snapshotAudit} from './snapshot-audit.mjs';
 
 const party=Number(process.env.TEST_PARTY||2),first=Number(process.env.TEST_FIRST_LEVEL||1),last=Number(process.env.TEST_LAST_LEVEL||15);
 assert.ok([1,2,3,4].includes(party)&&first>=1&&last<=15&&first<=last);
 const base=process.env.BROWSER_BASE_URL||'http://127.0.0.1:4198',sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const server=process.env.BROWSER_BASE_URL?null:spawn(process.execPath,['server/server.js'],{env:{...process.env,PORT:'4198'},stdio:'inherit'});
 let browser,createdRoom;const peers=[],errors=[],results=[],losses=[];
+const consistency=snapshotAudit(party,message=>errors.push(message));
 async function until(test,label,timeout=10000){const end=Date.now()+timeout;while(Date.now()<end){if(await test())return;await sleep(40);}throw Error('Timed out: '+label);}
 async function input(peer,intent){
   const mapping={left:'ArrowLeft',right:'ArrowRight',jump:'Space'};
@@ -19,6 +21,7 @@ async function input(peer,intent){
   if(intent.interact&&Date.now()-(peer.lastUse||0)>230){peer.lastUse=Date.now();await peer.page.keyboard.press('e');}
 }
 const started=Date.now();
+const expectedHeadings={after5:['THE CITY GATE','THE HUNT CONTINUES'],after10:['A HUNDRED EYES ABOVE','BEHIND THE DOOR','THEY ARE BEING MADE'],after15:['WE DID IT','NOT ALL OF THEM']};
 try {
   await mkdir('artifacts/browser-campaign',{recursive:true});
   await until(async()=>{try{return(await fetch(base+'/health')).ok;}catch{return false;}},'server');
@@ -31,7 +34,7 @@ try {
     page.on('websocket',socket=>socket.on('framereceived',({payload})=>{
       const frame=String(payload);if(!frame.startsWith('42'))return;
       const [event,value]=JSON.parse(frame.slice(2));
-      if(event==='roomState')peer.state=value;
+      if(event==='roomState'){peer.state=value;consistency.observe(i,value);}
       if(event==='roomJoined')peer.state=value.state;
       if(event==='roomError')peer.roomErrors.push(value);
     }));
@@ -41,7 +44,13 @@ try {
   if(party===1){
     if(first===1){
       await host.page.locator('#start-story').click();
-      await host.page.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing',null,{timeout:30000});
+      const opening=new Set();
+      await until(async()=>{
+        const phase=await host.page.locator('#game').getAttribute('data-state');
+        if(phase==='cutscene')opening.add(await host.page.locator('#story-heading').textContent());
+        return phase==='playing';
+      },'default opening',30000);
+      assert.deepEqual([...opening],['THE CITY FALLS','RUN!','STAY TOGETHER']);
       console.log('Browser campaign story PASS: opening / default timing');
     }else{
       await host.page.locator('#level-select').selectOption(String(first));await host.page.locator('#play-selected').click();
@@ -90,16 +99,29 @@ try {
     assert.equal(host.state.phase,'victory',JSON.stringify({level,hearts:host.state.hearts,notice:host.state.notice,players:host.state.players}));
     await until(()=>peers.every(p=>p.state.phase==='victory'),'shared victory');
     assert.ok(peers.every(p=>p.state.hearts===host.state.hearts),'shared hearts');
+    if(party>1)assert.ok(consistency.count(level)>100,'complete shared-world snapshots agree throughout stage '+level);
     assert.deepEqual(errors,[]);
-    const result={level,attempts:attempt,seconds:Math.round((Date.now()-stageStarted)/1000),hearts:host.state.hearts};results.push(result);
+    const result={level,attempts:attempt,seconds:Math.round((Date.now()-stageStarted)/1000),hearts:host.state.hearts,matchedSnapshots:consistency.count(level)};results.push(result);
     console.log('Browser campaign stage PASS:',JSON.stringify(result));
     await host.page.screenshot({path:'artifacts/browser-campaign/stage-'+level+'.jpg',type:'jpeg',quality:65});
     await host.page.locator('#continue-level').click();
     if([5,10,15].includes(level)){
       await until(async()=>{await sample();return peers.every(p=>p.state.phase==='cutscene');},'shared story');
       const story=party===1?'after'+level:host.state.storyKey;assert.equal(story,'after'+level);
-      await until(async()=>{await sample();return peers.every(p=>p.state.phase!=='cutscene');},'unskipped story timing',35000);
-      console.log('Browser campaign story PASS:',story);
+      await Promise.all(peers.map(p=>p.page.waitForFunction(first=>document.querySelector('#story-heading').textContent===first,expectedHeadings[story][0])));
+      const seen=peers.map(()=>new Set());let blackout=false;
+      await until(async()=>{
+        await sample();
+        for(let i=0;i<peers.length;i++)if(peers[i].state.phase==='cutscene'){
+          const heading=await peers[i].page.locator('#story-heading').textContent();
+          if(heading)seen[i].add(heading);
+        }
+        if(level===15&&host.state.phase==='cutscene')blackout||=await host.page.locator('#comic-panels').evaluate(e=>getComputedStyle(e).filter.includes('brightness(0)'));
+        return peers.every(p=>p.state.phase!=='cutscene');
+      },'unskipped story timing',35000);
+      for(const headings of seen)assert.deepEqual([...headings],expectedHeadings[story],'every peer sees the authored caption order');
+      if(level===15)assert.ok(blackout,'default ambush visibly cuts to black before ending');
+      console.log('Browser campaign story PASS:',story,JSON.stringify({headings:[...seen[0]],blackout}));
     }
   }
   if(last===15)assert.ok(peers.every(p=>p.state.phase==='ending'),'shared default ending');

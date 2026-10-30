@@ -1,4 +1,5 @@
 name: Public co-op campaigns
+# Live b724817d; audit caption order, ending blackout and complete shared snapshots.
 on:
   workflow_dispatch:
   push:

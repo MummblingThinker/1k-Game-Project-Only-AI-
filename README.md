@@ -63,7 +63,7 @@ Read [PRIORITY_ROADMAP.md](PRIORITY_ROADMAP.md), [TASK_LIST.md](TASK_LIST.md), [
 
 `public/` contains client/shared simulation/art; `server/` the authoritative service; `scripts/` tests and source packaging; `submission/` draft materials; `docs/` design and implementation notes. Original story-art provenance and exact prompt: [STORY_ART_PROMPT.md](docs/STORY_ART_PROMPT.md).
 
-`npm run test:adversarial` checks stack stability and seeded carry/capture/disconnect invariants. `node scripts/live-sequence-test.mjs` runs the entire campaign with real socket clients and unskipped synchronized story timing; TEST_PARTY chooses 2?4 players. These remain automated tests, not physical devices.
+`npm run test:adversarial` checks stack stability and seeded carry/capture/disconnect invariants. `node scripts/live-sequence-test.mjs` runs the entire campaign with real socket clients and unskipped synchronized story timing; TEST_PARTY chooses 2-4 players. These remain automated tests, not physical devices.
 
 Solo stage resume is saved in this browser and restarts the last begun solo/practice stage with full hearts. It does not save within-stage progress or multiplayer rooms. Storage being unavailable does not prevent play. Online survivor motion is smoothed visually between server snapshots; collisions, timers and actions always use the authoritative server state.
 
