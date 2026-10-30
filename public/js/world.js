@@ -6,7 +6,7 @@ export function gapWidthForParty(partySize, gapIndex = 0) {
   // A small number of gaps scale with the original lobby size; most gaps stay modest.
   // This is an early prototype tuning curve, not final balance.
   const party = clamp(Number(partySize) || 1, 1, 14);
-  const groupBand = Math.floor((party - 1) / 2);
+  const groupBand = Math.ceil((party - 1) / 2);
   const special = 46 + groupBand * 21;
   const medium = 34 + groupBand * 8;
   if (gapIndex === 1) return clamp(special, 46, 180);
@@ -31,7 +31,8 @@ function buildReferenceLevel(levelId = 1, partySize = 1) {
   let offset = 0;
   const rawPits = pitStartXs.map((x, i) => {
     const scaledStart = x + offset;
-    const width = gapWidthForParty(partySize, i);
+    // Keep the first teaching jump short for every party; later selected gaps scale.
+    const width = gapWidthForParty(intro&&i===0?1:partySize, i);
     offset += width - 48;
     xOffsets.push(offset);
     return { x: scaledStart, width, index: i };

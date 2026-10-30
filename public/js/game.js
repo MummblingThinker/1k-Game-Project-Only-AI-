@@ -585,3 +585,15 @@ if(diagnosticsEnabled) {
   });
 }
 
+// Read-only inspection for explicit debug sessions and reproducible browser QA.
+// Cloning prevents callers from mutating the live solo run or network snapshot.
+export function readDebugSnapshot() {
+  if(!diagnosticsEnabled)return null;
+  const snapshot=network.inRoom?lastSnapshot:soloRun?{
+    level:currentLevel,runId:soloRun.runId,tick:soloRun.tick,phase:gameState,
+    hearts:soloRun.hearts,heartMax:soloRun.heartMax,world:soloRun.world,
+    players:[...soloRun.players.values()],you:player,
+  }:null;
+  return snapshot?JSON.parse(JSON.stringify(snapshot)):null;
+}
+

@@ -1,7 +1,8 @@
 // Test-only controller: reads public snapshots and returns ordinary input intentions.
 export function routeIntent(s) {
   const p = s?.you, w = s?.world, b = w?.boss;
-  if (!p?.alive || s.phase !== 'playing' || p.capture || p.carriedBy) return {input:{},interact:false};
+  if (!p?.alive || s.phase !== 'playing' || p.carriedBy) return {input:{},interact:false};
+  if(p.capture){const left=Math.floor(s.tick/8)%2===0;return {input:{left,right:!left},interact:false};}
   // Stagger departures so independent route bots do not all form accidental stacks.
   if (s.tick < p.slot * 100) return {input:{},interact:false};
   let target = w.switches.find(sw => !sw.active)?.x ?? w.finish.x + 2;
@@ -19,7 +20,10 @@ export function routeIntent(s) {
   const pit = w.pits.some(q => p.x + p.w > q.x - 8 && p.x < q.x + q.w && !w.platforms.some(t => ['switch-bridge','pressure-bridge'].includes(t.kind) && t.x === q.x));
   const ledge = [...w.platforms,...w.crates.filter(c=>!c.used&&!c.carriedBy)].some(q => p.y + p.h > q.y + 3 && (target > p.x ? q.x >= p.x + p.w - 1 && q.x < p.x + p.w + 5 : p.x >= q.x + q.w - 1 && p.x < q.x + q.w + 5));
   const rescue = w.enemies.find(e => e.grabbedId && e.grabbedId !== p.id);
-  if (rescue) target = rescue.x + 4;
+  if (rescue) {
+    const rescuer=s.players.filter(p=>p.alive&&!p.capture&&!p.carriedBy).sort((a,b)=>Math.abs(a.x-rescue.x)-Math.abs(b.x-rescue.x)||a.slot-b.slot)[0];
+    if(p.id===rescuer?.id)target=rescue.x+4;
+  }
   const robot = w.enemies.some(e => e.kind === 'grabber' && !e.stunned && Math.abs(p.x - e.x) < 36);
   const jumpStrike = b && b.kind !== 'background' && ((b.phase === 'warning' && b.timer < 24) || b.phase === 'attack') && Math.abs(p.x - b.targetX) < 80;
   const groundStrike=w.enemies.some(e=>e.kind!=='scanner' && ((e.phase==='warning' && e.timer<28)||e.phase==='attack') && Math.abs(p.x-e.targetX)<(e.kind==='creeper'?62:40));

@@ -1,4 +1,4 @@
-name: Full browser co-op campaign
+name: Full browser campaigns
 on:
   workflow_dispatch:
   push:
@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        party: [2, 3, 4]
+        party: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

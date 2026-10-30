@@ -234,6 +234,7 @@ try {
   finally{await d.keyboard.up('ArrowRight');}
   await d.waitForFunction(()=>document.querySelector('#game').dataset.watching.length>0);
   await d.waitForFunction(()=>{try{return JSON.parse(document.querySelector('#debug-report').value).events.some(e=>e.type==='death');}catch{return false;}});
+  assert.equal(await d.evaluate(async()=>{const {readDebugSnapshot}=await import('/js/game.js');const copy=readDebugSnapshot(),hearts=copy.hearts;copy.hearts=999;copy.world.width=1;return readDebugSnapshot().hearts===hearts&&readDebugSnapshot().world.width>1;}),true,'debug snapshots are detached copies');
   assert.equal(await d.locator('#debug-panel').isVisible(),true);
   const reportDownload=d.waitForEvent('download');await d.locator('#debug-download').click();
   const reportFile=await reportDownload;assert.equal(reportFile.suggestedFilename(),'tiny-teamwork-stage-1-report.json');
@@ -246,6 +247,10 @@ try {
   try{await b.waitForFunction(()=>Number(document.querySelector('#game').dataset.playerX)>170);}
   finally{await b.keyboard.up('ArrowRight');}
   await d.waitForFunction(()=>Number(document.querySelector('#game').dataset.cameraX)>25);
+  await walk(b,256);await jump(b);await walk(b,400);await jump(b);
+  await d.waitForFunction(()=>document.querySelector('#game').dataset.alive==='true');
+  await d.waitForFunction(()=>{try{return JSON.parse(document.querySelector('#debug-report').value).events.some(e=>e.type==='checkpoint-revive');}catch{return false;}});
+  assert.equal(await d.locator('#spectator-status').isVisible(),false,'revival returns camera to own survivor');
   await Promise.all([a,b,c,d].map(p=>p.locator('#leave-room').click()));
   await cContext.close();await dContext.close();
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });

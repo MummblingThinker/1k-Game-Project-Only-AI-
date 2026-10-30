@@ -72,3 +72,5 @@ Comic scenes reveal three captioned panels in sequence, with original 2D anime a
 For bug reports, open the game with ?debug=1 (or &debug=1 after an existing query). A Run report panel records the current stage's deaths, hearts, checkpoint times, route and living survivors. Download its JSON when reporting a failure. It is optional, stage-local, and not uploaded automatically; ordinary gameplay sends no diagnostic history. In co-op the report comes only from your own room.
 
 Visual options below the game save locally. Motion follows your device preference by default; Reduced motion removes sliding comic panels, moving scenery and invulnerability blinking while preserving the ending's timing. Fewer effects reduces decorative drones/debris; gameplay and warnings are unchanged.
+
+Selected gaps use the original party bands (two–three, four–five, and so on); the supported online cap remains four. The first tutorial jump stays short for every party. Solo fallback stones remain available in wider gaps.

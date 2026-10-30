@@ -21,8 +21,10 @@ try {
   assert.equal(await p.locator('.comic-cell').last().evaluate(e=>getComputedStyle(e).opacity),'1');
   for(let i=0;i<3;i++)await p.locator('#story-next').click();
   await p.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing');
-  await p.locator('#game').focus();const before=await x(p);await p.keyboard.down('ArrowRight');await p.waitForTimeout(250);await p.keyboard.up('ArrowRight');
-  assert.ok(await x(p)>before+8);await p.keyboard.press('Escape');
+  await p.bringToFront();await p.locator('#game').click();const before=await x(p);await p.keyboard.down('ArrowRight');
+  try{await p.waitForFunction(before=>Number(document.querySelector('#game').dataset.playerX)>before+8,before,{timeout:3000});}
+  finally{await p.keyboard.up('ArrowRight');}
+  await p.keyboard.press('Escape');
   const stopped=await x(p);await p.waitForTimeout(500);assert.equal(await x(p),stopped);
   await p.keyboard.press('Escape');
   for(let level=1;level<=15;level++){
