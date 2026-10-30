@@ -26,6 +26,9 @@ async function walk(page, target) {
       const c = document.querySelector('#game');
       return c.dataset.alive === 'false' || c.dataset.state === 'victory' || (direction === 'ArrowRight' ? Number(c.dataset.playerX) >= target : Number(c.dataset.playerX) <= target);
     }, { target, direction }, { timeout: 18000 });
+  } catch(error) {
+    console.log('BROWSER WALK FAILED',target,await page.locator('#game').getAttribute('data-players'));
+    throw error;
   } finally { await page.keyboard.up(direction); }
   assert.equal(await page.locator('#game').getAttribute('data-alive'), 'true');
 }
@@ -121,17 +124,19 @@ try {
     }
     const { drawSurvivor, buildLevel, createPlayer, drawGame } = window.renderTools;
     const poses = document.createElement('figure'), label = document.createElement('figcaption'), canvas = document.createElement('canvas');
-    label.textContent = 'POSE FIXTURE / idle, run, jump, fall, carry, captured, down'; canvas.width=320; canvas.height=180; poses.append(label,canvas); document.body.append(poses);
+    label.textContent = 'POSE FIXTURE / idle, run, jump, fall, carry, throw, captured, hurt, down'; canvas.width=320; canvas.height=180; poses.append(label,canvas); document.body.append(poses);
     const ctx=canvas.getContext('2d'); ctx.fillStyle='#203345'; ctx.fillRect(0,0,320,180);
-    for(let slot=0;slot<4;slot++) for(let pose=0;pose<7;pose++) {
+    for(let slot=0;slot<4;slot++) for(let pose=0;pose<9;pose++) {
       const p=createPlayer('pose',0,12+slot*40); p.slot=slot; p.onGround=true;
       if(pose===1)p.vx=1.28;
       if(pose===2){p.onGround=false;p.vy=-3;}
       if(pose===3){p.onGround=false;p.vy=3;}
       if(pose===4)p.carryId='crate';
-      if(pose===5)p.capture={remaining:2};
-      if(pose===6)p.alive=false;
-      drawSurvivor(ctx,p,20+pose*43,1400);
+      if(pose===5)p.gestureTicks=12;
+      if(pose===6)p.capture={remaining:2};
+      if(pose===7){p.alive=false;p.hitTicks=12;}
+      if(pose===8)p.alive=false;
+      drawSurvivor(ctx,p,12+pose*34,1400);
     }
     const giantFigure=document.createElement('figure'), giantLabel=document.createElement('figcaption'), giantCanvas=document.createElement('canvas');
     giantLabel.textContent='RENDER FIXTURE / roaming giant footprint'; giantCanvas.width=320;giantCanvas.height=180;giantFigure.append(giantLabel,giantCanvas);document.body.append(giantFigure);
@@ -158,7 +163,7 @@ try {
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.state === 'playing')));
   await Promise.all([walk(a, 256), walk(b, 256)]);
   await Promise.all([jump(a), jump(b)]);
-  await Promise.all([walk(a,420),walk(b,420)]);
+  await Promise.all([walk(a,400),walk(b,400)]);
   await Promise.all([jump(a),jump(b)]);
   await Promise.all([walk(a, 530), walk(b, 520)]);
   await a.keyboard.press('e');

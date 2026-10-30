@@ -26,3 +26,7 @@ The current sprite work is a placeholder-quality first pass; upgrade with custom
 The owner authorized 2D anime comic presentation for story scenes. Original story-atlas.png contains four regional illustrations, generated with the built-in imagegen tool; exact prompt and provenance are in STORY_ART_PROMPT.md. Native-text caption cards reveal with three focused, aspect-preserving crops per story beat. Gameplay remains crisp pixel art. Reduced-motion media preferences suppress panel motion. No external reference images were used.
 
 Sound cues are original Web Audio oscillator synthesis in public/js/audio.js, with no sampled recordings. Saved sound/volume controls and gesture unlocking are implemented; physical speaker/headphone review remains pending.
+
+## Original procedural motion, October 30
+
+Gameplay survivors now use original procedural pixel poses in art.js: idle, four-phase run, jump/fall, carry, throw/release, captured struggle, hit/kneel and down. Four coat palettes and numbered online labels distinguish participants. The original PNGs remain used for title/story staging. Robot patrol legs, grab arms, recovery sensors, scanner columns and named attack countdowns are drawn from original code. Hit/throw timers are authoritative visual metadata and do not change collision or heart rules. This is procedural animation, not a claimed external sprite sheet.

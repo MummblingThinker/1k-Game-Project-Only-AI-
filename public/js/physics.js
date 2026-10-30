@@ -10,6 +10,7 @@ export function createPlayer(id = 'local', x = 26, y = 110, colorIndex = 0) {
     onGround: false, alive: true, colorIndex, face: 1, carryId: null,
     heartsLost: 0, timeDead: 0, lastJump: false, invulnerability: 0,
     coyoteTicks: 0, jumpBufferTicks: 0,
+    gestureTicks: 0, hitTicks: 0,
   };
 }
 

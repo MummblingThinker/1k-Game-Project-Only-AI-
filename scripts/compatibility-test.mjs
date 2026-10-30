@@ -27,8 +27,11 @@ try {
   await p.keyboard.press('Escape');
   for(let level=1;level<=15;level++){
     await p.goto(`${base}/?level=${level}`);
-    await p.waitForFunction(level=>document.querySelector('#region-badge').textContent.includes('LEVEL '+String(level).padStart(2,'0')),level);
-    await p.locator('#game').focus();const start=await x(p);await p.keyboard.down('ArrowRight');await p.waitForTimeout(150);await p.keyboard.up('ArrowRight');assert.ok(await x(p)>start,`stage ${level} input`);
+    await p.waitForFunction(level=>document.querySelector('#game').dataset.state==='playing'&&document.querySelector('#region-badge').textContent.includes('LEVEL '+String(level).padStart(2,'0')),level);
+    await p.bringToFront();await p.locator('#game').click();const start=await x(p);await p.keyboard.down('ArrowRight');
+    try { await p.waitForFunction(start=>Number(document.querySelector('#game').dataset.playerX)>start+3,start,{timeout:3000}); }
+    catch(error){console.log('Compatibility input failure',engine,level,await p.locator('#game').getAttribute('data-players'),await p.evaluate(()=>({visibility:document.visibilityState,focus:document.activeElement.id})));throw error;}
+    finally {await p.keyboard.up('ArrowRight');}
   }
   await p.goto(base);await p.locator('#resume-solo').click();
   await p.waitForFunction(()=>document.querySelector('#region-badge').textContent.includes('LEVEL 15'));

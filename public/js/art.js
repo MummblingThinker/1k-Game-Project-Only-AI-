@@ -256,6 +256,12 @@ export function drawSurvivor(ctx, p, x, clock = 0) {
   if (p.face < 0) { ctx.translate(p.w, 0); ctx.scale(-1, 1); }
   if (p.invulnerability > 0 && Math.floor(clock / 90) % 2) ctx.globalAlpha = .45;
   if (!p.alive) {
+    if (p.hitTicks > 0) {
+      RECT(ctx,1,6,8,7,skin); RECT(ctx,0,4,8,3,'#35313b'); RECT(ctx,2,13,8,6,coat);
+      RECT(ctx,-3,13,5,3,coat); RECT(ctx,10,10,5,3,coat); RECT(ctx,4,19,10,3,'#36445b');
+      RECT(ctx,-5,5,2,5,'#f2c187'); RECT(ctx,14,4,2,5,'#f2c187');
+      ctx.restore(); return;
+    }
     RECT(ctx,0,17,12,4,'#283846'); RECT(ctx,8,16,5,4,skin); RECT(ctx,1,16,7,4,coat);
     ctx.restore(); return;
   }
@@ -274,9 +280,12 @@ export function drawSurvivor(ctx, p, x, clock = 0) {
   if (p.capture || p.carryId) {
     RECT(ctx,0,5+torso,3,7,coat); RECT(ctx,10,5+torso,3,7,coat);
     RECT(ctx,0,3+torso,3,3,skin); RECT(ctx,10,3+torso,3,3,skin);
+  } else if (p.gestureTicks > 0) {
+    RECT(ctx,0,11+torso,3,5,coat); RECT(ctx,10,9+torso,7,3,coat); RECT(ctx,16,8+torso,3,4,skin);
+    RECT(ctx,19,7+torso,3,1,'#e4d7b8');
   } else if (airborne) {
     RECT(ctx,0,7+torso,3,6,coat); RECT(ctx,10,8+torso,3,5,coat);
-    RECT(ctx,-1,6+torso,3,3,skin); RECT(ctx,11,7+torso,3,3,skin);
+    RECT(ctx,-1,(p.vy<0?6:11)+torso,3,3,skin); RECT(ctx,11,(p.vy<0?7:12)+torso,3,3,skin);
   } else {
     const swing = walking ? [1, -1, -2, 1][frame] : 0;
     RECT(ctx,1,10+torso+swing,3,5,coat); RECT(ctx,10,10+torso-swing,2,5,coat);
@@ -336,10 +345,24 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
     const im=sprite(enemy.kind === 'scanner' ? 'robot_flyer.png' : enemy.kind === 'creeper' ? 'robot_creeper.png' : 'robot_sentinel.png');
     const bob = enemy.kind === 'scanner' ? Math.sin((gameState.clock || 0) * .005 + enemy.x) * 2 : 0;
     if(im?.complete&&im.naturalWidth) ctx.drawImage(im,rnd(x),rnd(enemy.y + bob));
+    if(enemy.kind!=='scanner' && !enemy.stunned && !enemy.grabbedId && !['warning','attack'].includes(enemy.phase)) {
+      const stride=Math.sin((gameState.clock||0)*.012)*2;
+      RECT(ctx,x+2+stride,enemy.y+25,6,3,'#738b98'); RECT(ctx,x+12-stride,enemy.y+25,6,3,'#738b98');
+    }
+    if(enemy.grabbedId) {
+      RECT(ctx,x-4,enemy.y+14,9,3,'#b4a071');RECT(ctx,x+15,enemy.y+14,9,3,'#b4a071');
+      RECT(ctx,x-4,enemy.y+14,3,8,'#b4a071');RECT(ctx,x+21,enemy.y+14,3,8,'#b4a071');
+    }
+    if(enemy.phase==='recover') RECT(ctx,x+5,enemy.y+5,10,2,'#718b9c');
     if (enemy.phase === 'warning' || enemy.phase === 'attack') {
       const tx = (enemy.targetX ?? enemy.x) - cameraX, radius = enemy.kind === 'creeper' ? 48 : 23;
       RECT(ctx, tx - radius, 148, radius * 2, 3, enemy.phase === 'attack' ? '#fc7663' : '#edc879');
-      outlinedText(ctx, enemy.phase === 'warning' ? `! ${Math.ceil(enemy.timer / 60)}` : 'DANGER', x, enemy.y - 5);
+      if(enemy.kind==='scanner') {
+        ctx.save();ctx.globalAlpha=enemy.phase==='attack'?.4:.16;RECT(ctx,tx-radius,enemy.y+enemy.h,radius*2,151-enemy.y-enemy.h,'#e6c97e');ctx.restore();
+        for(let y=enemy.y+enemy.h;y<147;y+=7){RECT(ctx,tx-radius,y,1,4,'#e6c97e');RECT(ctx,tx+radius-1,y,1,4,'#e6c97e');}
+      }
+      const tell=enemy.kind==='creeper'?'BLAST':enemy.kind==='scanner'?'SCAN':'STRIKE';
+      outlinedText(ctx, enemy.phase === 'warning' ? `${tell} ${Math.ceil(enemy.timer / 60)}` : 'DANGER', x-7, enemy.y - 5);
     }
     if (enemy.grabbedId) outlinedText(ctx, 'RESCUE ↓', x - 7, enemy.y - 8, '#9ef4e9');
     if(enemy.stunned>0) { RECT(ctx,x+4,enemy.y-4,12,2,'#f4ce76'); RECT(ctx,x+7,enemy.y-7,6,2,'#f4ce76'); }
