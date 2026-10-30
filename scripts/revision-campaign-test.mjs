@@ -9,7 +9,7 @@ const party=Number(process.env.TEST_PARTY||2),first=Number(process.env.TEST_FIRS
 assert.ok([1,2,3,4].includes(party)&&first>=1&&last<=15&&first<=last);
 const base=process.env.BROWSER_BASE_URL||'http://127.0.0.1:4198',sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const server=process.env.BROWSER_BASE_URL?null:spawn(process.execPath,['server/server.js'],{env:{...process.env,PORT:'4198'},stdio:'inherit'});
-let browser,createdRoom;const peers=[],errors=[],results=[],losses=[];
+let browser,createdRoom,coverTaken=false;const peers=[],errors=[],results=[],losses=[];
 const consistency=snapshotAudit(party,message=>errors.push(message));
 async function until(test,label,timeout=10000){const end=Date.now()+timeout;while(Date.now()<end){if(await test())return;await sleep(40);}throw Error('Timed out: '+label);}
 async function input(peer,intent){
@@ -28,7 +28,7 @@ try {
   browser=await chromium.launch({headless:true});
   console.log('Full campaign browser:',browser.version(),'independent contexts:',party,'origin:',base);
   for(let i=0;i<party;i++){
-    const context=await browser.newContext({viewport:{width:1280,height:900}});
+    const context=await browser.newContext({viewport:{width:1440,height:960}});
     const page=await context.newPage(),peer={context,page,held:{},roomErrors:[]};peers.push(peer);
     page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
     page.on('websocket',socket=>socket.on('framereceived',({payload})=>{
@@ -81,6 +81,10 @@ try {
         await Promise.all(peers.map(p=>input(p,routeIntent(p.state))));
         await sleep(35);
         await sample();
+        if(party===1&&level===5&&!coverTaken&&host.state.world.boss.hp<=6&&host.state.phase==='playing'){
+          coverTaken=true;const cover=await host.page.screenshot({path:'artifacts/browser-campaign/revision-cover.jpg',type:'jpeg',quality:88});
+          console.log('LIVE_COVER_BASE64_BEGIN'+cover.toString('base64')+'LIVE_COVER_BASE64_END');
+        }
       }
       await Promise.all(peers.map(p=>input(p,{input:{},interact:false})));
       if(host.state.phase==='victory')break;

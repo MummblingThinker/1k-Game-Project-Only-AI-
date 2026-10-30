@@ -1,3 +1,4 @@
+> HISTORICAL DESIGN: The October 30 owner revision supersedes the shelter, indestructible-robot, short/fallback bridge and old boss rules below. Current behavior is documented in ../README.md and PRACTICE_GUIDE.md; current verification is in ../QA_LOG.md. This file preserves the earlier release design and must not be used as current acceptance criteria.
 # Campaign build 0.3
 
 The owner authorized campaign development while the separate-device acceptance test is deferred. No automated result is a claim of a physical-device playtest or contest submission.

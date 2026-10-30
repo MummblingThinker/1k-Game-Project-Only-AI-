@@ -1,86 +1,57 @@
 # Tiny Teamwork: The Last Spark
 
-A solo or 2–4-player browser platformer across 15 stages: escape the city, cross the forest, and infiltrate the factory. Gameplay uses original pixel sprites; story scenes reveal original anime illustrations in sequential comic panels.
-
-Campaign release 0.3.0. Physical-device and human balance acceptance remain pending; see verification notes below.
+A solo or 2–4-player browser platformer across 15 stages: escape the city, cross the forest, and destroy the factory. Original pixel gameplay and 33 distinct anime comic illustrations.
 
 Play: https://tiny-teamwork-last-spark.onrender.com
 
+The October 30 gameplay revision replaces the old shelters and boss rules. See [current status](docs/PROJECT_STATUS.md) for the exact deployed commit and acceptance evidence. Physical-device and human difficulty testing remain deferred by the owner.
+
 ## Run locally
 
-Node.js 22+ required (tested with 24.20.0). Run `npm ci`, then `npm start`, and open http://localhost:4173. For solo without dependencies, use `npm run offline`.
+Node.js 22+ (tested with 24.20.0): run `npm ci`, then `npm start`, and open http://localhost:4173. `npm run offline` serves solo without installing dependencies.
 
-## Play together
-
-Create a room, share its six-character code, and join before the host starts. Guests choose Ready to escape; everyone sees the ready roster, and the host starts once everyone is ready. The host can choose any starting stage. Activate route relays and get every living survivor to the gate. After victory the host selects Continue (N) or restarts (R). Story transitions after stages 5, 10 and 15 are shared.
-
-## Controls
+## Controls and co-op
 
 | Action | Keyboard |
 | --- | --- |
 | Move | A/D or Left/Right |
-| Jump / captured struggle | Space or Up |
-| Relay, pylon, terminal, crate | E |
-| Carry / throw teammate or crate | F |
-| Drop | Q |
-| Watch next living teammate while down | V |
-| Continue after victory | N (host online) |
-| Restart after defeat/victory | R (host online) |
-| Pause solo / release online input | Esc |
-| Advance solo story | Space |
+| Jump / wall-jump / leave teammate carry | Space or Up |
+| Use relay, console, memory, ladder; pick up / throw object | E |
+| Pick up / throw teammate or held object | F |
+| Put down | Q |
+| Watch next living survivor | V |
+| Continue / replay | N / R; host online |
+| Pause solo / release online input | Escape |
 
-Touch controls stay at the screen bottom during play on narrow screens. Pause/resume and story advance have touch-accessible buttons. Online Esc releases input while the world continues. Practice a stage or `?level=15` starts a selected stage directly.
+E at a ladder climbs automatically, including while carrying supplies. Move sideways to leave it; F throws while climbing. Consoles take priority over throwing when using E. Touch controls appear on narrow screens. Keyboard and touch are supported; native gamepad mapping is not included.
 
-Keyboard and touch are supported; native gamepad mapping is not included.
+Create a room and share its invite link or six-character code. Guests join and choose Ready before the host starts. Everyone sees the same authoritative game state. All living players must reach the exit. The host continues or replays; story scenes after Levels 5, 10, 11 and 15 are synchronized. Disconnecting removes identity; a remaining player becomes host. A fresh lobby is needed to add players after starting.
 
-## Campaign
+## Revised campaign
 
-Level 1 is the roughly 960-unit tutorial/reference. Normal later maps are 3x the reference width; Levels 5/10/15 are 5.5x/6x/6.5x. Routes have authored pits, ledges, shelters, relays, enemy mixes, water, conveyors and cracked salvage that breaks under a stomp or thrown crate. The giant crosses a normal map in about two minutes without catch-up teleportation. Boss boundaries exclude it.
+- Flags replace save rooms. Passing a new flag grants one shared heart and records the respawn point. A solo death with hearts left returns there. A flag also brings back one downed co-op survivor. Each flag awards once.
+- Relay bridges and pressure bridges span gaps too long for an ordinary jump. E activates relays. Leave an object on a pressure plate with Q; its short release grace period is insufficient for the full crossing. Yellow puzzle weights survive throws and return if lost in a pit.
+- Street-to-rooftop climbs, subway passages, canopies, cabins, water, conveyors and towers form fifteen different routes. Each biome has themed throwable debris, breakable barriers, scenery and enemies. Forest animals are decorative.
+- Ground robots patrol, turn and charge when they see a survivor. Headlights show their facing direction. Flying robots retain their warned scan attack. Throws destroy small robots and damage medium ones; big armored robots can only be stunned. Ordinary debris breaks after impacts; yellow weights remain reusable.
+- Level 5: climb above rising Warden claws, collect debris and throw it at the boss. Defeating it stops the endless climb and creates the final exit floor.
+- Level 10: weave over trunks and branches through the chainsaw maze. Climb or wall-jump away from the blade. At the end, clear the striped falling-tree area: it kills the robot and any players underneath.
+- Level 11: forest leads into a roofed human passage with a protected overhead swarm, then the robot factory.
+- Level 15: climb above lava and break three consoles. Each accelerates lava; attacks escalate through lasers and platform destruction while essential ladders remain. The robot breaches from the left, leaps behind the survivors, and chases them LEFT through machinery to the emergency exit. Lava destroys it.
 
-- Level 5: evade the Warden slam, then use relays 2–1–3 during its exposed window.
-- Level 10: activate three beacons and survive 45 seconds. A covered route shelters the team beneath a drone swarm.
-- Level 15: evade the background Colossus, charge three pylons and use the exposed central terminal. Complete three overload cycles to escape.
+Level 1 is the 960-unit reference; normal maps are 2880 units, and Levels 5/10/15 are 5280/5760/6240 units. The pursuer takes about two minutes to cross a normal map after waking and cannot enter boss zones. Boss defeats have pixel death animations.
 
-Pressure plates in selected forest/factory stages open temporary bridges. Stand on one or leave a crate; after release, the bridge counts down eight seconds. Existing jumps and stones provide fallback routes. The pursuer gives an eight-second entry warning and keeps its normal walking speed on giant maps.
+Hearts start at three solo, four for two/three players and five for four. Each death costs one; new flags can increase the pool above its starting value. Stage transitions restore the starting pool. Optional blue memory terminals reveal fourteen story fragments saved in this browser. Solo reload resumes the stage with full hearts; flag respawns persist within the current run, not across reloads. Rooms are not cloud saves.
 
-Robots are indestructible. Jump onto a grabber only while it holds a teammate to force a temporary rescue stun. Struggling buys limited time. Solo grabbers use a telegraphed strike instead.
+## Verification
 
-Shared hearts start at three solo, four for two/three players and five for four. Each fatal transition charges once. A checkpoint revives the longest-dead survivor OR restores one heart if everyone is alive. Full stage transitions reset the original party's life pool. Carry/throw, stacking and fallback stepping stones support teamwork. See [campaign rules](docs/CAMPAIGN_BUILD.md).
+`npm test` runs current construction, movement/timing, storage, revised rules, client-session and HTTP/asset checks. `node scripts/revision-route-test.mjs` drives all stages with ordinary input; TEST_PARTY selects 1–4. `node scripts/revision-network-test.mjs` uses two actual WebSocket clients. CI installs Playwright for `revision-browser-test.mjs` and `revision-campaign-test.mjs`; public acceptance verifies deployed source before traversing the campaign.
 
-Shelters have two ground exits and an overhead ladder. Stand at the central ladder and use E (Interact on touch) to climb to the roof; move sideways to step off. Put carried objects down first. The roaming giant can destroy the shelter and its ladder.
+Historical tests for shelters and indestructible bosses are retained as historical contracts, not evidence for the current rules. Exact passes, failures, replays and limitations are recorded in [QA_LOG.md](QA_LOG.md). Automated reachability does not establish human difficulty balance or physical mobile usability.
 
-Find optional blue MEMORY / E terminals in stages 2-15 to discover fourteen original story fragments. Teammates share each discovery; the Memory archive below the game lets you reread it after replaying or reloading. The archive saves in this browser when available and does not change the required route or default ending.
+Sound and visual options save locally. Reduced motion follows device preference by default; fewer effects reduces decorative drones and particles without removing warnings. Add `?debug=1` for a local downloadable stage report. Reports are not uploaded automatically.
 
-## Verification and limits
-
-`npm test` covers shared systems, 60 deterministic stage traversals (15 stages at 1–4 players), HTTP/assets, board evidence, client sessions and real Socket.IO integration. `npm run test:live-campaign` drives two socket clients through Level 15 and its shared ending. CI installs Playwright temporarily for `npm run test:browser`.
-
-Chromium 156 passed all stage loads, story/pause, independent co-op contexts through tutorial victory and Continue, four-browser readiness, and emulated touch cancellation. Firefox 157 and WebKit 27.2 compatibility also pass. Exact source revisions, deployment state and subsequent changes are recorded in [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) and [QA_LOG.md](QA_LOG.md).
-
-Full Chromium campaigns completed all 15 stages and the default ending in solo and independent two-, three- and four-player contexts. The deployed Render release also passed full two-, three- and four-player campaigns with matching shared state. Public two/four cleared on first attempts; public three needed ordinary replays at Levels 10 and 15, retained in the QA record. Actual-browser rescue, giant breach, carry/throw, crate/salvage, memory and pressure-countdown checks pass. Delayed TCP tests exercise real rendering, held-jump and release behavior.
-
-Physical-device and separate-network acceptance remains pending at the owner's request. Automated traversal proves reachability, not human difficulty balance. Mobile emulation is not physical mobile testing. Original synthesized sound cues have saved mute/volume controls; cloud saves are not implemented. Rooms require joining before start; disconnect clears identity and requires a new lobby. Rooms disappear on server restart. One free Render instance can have cold starts.
-
-Submission materials remain drafts. A real 1800×1200 browser screenshot is included. Physical-device evidence, eligibility and submission preview need human review. Nothing has been submitted.
+The free Render service may need time to wake. One Node process hosts rooms; server restart clears them. Physical-device/network acceptance and contest review/submission remain pending. Nothing has been submitted.
 
 ## Handoff
 
-Read [PRIORITY_ROADMAP.md](PRIORITY_ROADMAP.md), [TASK_LIST.md](TASK_LIST.md), [QA_LOG.md](QA_LOG.md), and [AGENTS.md](AGENTS.md). The owner authorized campaign expansion while deferring physical testing. Unverified acceptance criteria remain unchecked.
-
-`public/` contains client/shared simulation/art; `server/` the authoritative service; `scripts/` tests and source packaging; `submission/` draft materials; `docs/` design and implementation notes. Original story-art provenance and exact prompt: [STORY_ART_PROMPT.md](docs/STORY_ART_PROMPT.md).
-
-`npm run test:adversarial` checks stack stability and seeded carry/capture/disconnect invariants. `node scripts/live-sequence-test.mjs` runs the entire campaign with real socket clients and unskipped synchronized story timing; TEST_PARTY chooses 2-4 players. These remain automated tests, not physical devices.
-
-Solo stage resume is saved in this browser and restarts the last begun solo/practice stage with full hearts. It does not save within-stage progress or multiplayer rooms. Storage being unavailable does not prevent play. Online survivor motion is smoothed visually between server snapshots; collisions, timers and actions always use the authoritative server state.
-
-In a lobby, Copy invite link gives friends a URL with the room code filled in. They still choose Join and Ready before the host starts. The button is hidden once the run begins; if clipboard access is blocked, copy the selected code instead.
-
-Walk against loose crates to push them together. A wall stops the whole chain. Boxes can be stacked and still support carry/throw. When down in co-op, the camera follows a living teammate; V or Watch next switches survivor. A shelter revives the longest-down teammate.
-
-Comic scenes reveal three captioned panels in sequence, with original 2D anime artwork. The companion art adds distinct rescue, covered-walkway swarm, assembly and ambush compositions. Prompts/provenance: [original atlas](docs/STORY_ART_PROMPT.md), [companion atlas](docs/STORY_DETAILS_PROMPT.md).
-
-For bug reports, open the game with ?debug=1 (or &debug=1 after an existing query). A Run report panel records the current stage's deaths, hearts, checkpoint times, route and living survivors. Download its JSON when reporting a failure. It is optional, stage-local, and not uploaded automatically; ordinary gameplay sends no diagnostic history. In co-op the report comes only from your own room.
-
-Visual options below the game save locally. Motion follows your device preference by default; Reduced motion removes sliding comic panels, moving scenery and invulnerability blinking while preserving the ending's timing. Fewer effects reduces decorative drones/debris; gameplay and warnings are unchanged.
-
-Selected gaps use the original party bands (two–three, four–five, and so on); the supported online cap remains four. The first tutorial jump stays short for every party. Solo fallback stones remain available in wider gaps.
+Read [AGENTS.md](AGENTS.md), [TASK_LIST.md](TASK_LIST.md), [QA_LOG.md](QA_LOG.md), and [PROJECT_STATUS.md](docs/PROJECT_STATUS.md). [Practice guide](docs/PRACTICE_GUIDE.md) explains play. [Art provenance](docs/OCTOBER_REVISION_ART.md) records the original comic assets. Source packaging is under `release/` and submission drafts under `submission/`.

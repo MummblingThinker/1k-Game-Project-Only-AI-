@@ -13,9 +13,9 @@ export function interactRevision(run,id,action,{detach,playersOf}){
   const p=run.players.get(id),w=run.world;
   if(!p?.alive||p.carriedBy||p.capture||run.phase!=='playing'||run.tick-(p.lastInteractionTick??-60)<12)return false;
   p.lastInteractionTick=run.tick;
-  const climb=action==='use'&&w.ladders.find(l=>Math.abs(p.x+p.w/2-l.x-l.w/2)<19&&p.y+p.h>l.y+4&&p.y<l.y+l.h+4);
-  if(climb){p.climbing=climb.id;p.vx=p.vy=0;run.notice='Climbing with supplies. Move sideways to leave the ladder; F throws what you carry.';return true;}
   const usingTerminal=action==='use'&&(w.switches.some(s=>!s.active&&near(p,s))||w.boss?.pylons.some(s=>!s.active&&near(p,s)));
+  const climb=action==='use'&&!usingTerminal&&w.ladders.find(l=>Math.abs(p.x+p.w/2-l.x-l.w/2)<19&&p.y+p.h>l.y+4&&p.y<l.y+l.h+4);
+  if(climb){p.climbing=climb.id;p.vx=p.vy=0;run.notice='Climbing with supplies. Move sideways to leave the ladder; F throws what you carry.';return true;}
   if(p.carryId&&!usingTerminal){detach(run,p,action!=='drop');run.notice=action==='drop'?'Object placed.':'Thrown! Small robots can be destroyed; heavy armor only stuns.';return true;}
   if(action==='drop')return false;
   if(action==='use'){

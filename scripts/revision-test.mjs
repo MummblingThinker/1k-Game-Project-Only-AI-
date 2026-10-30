@@ -94,6 +94,12 @@ section('foundry consoles escalate lava, retain ladder routes, switch to left es
   assert.equal(b.phase,'breach');assert.ok(b.bodyX<b.x);tick(r,120);assert.equal(b.phase,'escape');assert.ok(w.finish.x<b.x);assert.ok(w.ladders.length>=7);assert.ok(w.platforms.some(s=>s.kind==='escape-floor'));
   p.x=w.finish.x+40;p.y=w.finish.y;tick(r);assert.equal(b.solved,true);assert.equal(w.finish.locked,false);
 });
+section('a nearby factory console takes priority over the next ladder',()=>{
+  const r=runAt(15),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);b.phase='active';const core=b.pylons[0];
+  p.x=core.x-25;p.y=core.y+core.h-p.h;p.onGround=true;
+  assert.ok(w.ladders.some(l=>Math.abs(p.x+p.w/2-l.x-l.w/2)<19&&p.y+p.h>l.y+4&&p.y<l.y+l.h+4),'fixture overlaps both interactions');
+  assert.ok(interactRun(r,p.id));assert.equal(core.active,true);assert.equal(p.climbing,null);
+});
 section('giant remains outside boss zone and heart death is charged once',()=>{
   const r=runAt(5),p=p0(r),w=r.world;w.giant.x=w.boss.x-65;w.giant.wakeTicks=0;p.x=w.boss.x+10;p.invulnerability=1000;tick(r,300);assert.ok(w.giant.x+44<w.boss.x);assert.equal(p.alive,true);
   const h=r.hearts;killPlayer(r,p,'fixture',true);killPlayer(r,p,'duplicate',true);assert.equal(r.hearts,h-1);

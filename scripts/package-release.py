@@ -19,6 +19,7 @@ names = ['package.json', 'package-lock.json', 'render.yaml', '.gitignore', '.git
          '.github/workflows/public-browser.yml',
          '.github/workflows/public-campaign.yml',
          '.github/workflows/public-three-player.yml',
+         '.github/workflows/revision.yml', '.github/workflows/revision-public.yml',
          'AGENTS.md', 'CODEX_START_HERE.md', 'PRIORITY_ROADMAP.md', 'TASK_LIST.md', 'QA_LOG.md',
          'docs/DEPLOYMENT.md', 'docs/NETWORKING.md', 'docs/PRACTICE_GUIDE.md',
          'docs/PROJECT_STATUS.md', 'docs/ART_DIRECTION.md', 'docs/ASSET_LICENSES.md']

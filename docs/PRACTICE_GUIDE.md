@@ -1,64 +1,50 @@
-# Playing Tiny Teamwork
+# Playing Tiny Teamwork — October revision
 
-Open https://tiny-teamwork-last-spark.onrender.com. The free service can take a moment to wake up. Start the story for solo, resume your saved solo stage, or use the practice-stage selector. Saves remember the stage on this browser and restart it with full hearts; they are not mid-stage or cloud saves.
-
-## Play together
-
-1. The host creates a room and copies its invitation link or six-character code.
-2. Up to three guests open the link and click Join Room. An invitation fills the code; it never joins silently.
-3. Each guest selects Ready. The host starts once everyone is ready.
-4. Activate relays with E and bring every living survivor to the exit. The host continues after victory. Story scenes advance together.
-
-Join before the run begins. To add someone later, leave and create a fresh lobby. Disconnecting removes that survivor; reconnecting does not reclaim the old identity. If the host leaves, a remaining player becomes host. Online Escape releases your controls while the shared world continues.
+Open https://tiny-teamwork-last-spark.onrender.com. Start the story for solo or choose a practice stage. The free service can take time to wake. Solo reload resumes the last stage with full hearts; flag checkpoints apply during the current run.
 
 ## Controls
 
 | Action | Keyboard |
 | --- | --- |
 | Move | A/D or Left/Right |
-| Jump / struggle while grabbed | Space or Up |
-| Interact with relay, beacon, memory or shelter ladder | E |
-| Pick up / throw teammate or crate | F |
-| Drop carried teammate or crate | Q |
-| Break free from being carried | Jump |
-| Watch next living teammate while down | V or Watch next button |
-| Continue after victory | N; host online |
-| Pause solo / release online input | Escape |
+| Jump / wall-jump / escape teammate carry | Space or Up |
+| Climb ladder, use relay/console/memory, pick up or throw debris | E |
+| Carry/throw teammate; throw held debris even at a ladder | F |
+| Put carried object down | Q |
+| Watch another living teammate | V |
+| Continue / replay | N / R; host online |
+| Pause solo / release online controls | Escape |
 
-Touch controls appear on narrow screens. Sound starts after a gesture; mute and volume are saved. Expand Visual options for reduced motion or fewer decorative effects. Gameplay warnings and story timing remain intact.
+E starts automatic climbing. Move sideways to step off. You can carry supplies up ladders. A console takes priority over throwing with E. Touch controls appear on narrow screens; keyboard and touch are supported, with no native gamepad mapping.
 
-Keyboard and touch are the supported input methods. There is no native gamepad mapping in this release.
+## Flags, bridges and combat
 
-## Surviving the campaign
+Pass each flag to gain one heart and save your respawn position. A flag awards once and can revive one downed co-op survivor. Solo death, or a co-op wipe, respawns at the latest flag if hearts remain. Flags are open checkpoints, not protective rooms.
 
-There are 15 stages. Normal maps are about three times the Level 1 reference; Levels 5, 10 and 15 are larger milestone encounters. The giant takes about two minutes to traverse a normal map after its entry warning. It does not speed up to catch you. Shelters can restore a shared heart or revive one downed survivor, but the giant eventually breaks them. It cannot enter boss arenas.
+Red relays open long bridges. For yellow pressure plates, pick up the yellow weight with E, carry it next to the plate and face toward it, then press Q. Wait for HELD before crossing. You can use other loose objects or have a teammate hold the plate, but the short release grace does not last for the entire gap. Yellow weights cannot break and return if lost in a pit.
 
-- Jump pits carefully and use stepping stones. Carry, throw and stack to help a teammate across.
-- Robots are indestructible. Jump onto the robot holding a teammate to stun it and release them. Struggling buys a little time.
-- Water slows movement; conveyors move you. Stomp marked salvage or throw a crate at it to break it.
-- Level 5: bait the gate robot's slam, then use the exposed relay sequence.
-- Level 10: reach three beacons and survive the encounter under the human passage roof.
-- Level 15: evade the background Colossus, activate the pylons, then interact with its exposed core. Repeat for three cycles.
+Ground robots patrol and turn; their headlights show where they look. When they spot you, they prepare a charge. Jump past or throw debris at them. Small robots die from a hit, medium ones need several, and big armored robots only stun. Most thrown objects shatter after hitting something or landing. Flying scanners mark their target before firing; move out of the beam. Jumping onto smaller robots briefly stuns them.
 
-The game uses shared hearts. A fatal hit costs one; downed players watch a living teammate until revived. Completing a stage restores the original party's heart pool and all remaining survivors.
+Climb city roofs and return to street level, cross forest canopies and water, and watch factory conveyor directions. Cracked barriers break under a downward stomp or thrown object, leaving useful debris. Optional blue MEMORY terminals collect story fragments in this browser.
 
-Optional blue MEMORY / E terminals in stages 2-15 reveal fourteen story fragments. Discoveries are shared with your current teammates and collected in the Memory archive below the game. The archive saves in this browser when storage is available. It never changes the required objectives or ending.
+## The three bosses
 
-## Run locally
+- Level 5: keep climbing above the Warden claws. E picks up debris, F throws toward the robot. Climb beyond the first floors to expose its body, then land eight hits. The endless tower stops growing after victory; take the final ladder to the door.
+- Level 10: flee right through the tree maze. E climbs trunks; Space against a wall wall-jumps. Stay above or ahead of the chainsaw. At the final tree, clear the striped danger area when warned. The falling trunk kills players as well as the boss; jump the fallen trunk to exit.
+- Level 15: climb above rising lava and use the consoles in order. Lava speeds up each time. Dodge marked lasers; essential ladders remain when other platforms break. The third console raises the emergency lift as the robot leaps in. Run LEFT through the machinery maze to the door; the boss dies in the lava.
 
-Use the current source checkout or extract `release/TinyTeamwork-source.zip`. Node 22 or newer is required. In the project folder:
+The roaming giant cannot enter any boss arena, including the factory's leftward escape. A wiped party with hearts remaining restarts the encounter with its approach relays preserved.
 
-```sh
-npm ci
-npm start
-```
+The protected overhead drone swarm is in Level 11: forest, covered human passage, then factory. Story chapters use different illustrations for every panel.
 
-Open http://localhost:4173. For local solo without installing dependencies, use `npm run offline` instead. This does not enable multiplayer. Stop either server with Ctrl+C. `npm test` runs the automated regression suite.
+## Co-op
 
-For stage practice, use the selector or append `?level=5` (valid stages 1-15). Practice skips the opening story and starts solo at that stage.
+The host creates a room and shares the six-character code or invite link. Up to three guests join and select Ready before the host starts. Bring every living survivor to the exit. The host continues or replays; story scenes advance together. Downed survivors can watch teammates until a flag revives them or the party respawns.
 
-## Report a bug
+Join before starting. Disconnect removes the survivor's identity; reconnect requires a fresh lobby. If the host leaves, another survivor becomes host. Online Escape releases your inputs while the world continues. Rooms disappear when the server restarts.
 
-Record the stage, party size, exact actions, expected result and actual result. A screenshot or short recording helps. Optional `?debug=1` adds a local stage report and download button with death/checkpoint timing. Reports omit room codes and player IDs and are never uploaded automatically. Add `&debug=1` if the URL already has a level query.
+## Options and reports
 
-Automated browser and socket tests cover the campaign, but physical-device/network acceptance and human difficulty review remain pending. See `QA_LOG.md` for specific tested revisions and known limits.
+Sound starts after a gesture. Mute, volume, reduced motion and fewer effects save locally. Reduced effects never removes attack warnings. Add `?debug=1` (or `&debug=1`) to download a stage report for bug reports. Include stage, party size, actions and expected/actual behavior. Reports are not uploaded automatically.
+
+Local play: Node 22+, `npm ci`, `npm start`, then http://localhost:4173. `npm run offline` enables dependency-free solo. `npm test` runs current regression checks. Automated browser reachability is not a physical-device or human difficulty test; see QA_LOG.md for exact evidence.
