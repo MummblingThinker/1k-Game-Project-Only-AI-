@@ -233,7 +233,9 @@ try {
   // Public game-only evidence can be recovered through the connector's text log API.
   // The original image remains in the normal downloadable workflow artifact.
   console.log('COVER_BASE64_BEGIN' + cover.toString('base64') + 'COVER_BASE64_END');
-  await Promise.all([walk(a, 900), walk(b, 900)]);
+  await Promise.all([walk(a,580),walk(b,580)]);
+  await Promise.all([jump(a),jump(b)]);
+  await Promise.all([walk(a, 910), walk(b, 910)]);
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.state === 'victory')));
   await a.locator('#continue-level').click();
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#region-badge').textContent.includes('LEVEL 02') && document.querySelector('#game').dataset.state === 'playing')));

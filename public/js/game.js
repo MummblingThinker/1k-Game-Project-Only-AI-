@@ -495,6 +495,8 @@ $('pause-game').addEventListener('click', () => {
   }
 });
 $('replay-level').addEventListener('click', restartRun);
+$('scene-retry').addEventListener('click', restartRun);
+$('scene-menu').addEventListener('click', returnToTitle);
 levelSelect.addEventListener('change', () => { if (network.inRoom) network.selectLevel(Number(levelSelect.value)); });
 $('result-menu').addEventListener('click', returnToTitle);
 

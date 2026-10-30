@@ -18,6 +18,11 @@ export function createTextUI() {
     text('hud-hearts', `Team hearts ${hearts} / ${maxHearts}`);
     scene.hidden = !['title', 'lobby', 'paused', 'gameover', 'ending'].includes(state);
     scene.dataset.mode = state;
+    $('scene-actions').hidden=!['paused','gameover','ending'].includes(state);
+    $('scene-retry').hidden=state==='ending';
+    $('scene-retry').disabled=!!roomCode&&!isHost;
+    text('scene-retry',roomCode&&!isHost?'Waiting for host':'Retry stage');
+    text('scene-menu',roomCode?'Leave room':'Return to title');
     const copy = {
       title: ['A CO-OP PIXEL PLATFORMER', 'Tiny Teamwork', 'The Last Spark', 'Outrun the machines. Reach shelter together.', 'Press Enter or choose Start Story'],
       lobby: ['YOUR CO-OP ROOM', roomCode || '', 'Share the code with your team.', 'Everyone joins before the host starts the run.', isHost ? 'Choose Start co-op run or press Enter' : 'Waiting for the host to start'],
