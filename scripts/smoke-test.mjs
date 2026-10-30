@@ -64,6 +64,7 @@ try {
     ['/js/world.js', 'text/javascript'],
     ['/js/art.js', 'text/javascript'],
     ['/js/network.js', 'text/javascript'],
+    ['/js/simulation.js', 'text/javascript'],
     ['/assets/sprites/human_amber.png', 'image/png'],
     ['/assets/sprites/human_cyan.png', 'image/png'],
     ['/assets/sprites/human_rose.png', 'image/png'],

@@ -4,6 +4,8 @@
 
 ## Rule of work
 
+User override, 2026-10-29: continue campaign implementation and remaining MVP materials while physical-device testing is deferred. See AGENTS.md, User-directed campaign expansion. Do not mark deferred acceptance verified. Current work: CAMP-01 (larger campaign maps, timed pursuer, boss exclusion/encounters and synchronized progression), then shared co-op/life systems, release materials and comic presentation.
+
 1. Run `npm test` first. If it fails, diagnose the earliest failing check before adding features.
 2. Work top-to-bottom through the **mandatory submission path**. Do not jump to lower-priority work because it is more fun.
 3. For each task, inspect only the relevant files, make the smallest change that satisfies the acceptance criteria, add or update a test, run relevant checks, update `QA_LOG.md`, then update `TASK_LIST.md` and `docs/PROJECT_STATUS.md`.

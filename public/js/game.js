@@ -5,6 +5,7 @@ import { drawGame, drawTitle, drawCutscenePanel } from './art.js';
 import { NetworkClient } from './network.js';
 import { advanceSimulation } from './timing.js';
 import { createTextUI } from './text-ui.js';
+import { startLevel, stepRun, interactRun, objectiveText } from './simulation.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d', { alpha: false });
@@ -40,6 +41,7 @@ let hearts = 3;
 let player = createPlayer();
 let peers = [];
 let world = buildLevel(1, 1);
+let soloRun = null;
 let previousPlayerX = player.x;
 let checkpointCursor = 0;
 let capture = null;
@@ -75,21 +77,13 @@ function updatePanel() {
   heartReadout.textContent = `${'♥ '.repeat(Math.max(0,hearts)).trim()}${hearts === 0 ? '—' : ''}`;
   if (!heartReadout.textContent) heartReadout.textContent = '—';
 }
-function buildWorld(levelId, keepHearts = false) {
+function buildWorld(levelId) {
   currentLevel = Math.max(1, Math.min(15, Number(levelId) || 1));
-  world = buildLevel(currentLevel, partySize);
-  const y = world.floorY - player.h;
-  player = createPlayer(player.id || 'local', 26, y, player.colorIndex || 0);
-  peers = peers.map((p) => ({ ...p, y: world.floorY - (p.h || 22), alive: true, vx: 0, vy: 0 }));
-  if (!keepHearts) { maxHearts = maxHeartForParty(partySize); hearts = maxHearts; }
-  capture = null;
-  checkpointCursor = 0;
-  previousPlayerX = player.x;
-  cameraX = 0;
-  world.giant.x = player.x - 140;
-  world.giant.speed = 0.17;
-  world.giant.caught = false;
-  runStartedAt = performance.now();
+  soloRun = { players: new Map([['local', createPlayer('local')]]), partySize: 1, runId: 0 };
+  startLevel(soloRun, currentLevel, true);
+  world = soloRun.world; player = soloRun.players.get('local'); peers = [];
+  maxHearts = soloRun.heartMax; hearts = soloRun.hearts; capture = null; cameraX = 0;
+  levelSelect.value = String(currentLevel);
   updatePanel();
 }
 
@@ -142,29 +136,33 @@ const network = new NetworkClient({
     peers = data.players.filter((p) => p.id !== data.playerId);
     gameState = data.phase;
     if (runChanged) cameraX = 0;
-    currentCutscene = null;
+    currentCutscene = data.phase === 'cutscene' ? STORY_BEATS[data.storyKey] : null;
+    if (currentCutscene) {
+      cutscenePanelIndex = Math.min(currentCutscene.panels.length - 1, Math.floor(data.storyTick / 480));
+      cutscenePanelStart = performance.now() - (data.storyTick % 480) * 1000 / 60;
+    }
+    capture = player.capture || null;
+    levelSelect.value = String(currentLevel);
     const host = data.hostId === data.playerId;
     const signature = JSON.stringify([data.roomCode, data.phase, data.hostId, data.objectiveVersion,
-      data.players.map((p) => [p.id, p.slot, p.alive])]);
+      data.level, data.objective, data.players.map((p) => [p.id, p.slot, p.alive, !!p.capture, !!p.carriedBy])]);
     if (signature !== roomUiSignature) {
       roomUiSignature = signature;
     startStoryButton.textContent = host ? 'Start co-op run' : 'Waiting for host to start';
     startStoryButton.disabled = !host || data.phase !== 'lobby';
     playSelectedButton.disabled = true;
-    levelSelect.disabled = true;
+    levelSelect.disabled = !(host && data.phase === 'lobby');
     $('replay-level').textContent = host ? 'Replay room / R' : 'Waiting for host to replay';
     $('replay-level').disabled = !host;
     $('result-menu').textContent = 'Leave room / Return to title';
-    $('objective-status').textContent = data.phase === 'lobby' ? 'Share this room code, then the host starts the run.'
-      : world.finish.locked ? 'Relay OFF / Gate locked. Press E near the red switch to help your team cross.'
-      : 'Relay ON / Bridge open. All living survivors must reach the shelter gate.';
-    $('room-roster').textContent = data.players.map((p) => `${p.id === data.playerId ? 'YOU: ' : ''}Survivor ${p.slot + 1}${p.id === data.hostId ? ' (host)' : ''} - ${p.alive ? 'active' : 'down'}`).join(' | ');
+    $('objective-status').textContent = data.phase === 'lobby' ? 'Share the code. Host can choose a practice stage before starting.' : data.objective;
+    $('room-roster').textContent = data.players.map((p) => `${p.id === data.playerId ? 'YOU: ' : ''}Survivor ${p.slot + 1}${p.id === data.hostId ? ' (host)' : ''} - ${!p.alive ? 'down' : p.capture ? 'GRABBED' : p.carriedBy ? 'carried' : p.carryId ? 'carrying' : 'active'}`).join(' | ');
     }
     updatePanel();
     if (phaseChanged) {
       if (data.phase === 'playing') canvas.focus({ preventScroll: true });
       keys.clear();
-      announce(data.phase === 'victory' ? 'TEAM ESCAPED / LEVEL 1 COMPLETE'
+      announce(data.phase === 'victory' ? `TEAM ESCAPED / LEVEL ${currentLevel} COMPLETE`
         : data.phase === 'gameover' ? 'RUN OVER / HOST CAN RESTART WITH R'
         : data.phase === 'lobby' ? 'ROOM READY / SHARE THE CODE'
         : 'ACTIVATE THE RELAY / GET EVERY SURVIVOR TO THE SHELTER');
@@ -191,6 +189,7 @@ function finishCutscene() {
 }
 function advanceCutscene() {
   if (!currentCutscene) return;
+  if (network.inRoom) { network.nextLevel(); return; }
   cutscenePanelIndex += 1;
   if (cutscenePanelIndex >= currentCutscene.panels.length) finishCutscene();
   else cutscenePanelStart = performance.now();
@@ -209,28 +208,20 @@ function loadSelectedLevel() {
   announce(`LEVEL ${String(currentLevel).padStart(2,'0')} · ${getLevel(currentLevel).title}`, 2200);
 }
 function levelComplete() {
-  if (network.inRoom) {
-    announce('CO-OP MOVEMENT SLICE · LEVEL TRANSITION SYNC COMES NEXT', 3500);
-    return;
-  }
-  if (currentLevel === 1) {
-    gameState = 'victory';
-    keys.clear();
-    announce('LEVEL 1 COMPLETE / SHELTER REACHED / R TO REPLAY', 5000);
-    return;
-  }
+  gameState = 'victory'; keys.clear();
+  announce(`LEVEL ${currentLevel} COMPLETE / N TO CONTINUE / R TO REPLAY`, 5000);
+}
+function nextLevel() {
+  if (network.inRoom) { network.nextLevel(); return; }
+  if (gameState !== 'victory') return;
   const completed = currentLevel;
-  if (completed === 5) {
-    startCutscene('after5', () => { buildWorld(6); gameState = 'playing'; announce('THE ROBOTS HAVE FOLLOWED YOU INTO THE FOREST', 2500); });
-  } else if (completed === 10) {
-    startCutscene('after10', () => { buildWorld(11); gameState = 'playing'; announce('INSIDE THE ROBOT-MAKING FACILITY', 2500); });
-  } else if (completed === 15) {
-    startCutscene('after15', () => { gameState = 'ending'; announce('THE FACTORY IS SILENT. THE WAR IS NOT OVER.', 5000); });
-  } else {
-    buildWorld(completed + 1);
-    gameState = 'playing';
-    announce(`LEVEL ${String(currentLevel).padStart(2,'0')} · ${getLevel(currentLevel).title}`, 1800);
-  }
+  const proceed = () => {
+    if (completed === 15) { gameState = 'ending'; return; }
+    buildWorld(completed + 1); gameState = 'playing'; canvas.focus();
+    announce(`LEVEL ${currentLevel} / ${world.title}`);
+  };
+  if ([5,10,15].includes(completed)) startCutscene(`after${completed}`, proceed);
+  else proceed();
 }
 function returnToTitle() {
   if (network.inRoom) network.leaveRoom();
@@ -272,114 +263,22 @@ function near(a, b, distance = 19) {
   const bx = b.x + b.w/2, by = b.y + b.h/2;
   return Math.abs(ax-bx) < distance && Math.abs(ay-by) < distance + 8;
 }
-function interact() {
-  if (network.inRoom) { network.interact(); return; }
-  const now = performance.now();
-  if (now - lastInteractionAt < 180) return;
-  lastInteractionAt = now;
-  if (capture) { announce('STRUGGLE · ALTERNATE LEFT AND RIGHT', 900); return; }
-  if (player.carryId) {
-    const crate = world.crates.find((c) => c.id === player.carryId);
-    if (crate) {
-      crate.carriedBy = null; crate.x = player.x + (player.face > 0 ? player.w+1 : -crate.w-1);
-      crate.y = player.y - 2; crate.vx = player.face * 2.45; crate.vy = -2.5;
-      player.carryId = null;
-      announce('CRATE THROWN · USE IT AS A STEP OR BRIDGE PROP', 1700);
-    }
-    return;
-  }
-  const crate = world.crates.find((c) => !c.used && !c.carriedBy && near(player, c, 22));
-  if (crate) {
-    crate.carriedBy = player.id; player.carryId = crate.id;
-    announce('CRATE PICKED UP · PRESS E AGAIN TO THROW', 1600);
-    return;
-  }
-  const sw = world.switches.find((s) => !s.active && near(player, s, 26));
-  if (sw) {
-    sw.active = true;
-    announce('SWITCH ACTIVATED · A ROUTE OPENS SOMEWHERE AHEAD', 2000);
-    // The switch retracts one nearby platform's hazard marker and creates a useful step.
-    const pit = world.pits.find((p) => p.x >= sw.x && p.x - sw.x < 310);
-    if (pit && !world.platforms.some((p) => p.kind === 'switch-bridge' && Math.abs(p.x-pit.x)<20)) {
-      world.platforms.push({ x: pit.x + pit.w/2 - 10, y: world.floorY-14, w: 20, h: 5, kind: 'switch-bridge' });
-    }
-    return;
-  }
-  const checkpoint = world.checkpoints.find((c) => !c.destroyed && near(player, c, 32));
-  if (checkpoint) {
-    checkpoint.active = true;
-    announce('CHECKPOINT SHELTER · SAFE FROM ORDINARY ROBOTS', 1800);
-    return;
-  }
-  announce('NO INTERACTION IN RANGE', 900);
+function interact(action = 'use') {
+  if (network.inRoom) { action === 'use' ? network.interact() : network.action(action); return; }
+  if (soloRun && interactRun(soloRun, player.id, action)) announce(soloRun.notice);
 }
 
 function updateOffline(dtFrames, input, dtMs) {
-  if (!player.alive) return;
-  previousPlayerX = player.x;
-  if (capture) {
-    capture.remaining -= dtMs / 1000;
-    const directionNow = input.left ? 'L' : input.right ? 'R' : null;
-    if (directionNow && directionNow !== capture.lastDirection) {
-      if (capture.lastDirection && directionNow !== capture.lastDirection) capture.struggle += 1;
-      capture.lastDirection = directionNow;
-      if (capture.struggle <= 4) capture.remaining += 0.12;
-    }
-    const enemy = world.enemies.find((e) => e.id === capture.enemyId);
-    if (enemy) { player.x = enemy.x + 4; player.y = world.floorY - player.h; }
-    if (capture.remaining <= 0) triggerDeath('ROBOT CAPTURED YOU');
-  } else {
-    stepPlayer(player, input, world, dtFrames);
-  }
-  updateCrates(world, dtFrames);
-
-  const safeCheckpoint = world.checkpoints.find((cp) => !cp.destroyed && player.x + player.w > cp.x && player.x < cp.x + cp.w && player.y + player.h >= world.floorY - 3);
-  for (const enemy of world.enemies) {
-    if (enemy.dead || enemy.stunned > 0) { enemy.stunned = Math.max(0, (enemy.stunned||0) - dtFrames); continue; }
-    const nextX = enemy.x + enemy.dir * enemy.speed * dtFrames;
-    const blockedRoom = world.checkpoints.find((cp) => !cp.destroyed && nextX + enemy.w > cp.x && nextX < cp.x + cp.w);
-    if (blockedRoom) {
-      // Ordinary robots cannot enter safe rooms. Once the giant destroys one, the barrier disappears.
-      if (enemy.dir > 0) enemy.x = blockedRoom.x - enemy.w;
-      else enemy.x = blockedRoom.x + blockedRoom.w;
-      enemy.dir *= -1;
-    } else enemy.x = nextX;
-    if (enemy.x < enemy.minX) { enemy.x = enemy.minX; enemy.dir = 1; }
-    if (enemy.x > enemy.maxX) { enemy.x = enemy.maxX; enemy.dir = -1; }
-    if (!safeCheckpoint && !capture && player.invulnerability <= 0 && overlaps(player, enemy)) {
-      // Standing on a robot is not a weapon. Contact begins a visible capture countdown instead.
-      capture = { enemyId: enemy.id, remaining: 2.7, lastDirection: null, struggle: 0 };
-      announce('GRABBED! ALTERNATE A/D TO STRUGGLE · GET A TEAMMATE TO RESCUE YOU', 2600);
-    }
-  }
-
-  // Segment boundaries give one recovery benefit: revive the longest-dead player, or restore one heart.
-  if (player.alive) {
-    for (const cp of world.checkpoints) {
-      const crossed = previousPlayerX + player.w < cp.x && player.x + player.w >= cp.x;
-      if (crossed && !cp.active && !cp.destroyed) {
-        cp.active = true;
-        if (hearts < maxHearts) hearts += 1;
-        announce('CHECKPOINT REACHED · ONE TEAM HEART RECOVERED', 2200);
-        updatePanel();
-      }
-    }
-  }
-
-  // The giant stays behind the camera line, but steadily eats into the gap if the team hesitates.
-  world.giant.x = Math.max(world.giant.x + world.giant.speed * dtFrames, player.x - 124);
-  for (const cp of world.checkpoints) {
-    if (world.giant.x + 35 >= cp.x && !cp.destroyed) {
-      cp.destroyed = true; cp.active = false;
-      announce('THE GIANT BREACHED THE CHECKPOINT · KEEP MOVING', 2500);
-    }
-  }
-  if (world.giant.x + 44 > player.x + 4) {
-    world.giant.caught = true;
-    triggerDeath('THE GIANT CAUGHT YOU');
-  }
-  if (player.y > world.height - 5) triggerDeath('FELL INTO THE PIT');
-  if (player.x + player.w >= world.finish.x && player.alive && !capture) levelComplete();
+  if (!soloRun) return;
+  player.input = input;
+  const previousNotice = soloRun.notice;
+  stepRun(soloRun);
+  world = soloRun.world; capture = player.capture || null;
+  hearts = soloRun.hearts; maxHearts = soloRun.heartMax;
+  if (soloRun.notice !== previousNotice) announce(soloRun.notice, 2600);
+  if (soloRun.phase === 'victory') levelComplete();
+  else if (soloRun.phase === 'gameover') gameState = 'gameover';
+  updatePanel();
 }
 
 
@@ -387,6 +286,10 @@ function syncTextUI() {
   updateTextUI({ state: gameState, level: getLevel(currentLevel), hearts, maxHearts,
     roomCode: network.roomCode, isHost: lastSnapshot?.hostId === network.playerId,
     capture, panel: currentCutscene?.panels[cutscenePanelIndex] });
+  $('tactical-status').textContent = network.inRoom ? (lastSnapshot?.objective || '') : soloRun ? objectiveText(soloRun) : 'Solo story or 2–4 player co-op • 15 stages';
+  $('continue-level').disabled = network.inRoom && lastSnapshot?.hostId !== network.playerId;
+  $('result-kicker').textContent = `LEVEL ${String(currentLevel).padStart(2, '0')} COMPLETE`;
+  $('replay-level').textContent = network.inRoom ? 'Replay stage / R' : 'Replay stage / R';
   // Read-only DOM telemetry for repeatable browser acceptance checks.
   const data = (key, value) => { if (canvas.dataset[key] !== value) canvas.dataset[key] = value; };
   data('state', gameState);
@@ -416,7 +319,7 @@ function draw() {
   } else if (gameState === 'cutscene' && currentCutscene) {
     const panel = currentCutscene.panels[cutscenePanelIndex];
     const elapsed = performance.now() - cutscenePanelStart;
-    drawCutscenePanel(ctx, panel, elapsed, 3600, clock);
+    drawCutscenePanel(ctx, panel, elapsed, 8000, clock);
 
   } else {
     const cameraTarget = Math.max(0, Math.min(world.width - 320, player.x - 108));
@@ -430,7 +333,7 @@ function update(dtMs) {
   if (messageTimer > 0) messageTimer -= dtMs;
   const dtFrames = Math.min(2.2, dtMs / (1000/60));
   if (gameState === 'cutscene' && currentCutscene) {
-    if (performance.now() - cutscenePanelStart >= 3600) advanceCutscene();
+    if (!network.inRoom && performance.now() - cutscenePanelStart >= 8000) advanceCutscene();
   } else if (gameState === 'playing') {
     const input = {
       left: keys.has('ArrowLeft') || keys.has('KeyA') || touchInput.left,
@@ -467,6 +370,9 @@ window.addEventListener('keydown', (event) => {
     else if (gameState === 'playing') gameState = 'paused';
     else if (gameState === 'paused') gameState = 'playing';
   }
+  if (key === 'KeyF' && !event.repeat) interact('carry');
+  if (key === 'KeyQ' && !event.repeat) interact('drop');
+  if (gameState === 'victory' && key === 'KeyN' && !event.repeat) nextLevel();
   if (network.inRoom && key === 'KeyE' && !event.repeat) network.interact();
   if (gameState === 'cutscene' && ['Space','Enter','ArrowRight'].includes(key) && !event.repeat) advanceCutscene();
   else if (gameState === 'title' && ['Space','Enter'].includes(key) && !event.repeat) startStory();
@@ -483,7 +389,9 @@ window.addEventListener('keydown', (event) => {
 window.addEventListener('keyup', (event) => { keys.delete(event.code); sendNetworkInput(); });
 window.addEventListener('blur', () => { keys.clear(); touchInput.left=false; touchInput.right=false; touchInput.jump=false; touchInput.interact=false; sendNetworkInput(); });
 
+$('continue-level').addEventListener('click', nextLevel);
 $('replay-level').addEventListener('click', restartRun);
+levelSelect.addEventListener('change', () => { if (network.inRoom) network.selectLevel(Number(levelSelect.value)); });
 $('result-menu').addEventListener('click', returnToTitle);
 
 startStoryButton.addEventListener('click', () => {
@@ -502,6 +410,8 @@ for (const button of document.querySelectorAll('[data-control]')) {
     if (action === 'right') touchInput.right=value;
     if (action === 'jump') touchInput.jump=value;
     if (action==='interact' && value) interact();
+    if (action==='carry' && value) interact('carry');
+    if (action==='drop' && value) interact('drop');
     sendNetworkInput();
   };
   button.addEventListener('pointerdown',(e)=>{e.preventDefault();button.setPointerCapture?.(e.pointerId);press(true);});

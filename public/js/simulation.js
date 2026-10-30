@@ -1,0 +1,285 @@
+import { buildLevel } from './world.js';
+import { createPlayer, stepPlayer, overlaps, updateCrates } from './physics.js';
+
+export const heartMaximum = count => count <= 1 ? 3 : Math.min(10, 3 + Math.ceil((count - 1) / 2));
+export const playersOf = run => [...run.players.values()];
+const near = (a, b, distance = 28) => Math.abs(a.x + a.w / 2 - b.x - b.w / 2) < distance && Math.abs(a.y + a.h / 2 - b.y - b.h / 2) < 40;
+
+export function makeParticipant(id, slot, world) {
+  return { ...createPlayer(id, 27 + slot * 17, world.floorY - 22, slot % 3), slot, input: {}, lastInputTick: 0 };
+}
+
+export function startLevel(run, level = 1, resetRun = false) {
+  if (resetRun || !run.partySize) run.partySize = run.players.size;
+  run.level = level;
+  run.heartMax = heartMaximum(run.partySize);
+  run.hearts = run.heartMax;
+  run.world = buildLevel(level, run.partySize);
+  run.phase = 'playing';
+  run.tick = 0;
+  run.objectiveVersion = 0;
+  run.runId = (run.runId || 0) + 1;
+  run.deathEvents = [];
+  run.notice = level === 1 ? 'Jump the first gap. E activates the red relay.' : 'Activate every route relay. Reach the exit together.';
+  for (const [id, p] of run.players) run.players.set(id, makeParticipant(id, p.slot || 0, run.world));
+}
+
+function detach(run, player, throwing = false) {
+  const object = run.world.crates.find(c => c.id === player.carryId) || run.players.get(player.carryId);
+  if (object) {
+    object.carriedBy = null;
+    object.x = Math.max(0, Math.min(run.world.width - object.w, player.x + player.face * 19));
+    object.y = Math.max(0, player.y - 12);
+    object.vx = throwing ? player.face * 2.6 : 0;
+    object.vy = throwing ? -4.3 : 0;
+    if (run.players.has(object.id)) { object.throwTicks = throwing ? 32 : 0; object.throwVx = object.vx; }
+  }
+  player.carryId = null;
+}
+
+export function releaseParticipant(run, player) {
+  if (player.carryId) detach(run, player);
+  if (player.carriedBy) {
+    const carrier = run.players.get(player.carriedBy);
+    if (carrier) carrier.carryId = null;
+    player.carriedBy = null;
+  }
+  for (const enemy of run.world.enemies) if (enemy.grabbedId === player.id) enemy.grabbedId = null;
+  player.capture = null;
+}
+
+export function killPlayer(run, player, cause, unavoidable = false) {
+  if (!player.alive || (!unavoidable && player.invulnerability > 0) || run.phase !== 'playing') return false;
+  releaseParticipant(run, player);
+  player.alive = false;
+  player.vx = player.vy = 0;
+  player.timeDead = player.lastDeathAt = run.tick;
+  run.hearts = Math.max(0, run.hearts - 1);
+  run.deathEvents.push({ id: `${run.runId}:${run.tick}:${player.id}`, playerId: player.id, cause });
+  if (run.deathEvents.length > 30) run.deathEvents.shift();
+  run.notice = `${cause}. One team heart lost.`;
+  if (!run.hearts) run.phase = 'gameover';
+  return true;
+}
+
+function recover(run, checkpoint) {
+  checkpoint.active = true;
+  run.respawnX = checkpoint.x + 4;
+  const dead = playersOf(run).filter(p => !p.alive).sort((a, b) => a.timeDead - b.timeDead);
+  if (dead.length) {
+    const p = dead[0];
+    Object.assign(p, makeParticipant(p.id, p.slot, run.world), { x: checkpoint.x + 4, invulnerability: 90 });
+    run.notice = 'Shelter reached. Longest-down teammate revived; no heart added.';
+  } else {
+    run.hearts = Math.min(run.heartMax, run.hearts + 1);
+    run.notice = 'Shelter reached. One heart restored up to the cap.';
+  }
+}
+
+export function safeFromOrdinary(world, player) {
+  return world.checkpoints.some(c => !c.destroyed && player.x + player.w > c.x && player.x < c.x + c.w) ||
+    (world.coveredWay && player.x >= world.coveredWay.x && player.x < world.coveredWay.x + world.coveredWay.w) ||
+    (world.boss && player.x >= world.boss.x);
+}
+
+function openRelay(run, sw) {
+  sw.active = true;
+  const pit = run.world.pits.find(p => p.x >= sw.x && p.x - sw.x < 310);
+  if (pit && !run.world.platforms.some(p => p.kind === 'switch-bridge' && p.x === pit.x))
+    run.world.platforms.push({ x: pit.x, y: run.world.floorY, w: pit.w, h: 8, kind: 'switch-bridge' });
+  run.objectiveVersion++;
+  run.world.finish.locked = run.world.switches.some(s => !s.active) || !!(run.world.boss && !run.world.boss.solved);
+  run.notice = 'Relay online. Shared route opened.';
+}
+
+export function interactRun(run, id, action = 'use') {
+  const p = run.players.get(id);
+  if (!p?.alive || p.carriedBy || p.capture || run.phase !== 'playing') return false;
+  if (run.tick - (p.lastInteractionTick ?? -60) < 12) return false;
+  p.lastInteractionTick = run.tick;
+  if (p.carryId) { detach(run, p, action !== 'drop'); return true; }
+  const boss = run.world.boss;
+  if (boss && !boss.solved && p.x >= boss.x) {
+    const target = boss.pylons.find(s => !s.active && near(p, s));
+    if (target) {
+      if (boss.kind === 'gatewarden' && (boss.phase !== 'exposed' || target.order !== [1, 0, 2][boss.activeRelay])) {
+        run.notice = boss.phase !== 'exposed' ? 'Bait the Warden slam. Relays unlock while its arm cools.' : `Wrong relay. Use relay ${[1, 0, 2][boss.activeRelay] + 1}.`;
+        return false;
+      }
+      target.active = true;
+      boss.activeRelay++;
+      run.objectiveVersion++;
+      if (boss.kind === 'gatewarden') { boss.phase = 'stunned'; boss.timer = 150; }
+      if (boss.pylons.every(s => s.active) && boss.kind === 'background') { boss.phase = 'stunned'; boss.timer = 480; run.notice = 'COLOSSUS STUNNED. Use the central core terminal (E)!'; }
+      return true;
+    }
+    if (boss.kind === 'background' && boss.phase === 'stunned' && Math.abs(p.x - (boss.x + 310)) < 38) {
+      boss.cycle++;
+      run.objectiveVersion++;
+      if (boss.cycle >= 3) { boss.solved = true; boss.phase = 'escaped'; run.notice = 'Production core disabled. Escape while the Colossus reboots!'; }
+      else { boss.pylons.forEach(s => { s.active = false; }); boss.activeRelay = 0; boss.phase = 'recover'; boss.timer = 180; run.notice = `Core circuit ${boss.cycle}/3 severed. Charge the three relays again.`; }
+      return true;
+    }
+  }
+  if (action === 'use') {
+    const sw = run.world.switches.find(s => !s.active && near(p, s));
+    if (sw) { openRelay(run, sw); return true; }
+    if (run.world.memory && !run.world.memory.read && Math.abs(p.x - run.world.memory.x) < 26) {
+      run.world.memory.read = true;
+      run.notice = ['MEMORY: We were told protecting you meant keeping you here.', 'MEMORY: The factory still remembers the people who built it.', 'MEMORY: A machine can obey and still remember kindness.'][Math.floor((run.level - 1) / 5)];
+      return true;
+    }
+  }
+  const teammate = action === 'carry' && playersOf(run).find(other => other.id !== id && other.alive && !other.capture && !other.carriedBy && !other.carryId && near(p, other, 25));
+  const crate = run.world.crates.find(c => !c.used && !c.carriedBy && near(p, c, 25));
+  const object = teammate || crate;
+  if (object) { object.carriedBy = id; p.carryId = object.id; return true; }
+  return false;
+}
+
+function updateEnemies(run) {
+  const world = run.world;
+  const alive = playersOf(run).filter(p => p.alive && !p.carriedBy);
+  for (const e of world.enemies) {
+    if (e.stunned > 0) { e.stunned--; e.phase = 'stunned'; continue; }
+    if (e.grabbedId) {
+      const victim = run.players.get(e.grabbedId);
+      if (!victim?.alive) { e.grabbedId = null; continue; }
+      const rescuer = alive.find(p => p.id !== victim.id && !p.capture && p.vy > 0 && overlaps(p, { x: e.x - 4, y: e.y - 9, w: e.w + 8, h: 14 }));
+      if (rescuer) {
+        victim.capture = null; victim.invulnerability = 100;
+        e.grabbedId = null; e.stunned = 150; e.phase = 'stunned'; rescuer.vy = -3.8;
+        run.notice = 'RESCUED. The robot will recover. Keep moving!';
+        continue;
+      }
+      victim.x = e.x + 4; victim.y = world.floorY - victim.h;
+      victim.capture.remaining -= 1 / 60;
+      const dir = victim.input?.left ? -1 : victim.input?.right ? 1 : 0;
+      if (dir && dir !== victim.capture.lastDirection) {
+        if (victim.capture.struggle < 4) { victim.capture.remaining += .12; victim.capture.struggle++; }
+        victim.capture.lastDirection = dir;
+      }
+      if (victim.capture.remaining <= 0) killPlayer(run, victim, 'Capture timer expired');
+      continue;
+    }
+    const targets = alive.filter(p => !p.capture && p.invulnerability <= 0 && !safeFromOrdinary(world, p));
+    const target = targets.find(p => Math.abs(p.x - e.x) < (e.kind === 'scanner' ? 45 : 62));
+    if (e.kind === 'sentinel' || e.kind === 'scanner' || e.kind === 'creeper' || (e.kind === 'grabber' && alive.length === 1)) {
+      if (e.phase === 'warning') {
+        e.timer--;
+        if (e.timer <= 0) { e.phase = 'attack'; e.timer = 20; }
+      } else if (e.phase === 'attack') {
+        for (const p of targets) if (Math.abs(p.x - e.targetX) < (e.kind === 'creeper' ? 48 : 23) && (e.kind === 'scanner' || p.y + p.h > 125)) killPlayer(run, p, e.kind === 'creeper' ? 'Blast radius' : 'Telegraphed robot strike');
+        if (--e.timer <= 0) { e.phase = 'recover'; e.timer = 180; }
+      } else if (e.phase === 'recover') {
+        if (--e.timer <= 0) e.phase = 'patrol';
+      } else if (target) { e.phase = 'warning'; e.timer = e.kind === 'creeper' ? 120 : 90; e.targetX = e.kind === 'creeper' ? e.x : target.x; }
+    }
+    if (e.phase === 'warning' || e.phase === 'attack') continue;
+    e.phase = e.phase === 'recover' ? 'recover' : 'patrol';
+    let next = e.x + e.dir * e.speed;
+    if (next < e.minX || next > e.maxX || world.checkpoints.some(c => !c.destroyed && next + e.w > c.x && next < c.x + c.w) || (world.coveredWay && next + e.w > world.coveredWay.x) || (world.boss && next + e.w > world.boss.x)) { e.dir *= -1; next = e.x; }
+    e.x = next;
+    if ((e.kind || 'grabber') === 'grabber' && alive.length > 1) for (const p of targets) {
+      if (!overlaps(p, e)) continue;
+      // Solo has a readable escape window as there is no teammate to rescue.
+      if (alive.length === 1) { e.phase = 'warning'; e.targetX = p.x; if ((e.soloCountdown ?? 90) <= 0) { killPlayer(run, p, 'Grabber crush'); e.soloCountdown = 90; } else e.soloCountdown = (e.soloCountdown ?? 90) - 1; }
+      else { releaseParticipant(run, p); e.grabbedId = p.id; e.phase = 'grab'; p.capture = { enemyId: e.id, remaining: 3.2, lastDirection: 0, struggle: 0 }; break; }
+    }
+    if (!targets.some(p => overlaps(p, e))) e.soloCountdown = 90;
+  }
+}
+
+function updateBoss(run) {
+  const b = run.world.boss;
+  if (!b || b.solved) return;
+  const alive = playersOf(run).filter(p => p.alive);
+  if (b.phase === 'waiting') {
+    if (!alive.length || !alive.every(p => p.x >= b.x)) return;
+    b.phase = 'recover'; b.timer = 120;
+    run.notice = b.kind === 'gatewarden' ? 'WARDEN: bait a slam, then relay 2 → 1 → 3 while exposed.' : b.kind === 'gauntlet' ? 'SURVIVE 45 seconds. Activate all three beacons; jump the warning stripes.' : 'COLOSSUS: charge three relays, then E at the central core. Repeat three times.';
+  }
+  b.elapsed++;
+  if (b.kind === 'gauntlet' && b.elapsed >= 2700 && b.pylons.every(s => s.active)) { b.solved = true; b.phase = 'escaped'; run.notice = 'Survival lock released. Reach the facility!'; return; }
+  if (b.kind === 'gatewarden' && b.pylons.every(s => s.active)) { b.solved = true; b.phase = 'escaped'; run.notice = 'Warden stunned. Blast door open. Escape!'; return; }
+  if (--b.timer > 0) return;
+  if (b.phase === 'warning') {
+    b.phase = 'attack'; b.timer = 24;
+  } else if (b.phase === 'attack') {
+    b.phase = b.kind === 'gatewarden' ? 'exposed' : 'recover'; b.timer = b.kind === 'gatewarden' ? 360 : 90;
+  } else if (b.phase === 'stunned' && b.kind === 'background') {
+    b.pylons.forEach(s => { s.active = false; }); b.activeRelay = 0; b.phase = 'recover'; b.timer = 120;
+  } else {
+    b.phase = 'warning'; b.timer = b.kind === 'background' ? 110 : 90;
+    b.targetX = alive[(Math.floor(b.elapsed / 120)) % alive.length]?.x ?? b.x + 300;
+  }
+}
+
+export function stepRun(run) {
+  if (run.phase !== 'playing') return;
+  run.tick++;
+  const world = run.world;
+  const participants = playersOf(run);
+  for (const p of participants) {
+    if (!p.alive || p.carriedBy || p.capture) continue;
+    const previousX = p.x;
+    const supports = participants.filter(o => o.id !== p.id && o.alive && !o.carriedBy && !o.capture && p.y + p.h <= o.y + 3).map(o => ({ x: o.x, y: o.y, w: o.w, h: 2, kind: 'teammate' }));
+    const playerWorld = { ...world, platforms: [...world.platforms, ...supports] };
+    stepPlayer(p, p.input || {}, playerWorld);
+    if (world.boss && world.boss.phase !== 'waiting' && !world.boss.solved) p.x = Math.max(world.boss.x, p.x);
+    for (const t of world.terrain || []) if (p.x + p.w > t.x && p.x < t.x + t.w && p.onGround) {
+      if (t.kind === 'water') p.x -= p.vx * .35;
+      if (t.kind === 'conveyor') p.x += t.direction * .45;
+    }
+    for (const cp of world.checkpoints) if (!cp.active && !cp.destroyed && previousX + p.w < cp.x && p.x + p.w >= cp.x) recover(run, cp);
+    if (p.y > world.height - 6) killPlayer(run, p, 'Fell into a pit', true);
+    p.lastX = previousX;
+  }
+  for (const p of participants) if (p.carriedBy) {
+    const carrier = run.players.get(p.carriedBy);
+    if (!carrier?.alive) { p.carriedBy = null; continue; }
+    p.x = carrier.x; p.y = carrier.y - p.h - 2; p.vx = p.vy = 0;
+    if (p.input?.jump) { carrier.carryId = null; p.carriedBy = null; p.vy = -5.2; p.invulnerability = 20; }
+  }
+  updateCrates(world);
+  updateEnemies(run);
+  updateBoss(run);
+  const b = world.boss;
+  if (b?.phase === 'attack') for (const p of participants) {
+    if (!p.alive || p.x < b.x) continue;
+    const isCover = world.platforms.some(s => s.kind === 'arena-cover' && p.x >= s.x && p.x + p.w <= s.x + s.w && p.y > s.y);
+    if (Math.abs(p.x - b.targetX) < (b.kind === 'background' ? 32 : 25) && !isCover && (b.kind === 'background' || p.y + p.h > 124)) killPlayer(run, p, 'Arena strike');
+  }
+  // Absolute, fixed-speed pursuit: no rubber-band or player-position catch-up.
+  world.giant.x = Math.min(b ? b.x - 48 : world.width, world.giant.x + world.giant.speed);
+  for (const cp of world.checkpoints) if (world.giant.x + 35 >= cp.x) { cp.destroyed = true; }
+  for (const p of participants) if (p.alive && (!b || p.x < b.x) && world.giant.x + 44 > p.x + 4) killPlayer(run, p, 'The pursuer caught you', true);
+  if (run.phase !== 'playing') return;
+  const alive = participants.filter(p => p.alive);
+  if (!alive.length) {
+    // Spend the already-deducted hearts to retry the segment, without banking recovery.
+    const cp = world.checkpoints.filter(c => c.active && !c.destroyed).at(-1);
+    const x = cp ? cp.x + 6 : 27;
+    for (const p of participants) Object.assign(p, makeParticipant(p.id, p.slot, world), { x: x + p.slot * 14, invulnerability: 120 });
+    world.giant.x = Math.min(world.giant.x, x - 160);
+    run.notice = 'Team down. Retrying the segment with remaining hearts.';
+    return;
+  }
+  world.finish.locked = world.switches.some(s => !s.active) || !!(b && !b.solved);
+  if (!world.finish.locked && alive.every(p => !p.capture && p.x + p.w >= world.finish.x && p.y >= world.finish.y - p.h)) {
+    run.phase = 'victory'; run.notice = run.level === 15 ? 'Factory disabled. The last spark survives…' : `Level ${run.level} complete. Continue together.`;
+  }
+}
+
+export function objectiveText(run) {
+  const w = run.world, b = w.boss;
+  const done = w.switches.filter(s => s.active).length;
+  if (done < w.switches.length) return `ROUTE RELAYS ${done}/${w.switches.length} • E near the red terminals`;
+  if (b && !b.solved) {
+    if (b.phase === 'waiting') return 'Reach the blast door together. The pursuer cannot enter.';
+    if (b.kind === 'gatewarden') return `WARDEN • ${b.phase.toUpperCase()} • Relay ${[1, 0, 2][b.activeRelay] + 1 || 'complete'} • bait slam, then E`;
+    if (b.kind === 'gauntlet') return `SURVIVE ${Math.max(0, 45 - Math.floor(b.elapsed / 60))}s • BEACONS ${b.activeRelay}/3 • jump marked strikes`;
+    return `COLOSSUS • CORE ${b.cycle}/3 • ${b.phase === 'stunned' ? 'E AT CENTRAL CORE NOW' : 'Charge 3 relays; dodge marked blasts'}`;
+  }
+  return 'EXIT OPEN • Every living survivor must reach the shelter.';
+}

@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { buildLevel } from '../public/js/world.js';
 import { createPlayer, stepPlayer } from '../public/js/physics.js';
 import { advanceSimulation } from '../public/js/timing.js';
+import { startLevel, stepRun, interactRun, releaseParticipant, objectiveText } from '../public/js/simulation.js';
+import { STORY_BEATS } from '../public/js/campaign.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +20,7 @@ const ROOM_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: true, credentials: false } });
+const io = new Server(server, { maxHttpBufferSize: 4096 });
 const rooms = new Map();
 const socketRoom = new Map();
 app.use(express.static(publicRoot));
@@ -45,6 +47,7 @@ function leaveCurrentRoom(socket, reason = 'left') {
   socket.leave(code);
   const room = rooms.get(code);
   if (!room) return;
+  releaseParticipant(room, room.players.get(socket.id));
   room.players.delete(socket.id);
   if (room.players.size === 0) {
     rooms.delete(code);
@@ -61,7 +64,7 @@ function publicPlayer(p) {
   return {
     id: p.id, x: p.x, y: p.y, vx: p.vx, vy: p.vy, w: p.w, h: p.h,
     alive: p.alive, colorIndex: p.colorIndex, face: p.face,
-    onGround: p.onGround, carryId: p.carryId, timeDead: p.timeDead || 0, slot: p.slot,
+    capture: p.capture, carriedBy: p.carriedBy, invulnerability: p.invulnerability, onGround: p.onGround, carryId: p.carryId, timeDead: p.timeDead || 0, slot: p.slot,
   };
 }
 
@@ -72,7 +75,7 @@ function roomPayload(room, forSocketId) {
     playerId: forSocketId, hearts: room.hearts, heartMax: room.heartMax,
     gameOver: room.phase === 'gameover', phase: room.phase, hostId: room.hostId,
     runId: room.runId, objectiveVersion: room.objectiveVersion,
-    world: room.world,
+    world: room.world, tick: room.tick, storyKey: room.storyKey, storyTick: room.storyTick, notice: room.notice, objective: objectiveText(room),
     players: [...room.players.values()].map(publicPlayer),
     you: player ? publicPlayer(player) : null,
   };
@@ -113,74 +116,33 @@ function joinRoom(socket, room) {
   console.log(`[room ${room.code}] ${socket.id} joined; ${room.players.size} player(s)`);
 }
 
-function handleDeath(room, player) {
-  if (!player.alive) return;
-  player.alive = false;
-  player.vx = 0; player.vy = 0;
-  player.timeDead = Date.now();
-  player.lastDeathAt = player.timeDead;
-  room.hearts = Math.max(0, room.hearts - 1);
-  if (room.hearts <= 0) room.phase = 'gameover';
-}
 
 function configureLobby(room) {
   room.partySize = room.players.size;
   room.heartMax = heartMaximum(room.partySize);
   room.hearts = room.heartMax;
-  room.world = buildLevel(1, room.partySize);
+  room.world = buildLevel(room.level, room.partySize);
 }
 
 function startRun(room) {
-  room.partySize = room.players.size;
-  room.heartMax = heartMaximum(room.partySize);
-  room.hearts = room.heartMax;
-  room.world = buildLevel(1, room.partySize);
-  room.world.finish.locked = true;
-  room.world.giant.x = -114;
-  room.phase = 'playing';
-  room.tick = 0;
-  room.runId += 1;
-  room.objectiveVersion = 0;
-  for (const [id, previous] of room.players) {
-    room.players.set(id, makePlayer(id, previous.slot, room.world));
+  startLevel(room, room.level, room.phase === 'lobby');
+  broadcastRoom(room);
+}
+function continueCampaign(room) {
+  if (room.phase === 'cutscene') {
+    if (room.level === 15) { room.phase = 'ending'; room.storyKey = null; }
+    else { startLevel(room, room.level + 1); room.storyKey = null; }
+  } else if (room.phase === 'victory') {
+    if ([5, 10, 15].includes(room.level)) { room.phase = 'cutscene'; room.storyKey = `after${room.level}`; room.storyTick = 0; }
+    else startLevel(room, room.level + 1);
   }
   broadcastRoom(room);
 }
 
 function activateSwitch(room, player) {
-  if (room.phase !== 'playing' || !player?.alive) return;
-  if (room.tick - (player.lastInteractionTick ?? -60) < 12) return;
-  player.lastInteractionTick = room.tick;
-  const sw = room.world.switches.find((s) => !s.active &&
-    Math.abs(player.x + player.w / 2 - s.x - s.w / 2) < 26 &&
-    Math.abs(player.y + player.h / 2 - s.y - s.h / 2) < 34);
-  if (!sw) return;
-  sw.active = true;
-  sw.activatedBy = player.id;
-  const pit = room.world.pits.find((p) => p.x >= sw.x && p.x - sw.x < 310);
-  if (pit) room.world.platforms.push({ x: pit.x, y: room.world.floorY, w: pit.w, h: 8, kind: 'switch-bridge' });
-  room.world.finish.locked = false;
-  room.objectiveVersion += 1;
-  broadcastRoom(room);
+  if (player && interactRun(room, player.id)) broadcastRoom(room);
 }
 
-function processCheckpoint(room, player, previousX) {
-  if (!player.alive) return;
-  for (const checkpoint of room.world.checkpoints) {
-    const crossed = previousX + player.w < checkpoint.x && player.x + player.w >= checkpoint.x;
-    if (!crossed || checkpoint.active || checkpoint.destroyed) continue;
-    checkpoint.active = true;
-    const dead = [...room.players.values()].filter((p) => !p.alive).sort((a,b) => (a.lastDeathAt||0)-(b.lastDeathAt||0));
-    if (dead.length) {
-      const revive = dead[0];
-      revive.alive = true; revive.x = checkpoint.x + 6; revive.y = room.world.floorY - revive.h;
-      revive.vx = 0; revive.vy = 0; revive.input = { left:false,right:false,jump:false };
-      revive.timeDead = 0; revive.carryId = null;
-    } else {
-      room.hearts = Math.min(room.heartMax, room.hearts + 1);
-    }
-  }
-}
 
 io.on('connection', (socket) => {
   socket.emit('serverHello', { ok: true, maxPlayersPerRoom: MAX_PLAYERS_PER_ROOM });
@@ -222,40 +184,37 @@ io.on('connection', (socket) => {
   });
   socket.on('restartRun', () => {
     const room = rooms.get(socketRoom.get(socket.id));
-    if (room && room.hostId === socket.id && ['victory', 'gameover'].includes(room.phase)) startRun(room);
+    if (room && room.hostId === socket.id && ['victory', 'gameover', 'ending'].includes(room.phase)) startRun(room);
   });
-  socket.on('leaveRoom', () => leaveCurrentRoom(socket, 'left'));
+  socket.on('selectLevel', data => {
+    const room = rooms.get(socketRoom.get(socket.id));
+    if (room?.hostId === socket.id && room.phase === 'lobby' && Number.isInteger(data?.level) && data.level >= 1 && data.level <= 15) {
+      room.level = data.level; configureLobby(room); broadcastRoom(room);
+    }
+  });
+  socket.on('nextLevel', () => {
+    const room = rooms.get(socketRoom.get(socket.id));
+    if (room?.hostId === socket.id && ['victory', 'cutscene'].includes(room.phase)) continueCampaign(room);
+  });
+  for (const action of ['carry', 'drop']) socket.on(action, () => {
+    const room = rooms.get(socketRoom.get(socket.id));
+    if (room && interactRun(room, socket.id, action)) broadcastRoom(room);
+  });
+  socket.on('leaveRoom' , () => leaveCurrentRoom(socket, 'left'));
   socket.on('disconnect', () => leaveCurrentRoom(socket, 'disconnected'));
 });
 
 function stepRooms() {
   for (const room of rooms.values()) {
-    if (room.phase !== 'playing') continue;
-    room.tick += 1;
-    for (const player of room.players.values()) {
-      if (!player.alive) continue;
-      const previousX = player.x;
-      if (room.tick - (player.lastInputTick ?? 0) > 90) player.input = {};
-      stepPlayer(player, player.input, room.world, 1);
-      processCheckpoint(room, player, previousX);
-      if (player.y > room.world.height - 6) handleDeath(room, player);
-      player.lastX = previousX;
-    }
-    const living = [...room.players.values()].filter((p) => p.alive);
-    if (!living.length) room.phase = 'gameover';
     if (room.phase === 'playing') {
-      const giant = room.world.giant;
-      giant.x = Math.max(giant.x + giant.speed, Math.min(...living.map((p) => p.x)) - 124);
-      for (const cp of room.world.checkpoints) {
-        if (giant.x + 35 >= cp.x) { cp.destroyed = true; cp.active = false; }
-      }
-      for (const p of living) if (giant.x + 44 > p.x + 4) handleDeath(room, p);
-      const survivors = [...room.players.values()].filter((p) => p.alive);
-      if (!survivors.length) room.phase = 'gameover';
-      else if (!room.world.finish.locked && survivors.every((p) =>
-        p.x + p.w >= room.world.finish.x && p.y + p.h >= room.world.finish.y && p.y <= room.world.floorY)) room.phase = 'victory';
+      for (const p of room.players.values()) if (room.tick - (p.lastInputTick ?? 0) > 90) p.input = {};
+      stepRun(room);
+      if (room.tick % 3 === 0 || room.phase !== 'playing') broadcastRoom(room);
+    } else if (room.phase === 'cutscene') {
+      room.storyTick++;
+      if (room.storyTick >= STORY_BEATS[room.storyKey].panels.length * 480) continueCampaign(room);
+      else if (room.storyTick % 6 === 0) broadcastRoom(room);
     }
-    if (room.tick % 3 === 0 || room.phase !== 'playing') broadcastRoom(room);
   }
 }
 const simulationTimer = { remaining: 0 };

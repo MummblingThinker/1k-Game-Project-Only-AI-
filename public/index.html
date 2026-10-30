@@ -19,7 +19,7 @@
           <h1>Tiny Teamwork <span>／</span> The Last Spark</h1>
         </div>
       </div>
-      <div class="build-tag">PROTOTYPE 0.1</div>
+      <div class="build-tag">CAMPAIGN BUILD 0.3</div>
     </header>
 
     <section class="game-layout">
@@ -42,20 +42,24 @@
             <p>Alternate A / D to buy time. A teammate must rescue you.</p>
           </section>
           <div id="result-panel" class="result-panel" hidden role="region" aria-labelledby="result-title">
-            <p class="panel-kicker">LEVEL 01 COMPLETE</p>
+            <p id="result-kicker" class="panel-kicker">LEVEL 01 COMPLETE</p>
             <h2 id="result-title">You made it out.</h2>
             <p>The shelter gate is reached. The last spark is still alive.</p>
-            <button id="replay-level" class="primary-button">Replay Level 1 / R</button>
+            <button id="continue-level" class="primary-button">Continue campaign / N</button>
+            <button id="replay-level" class="secondary-button">Replay stage / R</button>
             <button id="result-menu" class="secondary-button">Return to title / Enter</button>
           </div>
           <div class="screen-vignette" aria-hidden="true"></div>
         </div>
         <div id="live-status" class="screen-status" aria-live="polite">READY / PRESS START</div>
+        <div id="tactical-status" class="tactical-status" aria-live="polite"></div>
         <div class="route-readout"><span id="route-label">Reach the shelter gate. Jump the gaps. Evade the robots.</span><progress id="route-progress" max="100" value="0" aria-label="Route to shelter gate"></progress></div>
         <div class="quick-controls">
           <span><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd> Move</span>
           <span><kbd>SPACE</kbd> Jump</span>
-          <span><kbd>E</kbd> Grab / Throw / Use</span>
+          <span><kbd>E</kbd> Use / Throw crate</span>
+          <span><kbd>F</kbd> Carry / Throw teammate</span>
+          <span><kbd>Q</kbd> Drop</span>
           <span><kbd>ESC</kbd> Pause</span>
         </div>
         <div class="mobile-controls" aria-label="Touch controls">
@@ -65,6 +69,8 @@
           </div>
           <div class="mobile-group">
             <button data-control="interact" aria-label="Interact">E</button>
+            <button data-control="carry" aria-label="Carry or throw">CARRY</button>
+            <button data-control="drop" aria-label="Drop">DROP</button>
             <button data-control="jump" aria-label="Jump">JUMP</button>
           </div>
         </div>

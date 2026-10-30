@@ -2,6 +2,10 @@
 
 # Limited-budget execution priority
 
+## User-directed campaign expansion (2026-10-29)
+
+The owner explicitly deferred physical-device testing and authorized continuing remaining implementation, campaign and animation work without waiting for MVP-03 verification. This supersedes the gate-only work restriction below, but never permits inventing test evidence or submitting the contest entry. Preserve Level 1 as the short tutorial/reference map; normal later maps are about 3x its width. Levels 5/10/15 are 5-7x the reference with distinct puzzle/survival encounters. Pursuer crossing time is about 120 seconds on normal maps, without catch-up teleportation. It cannot enter boss arenas. Level 15 includes a separate background robot attacking during the encounter. Boss machines remain indestructible: overload/stun temporarily and escape. Story may use original 2D anime/comic panels revealed sequentially with text. Do gameplay and testing before optional animation polish. Physical-device acceptance and human submission remain honestly pending.
+
 The user has limited ChatGPT/Codex budget. Read `PRIORITY_ROADMAP.md` and follow its order: `MVP-01` one complete playable level, `MVP-02` working two-player room-code session with one shared interaction, `MVP-03` public HTTPS deployment and external test, `MVP-04` submission materials. Do not work on 15 bespoke levels, cinematic polish, optional enemies, audio, or broad refactors until all four gates are verified. Favor small edits and narrow tests over rewrites. If deployment is the remaining blocker, spend the session resolving deployment and external connectivity rather than adding gameplay polish.
 
 

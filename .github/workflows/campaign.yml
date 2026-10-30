@@ -1,0 +1,32 @@
+name: Campaign and browser regression
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - public/**
+      - server/**
+      - scripts/**
+      - package*.json
+      - .github/workflows/campaign.yml
+permissions:
+  contents: read
+jobs:
+  campaign:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: campaign-browser-evidence
+          path: artifacts/

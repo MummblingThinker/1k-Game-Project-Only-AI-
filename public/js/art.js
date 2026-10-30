@@ -81,6 +81,13 @@ function drawBackground(ctx, world, cameraX, clock) {
 
 function drawFloor(ctx, world, cameraX) {
   const p = palettes[world.region] || palettes.city;
+  for (const terrain of world.terrain || []) {
+    const x = terrain.x - cameraX;
+    if (terrain.kind === 'water') {
+      RECT(ctx, x, 143, terrain.w, 8, '#3e97ae');
+      for (let i = 0; i < terrain.w; i += 14) RECT(ctx, x + i, 144 + (i % 3), 8, 1, '#a8e9df');
+    }
+  }
   for (const floor of world.floors) {
     const x=floor.x-cameraX;
     if(x+floor.w<0||x>320) continue;
@@ -110,6 +117,66 @@ function drawFloor(ctx, world, cameraX) {
     RECT(ctx,x,platform.y,platform.w,2,platform.kind==='stone'?'#b6c7ae':p.top);
     RECT(ctx,x+2,platform.y+platform.h,platform.w-4,2,'#1b2937');
   }
+  for (const terrain of world.terrain || []) {
+    const x = terrain.x - cameraX;
+    if (x > 330 || x + terrain.w < 0) continue;
+    if (terrain.kind === 'water') {
+      RECT(ctx, x, 145, terrain.w, 6, '#376f83');
+      for (let i = 0; i < terrain.w; i += 12) RECT(ctx, x + i, 145 + (i % 2), 7, 1, '#9bd6d5');
+    } else {
+      RECT(ctx, x, 149, terrain.w, 3, '#e7b568');
+      for (let i = 0; i < terrain.w; i += 12) RECT(ctx, x + i, 149, 3, 2, '#302d40');
+    }
+  }
+}
+
+function outlinedText(ctx, text, x, y, color = '#fff0c6') {
+  ctx.save(); ctx.font = 'bold 7px monospace'; ctx.lineWidth = 3; ctx.strokeStyle = '#0c1728';
+  ctx.strokeText(text, rnd(x), rnd(y)); ctx.fillStyle = color; ctx.fillText(text, rnd(x), rnd(y)); ctx.restore();
+}
+
+function drawEncounter(ctx, world, cameraX, clock) {
+  const b = world.boss;
+  if (world.coveredWay) {
+    const roof = world.coveredWay, x = roof.x - cameraX;
+    RECT(ctx, x, roof.y, roof.w, 7, '#b0bbb0');
+    for (let i = 0; i < 100; i++) {
+      const dx = roof.x + (i * 47 % roof.w) - cameraX, y = 27 + (i * 17 % 62) + Math.sin(clock * .002 + i) * 2;
+      if (dx < -12 || dx > 330) continue;
+      RECT(ctx, dx, y, 7, 3, '#668a9a'); RECT(ctx, dx + 3, y + 1, 2, 1, '#f47b70');
+    }
+  }
+  if (!b) return;
+  const bx = b.x - cameraX;
+  if (bx > 380) return;
+  RECT(ctx, bx - 7, 55, 7, 96, '#293c51'); RECT(ctx, bx - 4, 61, 2, 77, '#69c3c6');
+  if (bx > -60 && bx < 330) outlinedText(ctx, 'PURSUER BLOCKED', bx + 4, 72, '#b7ece0');
+  for (const s of b.pylons) {
+    const x = s.x - cameraX;
+    if (x < -20 || x > 340) continue;
+    RECT(ctx, x, s.y, s.w, s.h, s.active ? '#60c9b2' : '#d28f53');
+    outlinedText(ctx, String(s.order + 1), x + 3, s.y - 4, s.active ? '#a4f7d6' : '#ffe6ae');
+  }
+  const center = b.x + b.w / 2 - cameraX;
+  if (b.kind === 'background') {
+    // The Colossus stays behind the arena. Its targeted strikes are foreground hazards.
+    const x = Math.max(-100, Math.min(210, center - 70));
+    const pulse = b.phase === 'stunned' || b.solved ? '#6ce1cf' : '#ff7e6c';
+    RECT(ctx, x, 37, 126, 66, '#3a4c62'); RECT(ctx, x + 14, 18, 98, 48, '#61748c');
+    RECT(ctx, x + 23, 27, 80, 22, '#202b42'); RECT(ctx, x + 33, 32, 25, 6, pulse); RECT(ctx, x + 70, 32, 25, 6, pulse);
+    RECT(ctx, x - 22, 59, 32, 63, '#55667e'); RECT(ctx, x + 116, 59, 32, 63, '#55667e');
+    for (let i = 0; i < 5; i++) RECT(ctx, x + 30 + i * 14, 75, 6, 14, pulse);
+  } else if (b.kind === 'gatewarden') {
+    const im = sprite('giant_pursuer.png');
+    if (im?.complete && im.naturalWidth) { ctx.save(); ctx.globalAlpha = .85; ctx.drawImage(im, rnd(center - 30), 70, 76, 68); ctx.restore(); }
+  }
+  if (['warning', 'attack'].includes(b.phase)) {
+    const x = b.targetX - cameraX, radius = b.kind === 'background' ? 32 : 25;
+    RECT(ctx, x - radius, 147, radius * 2, 4, b.phase === 'warning' ? '#ffcc74' : '#ff806b');
+    for (let i = 0; i < radius * 2; i += 8) RECT(ctx, x - radius + i, 143, 3, 4, '#f6e6b7');
+    if (b.phase === 'attack') { ctx.save(); ctx.globalAlpha = .6; RECT(ctx, x - radius, 12, radius * 2, 135, '#ffad7c'); ctx.restore(); }
+    else outlinedText(ctx, '! STRIKE !', x - 21, 130, '#ffe09b');
+  }
 }
 
 function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
@@ -138,20 +205,41 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
   for(const enemy of world.enemies) {
     if(enemy.dead) continue;
     const x=enemy.x-cameraX; if(x<-25||x>345) continue;
-    const im=sprite('robot_sentinel.png'); if(im?.complete&&im.naturalWidth) ctx.drawImage(im,rnd(x),rnd(enemy.y));
+    const im=sprite(enemy.kind === 'scanner' ? 'robot_flyer.png' : enemy.kind === 'creeper' ? 'robot_creeper.png' : 'robot_sentinel.png');
+    const bob = enemy.kind === 'scanner' ? Math.sin((gameState.clock || 0) * .005 + enemy.x) * 2 : 0;
+    if(im?.complete&&im.naturalWidth) ctx.drawImage(im,rnd(x),rnd(enemy.y + bob));
+    if (enemy.phase === 'warning' || enemy.phase === 'attack') {
+      const tx = (enemy.targetX ?? enemy.x) - cameraX, radius = enemy.kind === 'creeper' ? 48 : 23;
+      RECT(ctx, tx - radius, 148, radius * 2, 3, enemy.phase === 'attack' ? '#fc7663' : '#edc879');
+      outlinedText(ctx, enemy.phase === 'warning' ? `! ${Math.ceil(enemy.timer / 60)}` : 'DANGER', x, enemy.y - 5);
+    }
+    if (enemy.grabbedId) outlinedText(ctx, 'RESCUE ↓', x - 7, enemy.y - 8, '#9ef4e9');
     if(enemy.stunned>0) { RECT(ctx,x+4,enemy.y-4,12,2,'#f4ce76'); RECT(ctx,x+7,enemy.y-7,6,2,'#f4ce76'); }
   }
   // Player avatars are tiny and bright so their silhouette stays readable against the scenery.
   const all = [player, ...peerPlayers.filter(p => p.id !== player.id)];
   for(const p of all) {
     if(!p?.alive) continue;
+    const runClock = gameState.clock || 0;
+    const walk = p.onGround && Math.abs(p.vx || 0) > .1;
     const x=p.x-cameraX;
+    const bob = walk ? Math.sin(runClock * .022) * 1.1 : 0;
     if(x<-24||x>335) continue;
     const variants=['human_amber.png','human_cyan.png','human_rose.png'];
     const im=sprite(variants[(p.colorIndex??0)%variants.length]);
     if(im?.complete&&im.naturalWidth) {
-      if(p.face<0) { ctx.save(); ctx.translate(rnd(x+p.w),0); ctx.scale(-1,1); ctx.drawImage(im,0,rnd(p.y)); ctx.restore(); }
-      else ctx.drawImage(im,rnd(x),rnd(p.y));
+      ctx.save();
+      if (p.invulnerability > 0 && Math.floor(runClock / 90) % 2) ctx.globalAlpha = .45;
+      if(p.face<0) { ctx.translate(rnd(x+p.w),0); ctx.scale(-1,1); ctx.drawImage(im,0,rnd(p.y + bob)); }
+      else ctx.drawImage(im,rnd(x),rnd(p.y + bob));
+      ctx.restore();
+      if (walk) {
+        const stride = Math.sin(runClock * .025) * 3;
+        RECT(ctx, x + 2 + stride, p.y + p.h - 3, 3, 3, '#e3bc83');
+        RECT(ctx, x + 7 - stride, p.y + p.h - 3, 3, 3, '#405067');
+      }
+      if (!p.onGround && p.vy < 0) RECT(ctx, x - 2, p.y + 9, 3, 5, '#e1be85');
+      if (p.capture) outlinedText(ctx, `HELP ${Math.max(0, p.capture.remaining).toFixed(1)}`, x - 12, p.y - 8, '#ffcc8a');
     }
     if(p.id===player.id) {
       RECT(ctx,x+3,p.y-5,7,1,'#ffe9a8'); RECT(ctx,x+5,p.y-4,3,1,'#ffe9a8');
@@ -177,6 +265,7 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
 export function drawGame(ctx, world, player, peerPlayers, cameraX, state) {
   const clock=state.clock||0;
   drawBackground(ctx,world,cameraX,clock);
+  drawEncounter(ctx,world,cameraX,clock);
   drawFloor(ctx,world,cameraX);
   // Checkpoint's interior is safe from ordinary enemies, but not from the giant pursuer.
   drawSprites(ctx,world,player,peerPlayers,cameraX,state);

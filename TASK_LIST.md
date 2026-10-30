@@ -8,6 +8,8 @@ This is the single source of truth for the remaining build. Codex must update th
 
 ## Submission-critical path — do these before optional polish
 
+- [ ] `CAMP-01` · `P0` · Owner-requested expanded campaign. **Acceptance:** tutorial reference preserved; normal maps 3x reference, Levels 5/10/15 5-7x; distinct routes and encounters; 120-second normal-map pursuer without catch-up; hard boss-zone exclusion; Level 15 background attacker; all 15 levels accessible in solo and authoritative co-op with shared transitions. **Verify:** deterministic map/encounter/life tests, automated campaign traversal, live Socket.IO transitions, browser regression and playthrough. **Status: IN_PROGRESS** - Physical-device test explicitly deferred by owner; implementation proceeds under updated instructions.
+
 Follow [`PRIORITY_ROADMAP.md`](PRIORITY_ROADMAP.md) before choosing any other task. The release gates below summarize the required sequence; complete them in order. The full backlog remains below, but it is not a reason to delay a small, playable, public multiplayer entry.
 
 - [x] `MVP-01` · `P0` · Finish one complete playable vertical slice in Level 1. **Acceptance:** fresh load → start/menu → playable controls → one readable obstacle/hazard → reachable goal → clear win state → replay/restart; no blocking browser console errors. Other levels may remain variants. **Verify:** complete the flow twice in a real browser and record browser/version, observations, and any console errors in `QA_LOG.md`. **Status: VERIFIED** - Two fresh-load Chrome win/replay runs, final keyboard/title regression, and npm test passed. Evidence: QA_LOG.md, 2026-10-28 MVP-01 VERIFIED browser acceptance.

@@ -98,6 +98,9 @@ export class NetworkClient {
   interact() { if (this.inRoom) this.socket.emit('interact'); }
   startRun() { if (this.inRoom) this.socket.emit('startRun'); }
   restartRun() { if (this.inRoom) this.socket.emit('restartRun'); }
+  nextLevel() { if (this.inRoom) this.socket.emit('nextLevel'); }
+  selectLevel(level) { if (this.inRoom) this.socket.emit('selectLevel', { level }); }
+  action(action) { if (this.inRoom && ['carry', 'drop'].includes(action)) this.socket.emit(action); }
 
   leaveRoom() {
     if (this.socket && this.roomCode) this.socket.emit('leaveRoom');

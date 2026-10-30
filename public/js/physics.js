@@ -23,7 +23,10 @@ export function stepPlayer(player, input, world, dt = 1) {
   const right = !!input.right;
   const jump = !!input.jump;
 
-  if (left !== right) {
+  if (p.throwTicks > 0) {
+    p.vx = p.throwVx;
+    p.throwTicks--;
+  } else if (left !== right) {
     p.vx = left ? -MOVE_SPEED : MOVE_SPEED;
     p.face = left ? -1 : 1;
   } else {
