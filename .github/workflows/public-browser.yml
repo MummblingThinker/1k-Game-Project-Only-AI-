@@ -1,0 +1,35 @@
+name: Public browser acceptance
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/public-browser.yml
+permissions:
+  contents: read
+concurrency:
+  group: public-browser-acceptance
+  cancel-in-progress: false
+jobs:
+  public-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BROWSER_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
+      TEST_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run smoke
+      - run: npm run test:multiplayer
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-browser-evidence
+          path: artifacts/
