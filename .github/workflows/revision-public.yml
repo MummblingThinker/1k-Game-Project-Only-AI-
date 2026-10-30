@@ -1,5 +1,5 @@
 name: October revision public acceptance
-# Runtime 79660fc6 follow-up: full solo and co-op campaigns after ladder/menu revision.
+# Final display cleanup: full solo/co-op follow-up with explicit title-menu room cleanup.
 on:
   workflow_dispatch:
   push:
@@ -58,6 +58,9 @@ jobs:
       - run: npm install --no-save --package-lock=false playwright
       - run: npx playwright install --with-deps chromium
       - run: node scripts/smoke-test.mjs
+        env:
+          TEST_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
+      - run: node scripts/revision-network-test.mjs
         env:
           TEST_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
       - run: node scripts/revision-browser-test.mjs
