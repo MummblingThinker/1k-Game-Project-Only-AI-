@@ -18,8 +18,11 @@ for (const count of [2, 3, 4]) {
 }
 console.log('Adversarial PASS: stable 2/3/4-player stacks and clean jump separation.');
 
+const seedCount=Number(process.env.ADVERSARIAL_SEEDS||120),tickLimit=Number(process.env.ADVERSARIAL_TICKS||1800);
+assert.ok(Number.isInteger(seedCount)&&seedCount>=1&&seedCount<=8000);
+assert.ok(Number.isInteger(tickLimit)&&tickLimit>=1&&tickLimit<=14400);
 let simulatedTicks = 0;
-for (let seed = 1; seed <= 120; seed++) {
+for (let seed = 1; seed <= seedCount; seed++) {
   let randomState = seed;
   const random = () => { randomState = (Math.imul(randomState, 1664525) + 1013904223) >>> 0; return randomState / 4294967296; };
   const level = 1 + seed % 15, r = makeRun(level);
@@ -62,7 +65,7 @@ for (let seed = 1; seed <= 120; seed++) {
     assert.equal(new Set(r.deathEvents.map(e => e.id)).size, r.deathEvents.length, 'unique fatal events');
   };
   try {
-    for (let tick = 0; tick < 1800 && r.phase === 'playing'; tick++) {
+    for (let tick = 0; tick < tickLimit && r.phase === 'playing'; tick++) {
       for (const p of r.players.values()) {
         if (tick % 18 === 0) {
           const direction = random();
@@ -77,4 +80,4 @@ for (let seed = 1; seed <= 120; seed++) {
     }
   } catch (error) { error.message = 'seed=' + seed + ' level=' + level + ' tick=' + r.tick + ': ' + error.message; throw error; }
 }
-console.log('Adversarial PASS: 120 seeded input/action/disconnect scenarios, ' + simulatedTicks + ' ticks; carry/capture ownership, finite physics, heart bounds, indestructible robots and fatal-event uniqueness.');
+console.log('Adversarial PASS: '+seedCount+' seeded input/action/disconnect scenarios, ' + simulatedTicks + ' ticks; carry/capture ownership, finite physics, heart bounds, indestructible robots and fatal-event uniqueness.');

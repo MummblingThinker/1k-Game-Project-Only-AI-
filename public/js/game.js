@@ -456,7 +456,10 @@ window.addEventListener('keydown', (event) => {
   if (!keys.has(key)) justPressed.add(key);
   keys.add(key);
   if (key === 'Escape' && !event.repeat) {
-    if (network.inRoom) { keys.clear(); network.sendInput({}, true); announce('ONLINE RUN KEEPS GOING / INPUT RELEASED'); }
+    if (network.inRoom) {
+      keys.clear();justPressed.clear();touchInput.left=touchInput.right=touchInput.jump=false;
+      network.sendInput({}, true); announce('ONLINE RUN KEEPS GOING / INPUT RELEASED');
+    }
     else if (gameState === 'playing' || gameState === 'paused') {
       keys.clear();justPressed.clear();touchInput.left=touchInput.right=touchInput.jump=false;
       gameState = gameState === 'playing' ? 'paused' : 'playing';

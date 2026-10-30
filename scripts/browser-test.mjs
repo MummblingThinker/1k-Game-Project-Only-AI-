@@ -37,6 +37,14 @@ async function jump(page) {
   await page.waitForTimeout(950);
   await page.keyboard.up('Space'); await page.keyboard.up('ArrowRight');
 }
+async function align(page,target,tolerance=3){
+  await page.waitForTimeout(250);
+  for(let attempt=0;attempt<16&&Math.abs(await x(page)-target)>tolerance;attempt++){
+    await page.keyboard.press(await x(page)>target?'ArrowLeft':'ArrowRight',{delay:30});
+    await page.waitForTimeout(220);
+  }
+  assert.ok(Math.abs(await x(page)-target)<=tolerance,`aligned input at ${target}; actual ${await x(page)}`);
+}
 try {
   for (let i = 0; i < 100; i++) {
     try { if ((await fetch(base + '/health')).ok) break; } catch {}
@@ -266,8 +274,14 @@ try {
   await Promise.all([walk(a,509),walk(b,509)]);
   await Promise.all([jump(a),jump(b)]);
   await Promise.all([walk(a, 550), walk(b, 560)]);
+  await align(a,536);
   await a.keyboard.press('e');
-  await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.switchActive === 'true')));
+  try{
+    await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.switchActive === 'true',null,{timeout:5000})));
+  }catch(error){
+    console.log('RELAY FAILED',await a.locator('#game').getAttribute('data-players'),await a.locator('#objective-status').textContent());
+    throw error;
+  }
   const cover = await a.screenshot({ path: 'artifacts/cover.jpg', type: 'jpeg', quality: 78 });
   // Public game-only evidence can be recovered through the connector's text log API.
   // The original image remains in the normal downloadable workflow artifact.
@@ -315,12 +329,7 @@ try {
   await walk(b,491);
   // A remote server may process release after the snapshot that reached the
   // target. Settle with short input pulses before testing the narrow hatch.
-  await b.waitForTimeout(250);
-  for(let attempt=0;attempt<16&&Math.abs(await x(b)-489)>3;attempt++){
-    await b.keyboard.press(await x(b)>489?'ArrowLeft':'ArrowRight',{delay:30});
-    await b.waitForTimeout(220);
-  }
-  assert.ok(Math.abs(await x(b)-489)<=3,'player is aligned with the ladder hatch');
+  await align(b,489);
   const climberId=JSON.parse(await b.locator('#game').getAttribute('data-players'))[0].id;
   await d.evaluate(async()=>{window.readQaState=(await import('/js/game.js')).readDebugSnapshot;});
   await b.keyboard.press('e');
@@ -358,6 +367,23 @@ try {
   await phone.locator('#pause-game').tap(); assert.equal(await state(phone), 'playing');
   await phone.evaluate(() => scrollTo(0, 0));
   await phone.screenshot({ path: 'artifacts/mobile.png' });
+  // A touchscreen laptop can send Escape while a touch is still held. Online
+  // release must clear both input sources without pausing the shared clock.
+  await phone.locator('#create-room').click();
+  await phone.waitForFunction(()=>document.querySelector('#game').dataset.state==='lobby');
+  await phone.locator('#start-story').click();
+  await phone.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing');
+  await phone.locator('#game').focus();
+  const onlineRight=await phone.locator('[data-control=right]').boundingBox(),onlineStart=await x(phone);
+  await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:onlineRight.x+onlineRight.width/2,y:onlineRight.y+onlineRight.height/2,id:2}]});
+  await phone.waitForFunction(start=>Number(document.querySelector('#game').dataset.playerX)>start+8,onlineStart);
+  await phone.keyboard.press('Escape');await phone.waitForTimeout(250);
+  const releasedOnline=await x(phone);await phone.waitForTimeout(300);
+  assert.ok(Math.abs(await x(phone)-releasedOnline)<.2,'online Escape clears held touch as well as keyboard');
+  assert.equal(await state(phone),'playing','online Escape does not pause shared simulation');
+  await touch.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
+  await phone.locator('#leave-room').click();
+  await phone.waitForFunction(()=>document.querySelector('#game').dataset.room==='');
   await phone.goto(base);
   await phone.locator('#start-story').tap();
   assert.ok(Math.abs((await phone.locator('.screen-frame').boundingBox()).y)<3,'starting from below the screen brings the phone game into view');
