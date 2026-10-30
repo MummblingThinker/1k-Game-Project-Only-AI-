@@ -6,7 +6,7 @@ Express serves the client and Socket.IO owns separate in-memory rooms. Random si
 
 Continue after victory and Skip story are separate host-only intents. nextLevel is accepted only in victory; skipStory only during a cutscene. Duplicate Continue packets cannot skip the chapter they just opened. Stage/run changes, disconnect and focus loss clear pending and held input before another run starts.
 
-One simulation owns movement, collision, carried players/crates, rescue, enemies, shelters, ladders, pressure bridges, route relays, boss phases, hearts, revival and completion. Clients send intentions only. Running geometry and heart cap retain the original lobby size when somebody leaves. A full stage transition revives everyone and restores that cap; a checkpoint grants one oldest-dead revival OR one heart, once.
+One simulation owns movement, collision, carried players/debris, enemy patrol/scan/throw damage, flags, ladders, pressure bridges, relays, boss phases, hearts, revival and completion. Clients send intentions only. Running geometry retains original party size when somebody leaves. A new flag grants one heart once (increasing the cap when necessary), saves the checkpoint and may revive the oldest downed co-op player. Stage transitions revive everyone and restore the original starting heart pool. Solo and all-down recovery use the latest flag; flags are not safe rooms.
 
 Physics advances at 60 fixed steps per second; snapshots normally arrive at 20Hz. Input heartbeat is independent of drawing. Release/blur clears movement; stale input expires after 90 simulation ticks. Escape releases online input and does not pause the shared world. Remote visual interpolation is bounded; death, teleports, run changes and long stalls reset it. It never changes authoritative collision.
 
@@ -18,13 +18,13 @@ Each socket is limited to 120 input packets and 20 other actions per second. Cre
 
 Optional ?debug=1 reports contain a bounded stage-event history and no participant/session identifiers. Own-room report requests have a separate 900ms limit. Reports stay local unless a player chooses to share a download.
 
-## Verification
+## Current revision verification
 
-- npm test: physics/rules, 60 routes, 45 unchanged co-op routes with one remaining survivor, HTTP/assets, network-client cleanup/interpolation, and actual independent WebSocket lifecycle/relay/victory/room isolation.
-- npm run test:disconnect: jump, capture, death, checkpoint and stage-transition departures; fresh identity and cleanup.
-- npm run test:jitter: real TCP delays of 60-140ms each direction, input release/shared state/host handoff.
-- npm run test:abuse: isolated local server creation/action/input budgets, oversized sender isolation, malformed/forged fields and cleanup. Never aims abuse traffic at production.
-- Browser workflows exercise isolated Chromium sessions, Firefox/WebKit compatibility, actual rescue/revival/ladder, repeated retry/title flows and full campaigns. Public workflows use the deployed origin and check only their own room cleanup.
-- Long local soaks passed eight rooms/32 clients for one and two hours; the released simulation also passed 12 rooms/48 clients for 40 minutes, with zero remaining rooms. These are local stability measurements, not Render capacity guarantees.
+- npm test: current construction/timing/storage/rules, network-client cleanup/interpolation and HTTP/assets.
+- node scripts/revision-route-test.mjs with TEST_PARTY=1/2/3/4: all 60 ordinary-input routes. node scripts/revision-survivor-test.mjs: all 45 original-party worlds with only the last survivor remaining.
+- node scripts/revision-network-test.mjs: actual independent WebSocket authority/shared-flag/bridge/victory/host-migration checks; TEST_BASE_URL selects the hosted origin.
+- node scripts/revision-disconnect-test.mjs: airborne host, teammate carrier, durable-weight carrier and boss-climbing departures; remaining survivor completes the bridge/boss, fresh identity is rejected in running rooms and cleanup completes.
+- Revision browser workflows exercise independent Chromium contexts, Firefox/WebKit rendering, unique comics and full 1/2/3/4 campaigns. Public workflows verify served source and only remove their own rooms.
+- Current runtime passed four rooms/16 clients for 15 minutes; an earlier revision passed 30 minutes. No finite-state/heart/carry/isolation failures; zero rooms after cleanup. Local stability results are not Render capacity claims.
 
-Exact source revisions, results and failed runs are in QA_LOG.md; current deployment is in PROJECT_STATUS.md. Physical-device/network acceptance and human balance/audio review remain deferred. An external CI browser is not a physical phone test.
+Older jitter/abuse/rescue/large-room soak scripts and evidence are retained for historical transport behavior; they are not new acceptance of replaced shelter or enemy contracts. Exact source revisions, all failures/replays and final results are in QA_LOG.md; deployment is in PROJECT_STATUS.md. Physical-device/network and human balance/audio acceptance remain deferred.

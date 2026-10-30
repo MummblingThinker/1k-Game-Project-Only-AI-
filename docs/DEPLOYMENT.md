@@ -10,23 +10,23 @@ Status: campaign release 0.3.0 deployed on Render; physical-device/network accep
 - Service: `srv-dbhnfcm1egvs73817n4g`; https://dashboard.render.com/web/srv-dbhnfcm1egvs73817n4g
 - Free Node service, Virginia, one instance, manual deploys. Build `npm ci && npm test`; start `npm start`; Node 24.20.0; NODE_ENV=production. No database or secrets.
 - Initial live deploy: `dep-dbhnfde1egvs73817pj0`, runtime source `269fc0e4384ebd9cf44bdd6cb6caaa81dcc0c776`. Logs confirm assigned PORT=10000.
-- Current campaign runtime: `137449780ffee2baae8d128e3fc3f7a4a2d6bebb`, deploy `dep-dbi5lqp42hec73chfgu0`, LIVE October 30 at 08:54:00 UTC. Later test/documentation commits do not require redeployment.
+- Current gameplay-revision runtime: `913a4342c04552849b6fe696c18ea26cc2ba0017`, deploy `dep-dbiada1srm7s73dmsht0`, LIVE October 30 at 14:16:47 UTC. Later tests/cover/documentation commits do not require redeployment.
 - Direct MCP creation uses Render's default TCP readiness checks; its limited tool cannot set `healthCheckPath`. The existing `/health` HTTP endpoint is independently tested below. To enable provider HTTP checks, set `/health` in Dashboard Settings; the supplied Blueprint already requests it.
 
 The repository also contains a Public multiplayer smoke GitHub Actions workflow. It tests this deployed URL from an Ubuntu runner, without a ChatGPT login. It does not replace the physical-device test below.
 
 Full public regression passed: https://github.com/MummblingThinker/1k-Game-Project-Only-AI-/actions/runs/40915358003. Includes HTTP assets/health and actual WSS gameplay through shared victory/replay, isolation and cleanup. See QA_LOG.md for the earlier failures and corrections.
 
-Current 0.3.0 public short browser acceptance: run 41030093969, job 123977506870 PASS. Full public two/four-player campaign run 41029627746 PASS, all 15 stages on first attempts with complete shared-state comparisons and default endings. Public three-player run 41032049339/job 123983852697 also PASS, with recorded replays at Levels 10 and 15. These are automated independent browsers on the hosted HTTPS service, not physical-device testing.
+Current replacement acceptance: public browser/assets/comics PASS 41070578466/job 124113263906; complete two-player campaign 124113263592 PASS all 15/default chapters/ending with one Level 14 replay. Focused final boss two/four-player follow-up 41071836457 also PASS. Full 1/2/3/4 CI campaigns passed on the exact runtime (41069764037). See QA_LOG.md for all failed patrol attempts, replays and final follow-up results. These are automated independent browsers, not physical-device testing.
 
-Final HTTPS/WSS smoke after a quiet interval: 41036079502/job 123997121435 PASS, first health response 21404ms followed by successful assets/gameplay/cleanup. Provider sleep is not inferred solely from the delay. The runtime remained 13744978 throughout; no redeployment interrupts players for handoff-only changes.
+Historical pre-revision quiet-interval smoke: 41036079502/job 123997121435, runtime 13744978, first health response 21404ms. Provider sleep is not inferred solely from the delay. This timing is historical, not a fresh cold-start measurement of the replacement.
 
 To repeat from a terminal with internet access (PowerShell):
 
 ```powershell
 $env:TEST_BASE_URL='https://tiny-teamwork-last-spark.onrender.com'
 npm run smoke
-npm run test:multiplayer
+node scripts/revision-network-test.mjs
 Remove-Item Env:TEST_BASE_URL
 ```
 

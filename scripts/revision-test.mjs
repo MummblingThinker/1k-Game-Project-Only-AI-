@@ -113,4 +113,11 @@ section('giant remains outside boss zone and heart death is charged once',()=>{
   const r=runAt(5),p=p0(r),w=r.world;w.giant.x=w.boss.x-65;w.giant.wakeTicks=0;p.x=w.boss.x+10;p.invulnerability=1000;tick(r,300);assert.ok(w.giant.x+44<w.boss.x);assert.equal(p.alive,true);
   const h=r.hearts;killPlayer(r,p,'fixture',true);killPlayer(r,p,'duplicate',true);assert.equal(r.hearts,h-1);
 });
+section('the pursuer cannot enter the leftward factory escape corridor',()=>{
+  const r=runAt(15),w=r.world,b=w.boss,p=p0(r);b.phase='escape';b.phaseIndex=3;b.bodyX=b.x+800;
+  w.platforms.push({x:b.x-650,y:b.escapeY,w:1550,h:12,kind:'escape-floor',essential:true});
+  w.finish={x:b.x-610,y:b.escapeY-30,w:28,h:30,locked:true};p.x=b.x-350;p.y=b.escapeY-p.h;p.onGround=true;
+  w.giant.x=b.x-65;w.giant.wakeTicks=0;const hearts=r.hearts;tick(r,60);
+  assert.equal(p.alive,true);assert.equal(r.hearts,hearts);assert.equal(w.giant.x,b.x-65);
+});
 console.log('Current revision rule suite complete. Legacy shelter/indestructible-boss assertions are superseded, not counted as current evidence.');

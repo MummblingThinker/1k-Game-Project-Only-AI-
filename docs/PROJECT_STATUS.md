@@ -1,38 +1,35 @@
-# Implementation status
+# October 30 gameplay revision handoff
 
-Final handoff prepared October 30, 2026, 09:54 UTC. Owner cutoff is 06:00 America/New_York today (10:00 UTC). Stop autonomous work at cutoff; further work requires a new owner request.
+Owner cutoff: October 30, 2026 at 11:00 America/New_York (15:00 UTC). Stop autonomous work at that cutoff. The requested replacement is implemented and deployed; the remaining acceptance is human/device testing, not more unattended feature work.
 
-GitHub is connected as MummblingThinker with admin/push access to MummblingThinker/1k-Game-Project-Only-AI-. Render My Workspace: tea-dbhakd8u01pc73ap1ou0; service srv-dbhnfcm1egvs73817n4g. Public game: https://tiny-teamwork-last-spark.onrender.com.
+Play: https://tiny-teamwork-last-spark.onrender.com
 
-## Release state
+GitHub connection is MummblingThinker with admin/push access to MummblingThinker/1k-Game-Project-Only-AI-. Render uses My Workspace (tea-dbhakd8u01pc73ap1ou0), service srv-dbhnfcm1egvs73817n4g. Live runtime is **913a4342c04552849b6fe696c18ea26cc2ba0017**, deploy **dep-dbiada1srm7s73dmsht0**, live since 14:16:47 UTC. Subsequent source commits change tests, cover and documentation only; do not redeploy for them.
 
-LIVE release 0.3.0: 137449780ffee2baae8d128e3fc3f7a4a2d6bebb, Render dep-dbi5lqp42hec73chfgu0 finished 08:54:00 UTC. Includes arena-corner fix, input/transition safeguards, memory archive and readable stacked labels. Regression 41028837354 all five PASS. Later main commits change tests/documentation only.
+## Implemented gameplay
 
-Final validation source: 3db6c677b780b16ef9d64f3e396fec30962dcf0a; subsequent handoff commits change documentation only. Regression 41036079419 ALL FIVE PASS, including delayed-browser/pressure-countdown checks and scene captures. Public short browser 41030093969/job 123977506870 PASS. Final HTTPS/WSS smoke 41036079502/job 123997121435 PASS after quiet interval, first health response 21404ms; all assets/gameplay/cleanup pass. Render rechecked LIVE on unchanged 13744978.
+Flags replace save rooms, grant one heart once, and save solo/party-wipe respawn points. Crossing a flag while jumping also saves. Long relay and pressure bridges require their mechanisms; reusable yellow weights reset after pit loss. Most debris shatters after throwing. Small robots die, medium robots take several hits, and big normal robots only stun. Ground robots face, patrol and charge with visible lights; flying scans remain.
 
-Public full campaign 41029627746: two-player job 123975944220 and four-player job 123975944028 PASS all 15 stages first attempt, 14925/15834 matching complete shared snapshots, correct chapters/ending. Public three-player 41032049339/job 123983852697 PASS with 17654 matches and recorded game-over replays at Levels 10/15. CAMP-01 reverified. All public campaign rooms finished; no runtime redeployment needed.
+Fifteen authored district sequences combine street/rooftop/subway, canopy/cabin/water, and factory towers/conveyors, with biome props, wildlife and more enemies. Level 1 is 960 units; normal maps 2880; milestones 5280/5760/6240. Giant traversal is about 120 seconds per normal map after waking; it cannot enter boss arenas or the leftward factory escape.
 
-## Evidence and corrections
+Level 5 climbs an extending tower, damages the Warden with thrown debris, then reaches a final exit floor. Level 10 is a chainsaw tree maze with ladders/wall-jumps and a falling tree lethal to both boss and players. Level 15 escalates lava/lasers/platform breaks through three consoles, then a robot leap and leftward machinery escape. Optional platforms break after a warning; all essential ladder routes remain. Boss retry resets encounter geometry and preserves approach relays. Each boss has a distinct pixel death animation/card that continues after victory freezes simulation time.
 
-- Runtime ancestor 73053d6b full matrix 41026569209: solo/two/three/four all PASS, all stages first attempt, exact chapters/blackout. Label-only runtime change thereafter passed all regression jobs.
-- Earlier public four-player b724817d run stalled at Level 5: x4764 ledge/cover corner had 21px clearance for a 22px survivor. Reproduced before fix; low arena ledges now leave 24px. Exact regression, all 45 last-survivor routes, extended 1200-case/5055052-tick audit, full CI and current public four-player rerun PASS.
-- Public short 41029627768 failed a test's timed jump from x509 into the next pit at x586. Observed-position jump replaces that timer; 41030093969 PASS without game changes.
-- Actual four-context carry/drop/throw/passenger escape/crate ownership, two-context salvage, capture/rescue, giant contact/shelter breach, memory archive and hazard warning/death checks PASS. Updated carry screenshot inspected; all four labels readable.
-- Delayed-browser flow 123980938480 PASS: TCP delays 60-140ms each way, real remote rendering 129 frames/38 positions/max 3px short-frame displacement, one held jump, release stops, 96 matching complete shared states, zero errors/rooms. Initial harness failures (unsafe port and polling-before-WebSocket setup) retained in QA_LOG.md.
-- Task board: 47 VERIFIED entries. Remaining entries have precise completed evidence/missing acceptance; criteria unchanged. Physical/human MVP-03/MVP-04 gates remain unverified.
-- Latest local npm test PASS artifacts/release-final-tests.log; syntax PASS 53 modules. Submission checker intentionally reports missing physical/human evidence. No contest submission.
+Level 11 has the protected overhead swarm and forest-to-building-to-factory transition. Eleven original triptychs provide 33 different anime illustrations, with chapters after 5/10/11/15. Provenance: [OCTOBER_REVISION_ART.md](OCTOBER_REVISION_ART.md). The draft cover is an unedited public solo Warden screenshot, 1440x960.
 
-## Completed local validation and archive
+## Verification and limits
 
-- COMPLETE session 92222: 40-minute 12-room/48-client soak on released simulation 13744978. 265128 checks, 200 resets, 2338932 messages, peak RSS 193.43 MiB, no failure, cleanup zero. artifacts/soak-release-12-2400.log and soak-12-2400.json. Local capacity evidence only.
-- COMPLETE session 67695: one-hour eight-room/32-client soak on d6810106 (before transition/arena changes). 265048 checks, 221 resets, 2338316 messages, peak RSS 190.76 MiB, cleanup zero. artifacts/soak-8-3600.json.
-- COMPLETE prior two-hour ladder-source soak: 530048 checks, 383 resets, 4686804 messages, peak RSS 190.80 MiB, cleanup zero. artifacts/soak-8-7200.json.
-- Release archive verification PASS: 104 allowlisted files, ZIP integrity, exact local-file/manifest comparison and fresh dependency-free extraction npm test PASS. artifacts/release-final-archive.log. Final handoff archive: release/TinyTeamwork-source.zip; authoritative current checksum/file inventory: release/source-manifest.json. Archive is regenerated with this final documentation; do not use older QA-log preflight hashes.
+Runtime 913a4342 passed all eight CI jobs in run 41069764037: current rules/network/disconnect checks, all 60 ordinary-input routes, Chromium/Firefox/WebKit browser checks, and full 15-stage browser campaigns at one/two/three/four players. Local last-survivor checks passed all 45 original-party worlds. Final local npm test includes an explicit pursuer-exclusion regression for the leftward factory corridor.
 
-## Features and limits
+Public runtime-matched two-player full campaign passed run 41070578466/job 124113263592, all 15 stages/default chapters/ending, with one recorded Level 14 replay. Solo/four-player jobs in that run exhausted the test's two-replay allowance on patrol encounters and failed; these are retained in QA_LOG.md. An improved ordinary-input test controller recognizes adjacent/behind robots; no game difficulty or state was changed to pass. Follow-up run 41071836457 passed public browser/assets/comics and focused two/four-player Level 15 encounters (two-player required one replay); its complete solo campaign also passed all 15/default chapters/ending first attempt (job 124117705634). Latest test-source 2ffcfc04 CI 41071836462 passed all eight jobs again: two/three/four campaigns first attempts, solo with one Level 4 replay. Earlier 0606bcb7 public solo/four full campaigns also passed. Do not confuse focused boss tests with full campaigns.
 
-15 authored stages; normal maps 3x reference and milestones 5.5/6/6.5x. Fixed 120-second normal pursuit and hard boss-zone exclusion. Level 5 ordered relays, Level 10 covered survival, Level 15 separate background Colossus/core cycles. Water, conveyors, breakable salvage, pressure bridges, fourteen optional memories/local archive, carry/throw/stack/rescue, shared hearts/revival, spectator controls and three-way shelters. Original anime comic panels, cached animated survivors/robots, native captions and saved audio/visual options.
+Final-runtime local soak passed: 901.614 seconds, four rooms/16 actual Socket.IO clients, 80956 audits, 20 resets, 302172 messages, peak server RSS 144.49 MiB and zero rooms after cleanup. An earlier 1801.588-second revision soak also passed. These are local stability results, not Render load-capacity claims.
 
-Physical mobile/separate-network acceptance, first-time human onboarding/difficulty, full animation playback and speaker/headphone review remain deferred. Keyboard/touch supported; no native gamepad mapping. One Node process, solo or up to four players, join before start. Disconnect removes identity and returns to a fresh lobby; no persistent reconnect/cloud save. Free Render cold starts possible.
+Current tests use scripts/revision-*.mjs. Gameplay drivers send ordinary inputs and observe state; they do not mutate live gameplay. Detached rendering scenes are explicitly visual fixtures. Older tests/design documents retain superseded contracts and are historical. Exact failures, replays, source hashes and final follow-up results are in [QA_LOG.md](../QA_LOG.md).
 
-Next acceptance when the owner is ready: MVP-03 separate-device/network session, then MVP-04 human entry review/submission. No automated gameplay blocker remains open; human balance/device/playback gates remain explicit. No test processes remain from completed local soaks. Do not redeploy merely for documentation changes. TASK_LIST.md is canonical; QA_LOG.md retains passes, failures and replay counts. Do not continue autonomous work beyond the cutoff without a new request.
+Physical mobile/separate-network acceptance, first-time human onboarding, difficulty balance, human animation playback and physical audio review remain deferred. Keyboard/touch supported; no native gamepad mapping. Rooms are in one process; disconnect clears identity, server restart clears rooms, no cloud save. Solo stage storage does not retain flag progress after reload. Free Render cold starts remain possible.
+
+## Release artifacts and next steps
+
+Current source archive: release/TinyTeamwork-source.zip; definitive checksum and file hashes: release/source-manifest.json. The 130-file package passed python scripts/package-release.py --verify: ZIP integrity and npm test in a fresh dependency-free extraction. The final copy is regenerated with the saved handoff, and the manifest is definitive. Installed-dependency and public checks are separate evidence above. The original downloaded archive is preserved.
+
+MVP-03 remains IMPLEMENTED_UNVERIFIED solely for the explicitly required separate physical device/network session. MVP-04 remains a draft pending human review/submission; no contest submission was performed. Next owner session: play the public URL, review difficulty/readability and test another device/network. Do not restart the obsolete shelter/indestructible-boss implementation or infer unfinished coding from historical unchecked requirements.

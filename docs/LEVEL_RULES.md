@@ -1,3 +1,5 @@
+> HISTORICAL DESIGN: October 30 owner feedback supersedes the old shelters, gap scaling/fallback, indestructible robots and milestone encounters below. Current rules: ../README.md and PRACTICE_GUIDE.md. Current evidence: ../QA_LOG.md.
+
 # Gameplay rules reference
 
 ## Movement and teamwork
