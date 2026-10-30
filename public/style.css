@@ -154,5 +154,18 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 }
 /* Gameplay objectives remain native-resolution text above the pixel world. */
 .tactical-status { padding: 12px 16px; margin-top: 8px; border: 1px solid #446a7a; border-radius: 8px; background: #132a39; color: #e4e9bd; font: 600 14px/1.55 system-ui, sans-serif; min-height: 48px; }
+.comic-panels { position: absolute; inset: 0; display: grid; grid-template-columns: 1.2fr .8fr 1fr; gap: 5px; overflow: hidden; background: #070d18; padding: 45px 8px 85px; }
+.comic-cell { min-width: 0; border: 3px solid #eee0bd; background-image: url('/assets/story/story-atlas.png'); background-size: 200% 200%; opacity: 0; transform: translateY(30px) scale(.94); animation: comic-reveal .65s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(var(--panel) * .65s); box-shadow: 0 8px 30px #0009; }
+.comic-cell:nth-child(2) { margin-top: 28px; margin-bottom: -12px; }
+.comic-cell:nth-child(3) { margin-top: 9px; }
+.comic-city { background-position: 0 0; }
+.comic-forest { background-position: 100% 0; }
+.comic-factory { background-position: 0 100%; }
+.comic-ending { background-position: 100% 100%; }
+@keyframes comic-reveal { to { opacity: 1; transform: translateY(0) scale(1); } }
+#story-heading, #story-caption, .story-skip { z-index: 1; }
+.story-panel[data-scene=darkTwist] .comic-panels { animation: comic-blackout 8s steps(1,end) forwards; }
+@keyframes comic-blackout { 0%, 38% { filter: none; } 39%, 65% { filter: brightness(.45) saturate(.7) sepia(.7); } 66%, 100% { filter: brightness(0); } }
+@media (max-width: 600px) { .comic-panels { padding: 38px 5px 88px; gap: 3px; } .comic-cell { border-width: 1px; } .comic-cell:nth-child(2) { margin-top: 10px; } }
 .mobile-controls button { touch-action: none; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; } }

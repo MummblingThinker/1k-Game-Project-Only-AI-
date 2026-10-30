@@ -6,6 +6,7 @@ export function createTextUI() {
   const story = $('story-panel');
   const capturePanel = $('capture-panel');
   let previous = '';
+  let previousPanel = '';
   const text = (id, value) => { const element = $(id); if (element.textContent !== value) element.textContent = value; };
   return ({ state, level, hearts, maxHearts, roomCode, isHost, capture, panel }) => {
     const signature = JSON.stringify([state, level.id, hearts, maxHearts, roomCode, isHost,
@@ -28,9 +29,25 @@ export function createTextUI() {
       ['scene-kicker', 'scene-title', 'scene-subtitle', 'scene-body', 'scene-hint'].forEach((id, index) => text(id, copy[index]));
     }
     story.hidden = state !== 'cutscene' || !panel;
+    if (story.hidden) previousPanel = '';
     if (!story.hidden) {
       text('story-heading', panel.heading);
       text('story-caption', panel.caption);
+      if (previousPanel !== panel.visual + panel.heading) {
+        previousPanel = panel.visual + panel.heading;
+        const visual = panel.visual;
+        story.dataset.scene = visual;
+        const quadrant = ['forestChase', 'gate'].includes(visual) ? 'forest'
+          : ['swarm', 'factoryDoor', 'assemblyReveal'].includes(visual) ? 'factory'
+          : ['celebration', 'darkTwist'].includes(visual) ? 'ending' : 'city';
+        const cells = Array.from({ length: 3 }, (_, index) => {
+          const cell = document.createElement('div');
+          cell.className = `comic-cell comic-${quadrant}`;
+          cell.style.setProperty('--panel', index);
+          return cell;
+        });
+        $('comic-panels').replaceChildren(...cells);
+      }
     }
     capturePanel.hidden = state !== 'playing' || !capture;
     if (!capturePanel.hidden) {

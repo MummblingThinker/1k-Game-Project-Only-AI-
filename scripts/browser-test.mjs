@@ -76,7 +76,10 @@ try {
   await Promise.all([walk(a, 530), walk(b, 520)]);
   await a.keyboard.press('e');
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.switchActive === 'true')));
-  await a.screenshot({ path: 'artifacts/cover.png' });
+  const cover = await a.screenshot({ path: 'artifacts/cover.jpg', type: 'jpeg', quality: 78 });
+  // Public game-only evidence can be recovered through the connector's text log API.
+  // The original image remains in the normal downloadable workflow artifact.
+  console.log('COVER_BASE64_BEGIN' + cover.toString('base64') + 'COVER_BASE64_END');
   await Promise.all([walk(a, 900), walk(b, 900)]);
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.state === 'victory')));
   await a.locator('#continue-level').click();
