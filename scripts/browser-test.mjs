@@ -48,6 +48,9 @@ try {
   await solo.screenshot({ path: 'artifacts/title.png' });
   await solo.locator('#start-story').click();
   assert.equal(await state(solo), 'cutscene');
+  await solo.waitForTimeout(1600);
+  const story = await solo.screenshot({ path: 'artifacts/story.jpg', type: 'jpeg', quality: 78 });
+  console.log('STORY_BASE64_BEGIN' + story.toString('base64') + 'STORY_BASE64_END');
   for (let i = 0; i < 3; i++) { await solo.locator('#game').focus(); await solo.keyboard.press('Space'); }
   await solo.waitForFunction(() => document.querySelector('#game').dataset.state === 'playing');
   await solo.keyboard.press('Escape'); assert.equal(await state(solo), 'paused');

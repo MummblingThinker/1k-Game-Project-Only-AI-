@@ -62,6 +62,7 @@ let lastInteractionAt = 0;
 let lastSnapshot = null;
 let panelSignature = '';
 let roomUiSignature = '';
+let lastNotice = '';
 
 function maxHeartForParty(n) { return Math.min(10, n <= 1 ? 3 : 3 + Math.ceil((n - 1) / 2)); }
 function regionName(region) { return region === 'city' ? 'CITY' : region === 'forest' ? 'FOREST' : 'ROBOT FACTORY'; }
@@ -166,7 +167,8 @@ const network = new NetworkClient({
         : data.phase === 'gameover' ? 'RUN OVER / HOST CAN RESTART WITH R'
         : data.phase === 'lobby' ? 'ROOM READY / SHARE THE CODE'
         : 'ACTIVATE THE RELAY / GET EVERY SURVIVOR TO THE SHELTER');
-    }
+    } else if (data.notice && data.notice !== lastNotice) announce(data.notice, 2600);
+    lastNotice = data.notice || '';
     syncTextUI();
   },
 });

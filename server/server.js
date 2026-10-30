@@ -145,8 +145,18 @@ function activateSwitch(room, player) {
 
 
 io.on('connection', (socket) => {
+  const rate = { window: Date.now(), input: 0, action: 0, creates: [] };
+  socket.use((packet, next) => {
+    if (Date.now() - rate.window >= 1000) { rate.window = Date.now(); rate.input = rate.action = 0; }
+    const kind = packet[0] === 'input' ? 'input' : 'action';
+    if (++rate[kind] > (kind === 'input' ? 120 : 20)) return;
+    next();
+  });
   socket.emit('serverHello', { ok: true, maxPlayersPerRoom: MAX_PLAYERS_PER_ROOM });
   socket.on('createRoom', () => {
+    rate.creates = rate.creates.filter(time => Date.now() - time < 60000);
+    if (rate.creates.length >= 8 || rooms.size >= 200) { socket.emit('roomError', 'Please wait before creating another room.'); return; }
+    rate.creates.push(Date.now());
     leaveCurrentRoom(socket, 'replaced room');
     const code = makeRoomCode();
     const world = buildLevel(1, 1);
@@ -228,4 +238,8 @@ setInterval(() => {
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Tiny Teamwork server listening on http://localhost:${PORT}`);
   console.log('Open the URL in two browsers to test room creation and synced movement.');
+});
+process.on('SIGTERM', () => {
+  io.close(); server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 2000).unref();
 });

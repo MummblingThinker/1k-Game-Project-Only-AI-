@@ -97,7 +97,7 @@ export function interactRun(run, id, action = 'use') {
   if (!p?.alive || p.carriedBy || p.capture || run.phase !== 'playing') return false;
   if (run.tick - (p.lastInteractionTick ?? -60) < 12) return false;
   p.lastInteractionTick = run.tick;
-  if (p.carryId) { detach(run, p, action !== 'drop'); return true; }
+  if (p.carryId) { detach(run, p, action !== 'drop'); run.notice = action === 'drop' ? 'Set down safely.' : 'Thrown. Watch the landing!'; return true; }
   const boss = run.world.boss;
   if (boss && !boss.solved && p.x >= boss.x) {
     const target = boss.pylons.find(s => !s.active && near(p, s));
@@ -133,7 +133,7 @@ export function interactRun(run, id, action = 'use') {
   const teammate = action === 'carry' && playersOf(run).find(other => other.id !== id && other.alive && !other.capture && !other.carriedBy && !other.carryId && near(p, other, 25));
   const crate = run.world.crates.find(c => !c.used && !c.carriedBy && near(p, c, 25));
   const object = teammate || crate;
-  if (object) { object.carriedBy = id; p.carryId = object.id; return true; }
+  if (object) { object.carriedBy = id; p.carryId = object.id; run.notice = teammate ? 'Carrying teammate. F throws, Q drops; teammate can jump free.' : 'Crate picked up. E throws; Q drops.'; return true; }
   return false;
 }
 

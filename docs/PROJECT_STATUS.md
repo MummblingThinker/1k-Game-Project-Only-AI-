@@ -1,33 +1,26 @@
 # Implementation status
 
-Last updated: 2026-10-29
+Updated October 30, 2026, 02:20 UTC.
 
-## Verified release gates
+The 15-stage campaign is implemented in solo and authoritative co-op. Render My Workspace reports commit 9b3097d4db6e71241da785d6b5a95d2b4726134e live (deploy dep-dbhvpbajnfac73cgdc4g). GitHub identity is MummblingThinker with push/admin access to the requested repository.
 
-- MVP-01: two fresh-load solo Level 1 win/replay flows and title regression passed in Chrome.
-- MVP-02: independent local Chrome clients joined room 62MUAX, showed matching server positions, shared one relay/bridge, reached victory with four hearts and replayed. Invalid codes were readable. Rooms 62MUAX and 7L2CAB kept player/relay states isolated. Both consoles had zero errors. These were separate origins/pages and Socket.IO sessions, not physical devices or browser profiles.
-- npm test passes: physics/clock/gaps, HTTP/assets, evidence guard, client session regression and actual Socket.IO WebSocket integration. Live tests explicitly skip if dependencies are absent; offline checks still run. Node 22+ required for WebSocket tests.
+## Evidence
 
-## Current blocker and next task
+- Original MVP-01/MVP-02 browser acceptance is preserved in QA_LOG.md.
+- Campaign/browser CI runs 40984883655 and 40985355657 passed in Chromium 156.0.8078.4: 15 stage loads/movement, story/pause, two-context tutorial relay/victory/Continue, emulated touch cancellation and no console/page errors.
+- Deterministic input-driven traversal passed all 15 stages at party sizes 1–4 (60 routes). This establishes reachability, not human balance.
+- Local real two-client Level 15 traversal passed all three Colossus cycles, giant exclusion, shared victory/story/ending and guest authority rejection.
+- Local systems tests passed capture/rescue/struggle, shelter breach, multi-victim blast deduplication, checkpoint revival order and boss sequencing/timing.
+- Original anime atlas is committed with provenance. Actual browser cover is saved at submission/cover.jpg (1800×1200).
 
-MVP-03 is IMPLEMENTED_UNVERIFIED. Deployed at https://tiny-teamwork-last-spark.onrender.com in Render My Workspace (tea-dbhakd8u01pc73ap1ou0), one free Node instance in Virginia, manual deploys. GitHub authenticated as MummblingThinker with admin/push access; source published to MummblingThinker/1k-Game-Project-Only-AI-. Render reports initial deploy dep-dbhnfde1egvs73817pj0 live; assigned PORT=10000. Hosted HTTPS/assets and full public WSS gameplay regression passed (Actions run 40915358003). Physical-device/network acceptance and current browser smoke remain outstanding. See QA_LOG.md, 2026-10-29 MVP-03 public deployment.
+Latest local rate limits, HUD notices, systems/live-campaign tests and documentation await the next published regression. Public HTTPS/WSS passed for the earlier tutorial release; the newly deployed campaign needs a refreshed hosted pass.
 
-Next single task: complete physical-device/network acceptance in docs/DEPLOYMENT.md. Browser inventory is empty; iab is unavailable. Local outbound HTTPS fails EACCES, so GitHub Actions tests the public service. Default Render TCP readiness is active; the limited MCP tool cannot set the provider HTTP health path, although /health exists and the public smoke passes. No gameplay source changed.
+## Implementation and outstanding acceptance
 
-MVP-04 has a draft entry (416-character description) and readiness checker; actual cover, external evidence and human review/submission are missing. Official rules deadline is October 30 at 11:59pm Pacific, while mission UI says October 31; use the earlier planning target pending clarification.
+See CAMPAIGN_BUILD.md for authored routes, map scales, giant timing, milestone encounters, shared carry/throw/rescue/lives/checkpoints and synchronized stage/story transitions.
 
-UI-001: blurry raster text replaced by native HTML overlays and larger interface fonts. Desktop title/story/pause and phone-emulated title/pause were observed. Latest full browser/co-op and physical-device verification is incomplete; automatic checks pass. No extra levels or optional art overhaul added.
+MVP-03/MVP-04 remain IMPLEMENTED_UNVERIFIED. Physical-device/network testing was deferred by the owner. Human submission review is pending; no entry was submitted. Broader backlog tasks are not automatically verified by campaign automation.
 
-## Implementation
+Rooms support up to four, require joining before start, and are memory-only on one Node instance. Persistent reconnect identity, audio and cloud saves are absent. Physical mobile performance, human difficulty balance and a full manual campaign playthrough remain unverified. Free Render cold starts may delay connection.
 
-Canvas/JavaScript with Node/Express/Socket.IO; original temporary sprites and scenery. Solo Level 1 is complete; Levels 2-15 and regional story panels remain prototypes.
-
-Online Level 1: host-started lobby, four-player cap, fixed-step 60Hz authoritative physics, snapshots, shared relay proximity/cooldown/one-time activation, bridge/gate, shared hearts, pit deaths, first-pass checkpoint recovery, server giant/contact/breach, team victory and host replay. Original running geometry survives departures. Host transfers and empty rooms are removed. Forged/null inputs, stale movement and duplicate death charge are tested. Inputs release on blur/key-up; late/foreign snapshots cannot restore departed membership.
-
-## Limits
-
-Online Level 1 only. Join before start; create a new lobby to add players. Disconnect clears identity; explicitly join a new lobby. ESC releases input, not a shared pause. Rooms are memory-only and require one Node instance; process restart loses them. No account system, cloud saves, audio or verified mobile support.
-
-Carry/throw/rescue, movable online crates, advanced robots, later online campaign/story, broad heart/checkpoint/anti-softlock and physical-device tests remain incomplete/unverified. Broader NET/COOP tasks stay open. Temporary art and optional UI polish are deferred behind MVP-03/04.
-
-Canonical statuses: TASK_LIST.md. Exact commands, failed checks, browser steps/positions and limitations: QA_LOG.md. Local pages do not prove public internet play.
+Continue testing, refining shelters/presentation, refreshing evidence and publishing tested changes until 06:00 America/New_York October 30 (10:00 UTC), then save a handoff.

@@ -1,17 +1,19 @@
 {
   "status": "DRAFT_NOT_READY",
   "title": "Tiny Teamwork: The Last Spark",
-  "description": "A cooperative pixel platformer for 2-4 players. Share a room code, jump the ruined city streets, activate a relay to open a shared bridge, and get every survivor to shelter before the giant catches up. The biggest challenge was keeping movement, the relay and victory synchronized; the build uses server-owned state and separate-client tests. This entry is one complete level. Next: teammate rescues and more stages.",
+  "description": "Escape a robot-ruled world in a solo or 2?4-player cooperative platformer. Share a room code, carry and rescue teammates, solve relays and survive three giant encounters across 15 city, forest and factory stages. Original anime comic panels tell the story between regions. The hardest challenge was synchronizing shared lives, physics and boss progression; shared simulation and independent-client tests keep the team together.",
   "projectUrl": "https://tiny-teamwork-last-spark.onrender.com",
-  "coverImage": null,
+  "coverImage": "submission/cover.jpg",
   "shareToShowcase": true,
   "controls": {
     "move": "A/D or arrow keys",
     "jump": "Space or Up",
-    "relay": "E near the red switch",
-    "replay": "Host clicks Replay room or presses R after victory",
+    "relay": "E: relays, pylons, terminal or crate",
+    "replay": "R or Restart after results (host online)",
     "leave": "Leave button; Enter after victory",
-    "pause": "Solo only. Online Esc releases input while the world continues."
+    "pause": "Solo only. Online Esc releases input while the world continues.",
+    "carry": "F: carry/throw; Q: drop",
+    "continueCampaign": "N or Continue after victory (host online)"
   },
   "verification": {
     "publicHealthAndAssets": true,
@@ -36,10 +38,10 @@
     "recommendedAspect": "3:2"
   },
   "limitations": [
-    "One verified introductory level; later online campaign not implemented.",
-    "Local independent-browser verification exists; physical-device/public-network verification still pending.",
-    "Temporary original sprites; no audio; mobile controls have not been verified on a physical device.",
-    "Rooms are held in one server process and are lost on restart.",
+    "15-stage solo/co-op campaign implemented; full human playthrough and difficulty balance remain unverified.",
+    "Physical-device and separate-network acceptance remains pending.",
+    "No audio; mobile emulation passed but physical touch/performance testing is pending.",
+    "Rooms live in one server process and are lost on restart; disconnect requires a new lobby.",
     "Final entry, eligibility, disclosures and publication require human review."
   ]
 }

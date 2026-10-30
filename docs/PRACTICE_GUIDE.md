@@ -1,12 +1,12 @@
 # How to Practice Playing the Current Prototype
 
-The current project is an early browser prototype. The fastest way to try it is **offline single-player**; that mode needs Node.js but does not need `npm install`. Online co-op supports the verified local Level 1 relay/bridge/shelter slice; the public service is deployed at https://tiny-teamwork-last-spark.onrender.com, with physical-device/network acceptance still pending.
+The current project is an early browser prototype. The fastest way to try it is **offline single-player**; that mode needs Node.js but does not need `npm install`. Online co-op supports the shared 15-stage campaign; the public service is deployed at https://tiny-teamwork-last-spark.onrender.com, with physical-device/network acceptance still pending.
 
 ## 1. Start the single-player version
 
 1. Download and extract `Tiny_Teamwork_The_Last_Spark_Codex_Starter.zip`.
 2. Open a terminal in the extracted `Tiny_Teamwork_The_Last_Spark` folder.
-3. Check that Node.js is available with `node --version` (Node 20+ recommended).
+3. Check that Node.js is available with `node --version` (Node 22+ required).
 4. Run the automated checks first:
 
    ```bash
@@ -28,7 +28,9 @@ The offline mode is local to your computer. It does not publish the game to the 
 - **A / D** or **Left / Right arrows:** move.
 - **Space** or **Up arrow:** jump; also advances a cutscene panel.
 - **E:** interact with nearby objects (such as crates or switches); the exact behavior depends on the current situation.
-- **Esc:** pause/resume.
+- **F / Q:** carry or throw / drop a teammate or crate.
+- **N:** continue after victory (host online).
+- **Esc:** pause/resume solo; release controls online while the world continues.
 - **R:** restart from game-over or paused state where supported.
 - **Touch buttons:** appear on narrow screens; test with a physical device before relying on them.
 
@@ -36,7 +38,7 @@ The first goal is simply to learn the jump arc, approach gaps carefully, interac
 
 ## 3. Practice a specific level
 
-Use the **Test a level** dropdown and click **Load Selected Level**. Alternatively, while the server is running, open a level directly:
+Use the **Practice a stage** dropdown and click **Load Selected Level**. Alternatively, while the server is running, open a level directly:
 
 - `http://localhost:4173/?level=1` — city introduction to the level layout
 - `http://localhost:4173/?level=5` — City Gate / city-to-forest transition setup
@@ -45,7 +47,7 @@ Use the **Test a level** dropdown and click **Load Selected Level**. Alternative
 - `http://localhost:4173/?level=11` — factory region
 - `http://localhost:4173/?level=15` — final factory level / ending setup
 
-Valid level numbers are 1–15. Direct test-level loading skips the opening cinematic so you can test that stage. The current starter mostly reuses a procedural layout, so treat each level selector as a theme/story prototype rather than a finished, unique level.
+Valid level numbers are 1–15. Direct test-level loading skips the opening cinematic so you can test that stage. All 15 stages now have authored routes and work in solo/co-op. Levels 5, 10 and 15 include milestone encounters; see CAMPAIGN_BUILD.md for mechanics.
 
 ## 4. A useful 10-minute practice session
 
