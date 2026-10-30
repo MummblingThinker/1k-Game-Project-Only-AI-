@@ -80,6 +80,10 @@ let lastNotice = '';
 
 function maxHeartForParty(n) { return Math.min(10, n <= 1 ? 3 : 3 + Math.ceil((n - 1) / 2)); }
 function regionName(region) { return region === 'city' ? 'CITY' : region === 'forest' ? 'FOREST' : 'ROBOT FACTORY'; }
+function focusGameView() {
+  canvas.focus({preventScroll:true});
+  if(matchMedia('(max-width: 850px)').matches) canvas.closest('.screen-frame').scrollIntoView({block:'start',behavior:'auto'});
+}
 function announce(text, duration = 2000) { message = text; messageTimer = duration; liveStatus.textContent = text.toUpperCase(); syncTextUI(); }
 function updatePanel() {
   const signature = `${currentLevel}/${hearts}`;
@@ -184,7 +188,7 @@ const network = new NetworkClient({
     }
     updatePanel();
     if (phaseChanged) {
-      if (data.phase === 'playing') canvas.focus({ preventScroll: true });
+      if (['playing','cutscene'].includes(data.phase)) focusGameView();
       keys.clear();
       announce(data.phase === 'victory' ? `TEAM ESCAPED / LEVEL ${currentLevel} COMPLETE`
         : data.phase === 'gameover' ? 'RUN OVER / HOST CAN RESTART WITH R'
@@ -205,6 +209,7 @@ function startCutscene(key, done) {
   cutsceneDone = done || null;
   gameState = 'cutscene';
   announce(`${currentCutscene.title} · STORY SCENE`, 1000);
+  focusGameView();
 }
 function finishCutscene() {
   const done = cutsceneDone;
@@ -231,6 +236,7 @@ function startStory() {
 function loadSelectedLevel() {
   buildWorld(Number(levelSelect.value));
   gameState = 'playing';
+  focusGameView();
   announce(`LEVEL ${String(currentLevel).padStart(2,'0')} · ${getLevel(currentLevel).title}`, 2200);
 }
 function levelComplete() {
@@ -281,6 +287,7 @@ function restartRun() {
   }
   buildWorld(currentLevel);
   gameState = 'playing';
+  focusGameView();
   announce('RUN RESTARTED · STAY TOGETHER', 2200);
 }
 
@@ -290,6 +297,7 @@ function near(a, b, distance = 19) {
   return Math.abs(ax-bx) < distance && Math.abs(ay-by) < distance + 8;
 }
 function interact(action = 'use') {
+  if (gameState !== 'playing') return;
   if (network.inRoom) { action === 'use' ? network.interact() : network.action(action); return; }
   if (soloRun && interactRun(soloRun, player.id, action)) announce(soloRun.notice);
 }
@@ -336,7 +344,7 @@ function syncTextUI() {
   data('alive', String(player.alive));
   data('hearts', String(hearts));
   data('room', network.roomCode || '');
-  data('players', JSON.stringify([player, ...peers].map(({ id, x, y, alive }) => ({ id, x, y, alive }))));
+  data('players', JSON.stringify([player, ...peers].map(({ id, x, y, alive, carryId }) => ({ id, x, y, alive, carryId }))));
   data('switchActive', String(world.switches.some((s) => s.active)));
   data('objectiveVersion', String(lastSnapshot?.objectiveVersion || 0));
   const won = gameState === 'victory';
@@ -411,8 +419,10 @@ window.addEventListener('keydown', (event) => {
   keys.add(key);
   if (key === 'Escape' && !event.repeat) {
     if (network.inRoom) { keys.clear(); network.sendInput({}, true); announce('ONLINE RUN KEEPS GOING / INPUT RELEASED'); }
-    else if (gameState === 'playing') gameState = 'paused';
-    else if (gameState === 'paused') gameState = 'playing';
+    else if (gameState === 'playing' || gameState === 'paused') {
+      keys.clear();justPressed.clear();touchInput.left=touchInput.right=touchInput.jump=false;
+      gameState = gameState === 'playing' ? 'paused' : 'playing';
+    }
   }
   if (key === 'KeyF' && !event.repeat) interact('carry');
   if (key === 'KeyQ' && !event.repeat) interact('drop');
@@ -440,6 +450,7 @@ $('pause-game').addEventListener('click', () => {
     keys.clear(); touchInput.left = touchInput.right = touchInput.jump = false;
     network.sendInput({}, true); announce('ONLINE RUN KEEPS GOING / INPUT RELEASED');
   } else if (gameState === 'playing' || gameState === 'paused') {
+    keys.clear();justPressed.clear();touchInput.left=touchInput.right=touchInput.jump=false;
     gameState = gameState === 'playing' ? 'paused' : 'playing'; syncTextUI();
   }
 });

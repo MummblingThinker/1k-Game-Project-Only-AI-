@@ -27,7 +27,10 @@ class Peer {
       }
     });
   }
-  send(event, value) { this.socket.send('42' + JSON.stringify(value === undefined ? [event] : [event, value])); }
+  send(event, value) {
+    if(event==='interact'){const now=Date.now();if(now-(this.lastUse||0)<220)return;this.lastUse=now;}
+    this.socket.send('42' + JSON.stringify(value === undefined ? [event] : [event, value]));
+  }
   close() { if (this.socket.readyState === 1) this.socket.send('41'); this.socket.close(); }
 }
 function drive(peer) {

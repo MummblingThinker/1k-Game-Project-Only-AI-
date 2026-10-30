@@ -1,25 +1,28 @@
 # Implementation status
 
-Updated October 30, 2026, 03:45 UTC.
+Updated October 30, 2026, 04:12 UTC.
 
-The 15-stage solo/co-op campaign is implemented and published at https://tiny-teamwork-last-spark.onrender.com. GitHub is MummblingThinker with repository write access; Render is My Workspace, service srv-dbhnfcm1egvs73817n4g.
+GitHub is MummblingThinker with repository write access. Render uses My Workspace, service srv-dbhnfcm1egvs73817n4g. Public game: https://tiny-teamwork-last-spark.onrender.com.
 
-## Deployment and evidence
+## Live source and CI
 
-Current LIVE source b2f91fbf1437cb5d9a0523f4e179be0b5ce0c9b6 passed CI 40998443607, including shared systems, 60 simulated routes, seeded adversarial co-op, actual-client finale, Chromium, phone touch/audio settings and inspected motion/mobile screenshots. Render deployment dep-dbi13tom7kps73bio7ng finished 03:42:33 UTC.
+LIVE 126ee3ca43ca4776f0343440ae7cdb4314602636 passed CI 40999781313 and deployment dep-dbi1ckmtlv9c738iieh0 (finished 04:01:35 UTC). Includes 15 stages, bosses/exclusion zones, fixed-speed pursuer/wake warning, pressure bridges, salvage, water/conveyors, anime comics, phone controls, original audio, saved solo stage, survivor animation and server-snapshot rendering interpolation.
 
-Two actual local socket clients completed all 15 stages and default timed story scenes on earlier bbf6536. Old three/four-player full runs failed Level 14 after passing 1-13. Short coyote/landing input buffers resolved six focused Level 14 repeats (three each at party size 3/4) and a four-player 14-15 run. Fresh full 3/4-player buffered runs are still active: artifacts/live-sequence-3-buffered.log and live-sequence-4-buffered.log. Inspect these logs; do not restart live work because observation times out.
+Main 89393a909d17b8315a36543719bbc1ac300ff7f6 adds synchronized lobby readiness and real network-jitter/soak tests. CI 41000816390 passed core/adversarial/jitter but its finale harness exhausted its own action rate budget before scene skip. Local fix limits test interactions to every 220ms; actual-client finale now passes. Do not deploy main until the fixed build passes browser CI. Public smoke 41000816126 failed against the older live protocol; rerun after deployment.
 
-## Current local changes
+## Current local work
 
-Optional pressure-plate bridges in stages 6/8/12/13, an exit fix accepting airborne/stacked survivors, and an expanded phone comic layout with navigation outside the artwork. Full npm test passes. Four actual clients passed stages 6-8 in 116 seconds; Level 6 now finishes with all five hearts instead of waiting for upper stacked survivors to die. Browser/visual checks for these newest edits pending publication.
+Fixed Carry/Drop while paused and clears held inputs on pause/resume. Small-screen starts scroll the game into view. Level 1 shelter now has a physical roof/side steps; topology tests cover all 15 stages. The tutorial test walkers now jump the blocking shelter when stacked. Shared tests/routes and updated real multiplayer test pass; browser pause/autoscroll/roof checks await publication.
 
-Next: publish current fixes, check browser/phone/puzzle fixtures, inspect full sequence results, then deploy the verified revision. Continue improving remaining gameplay and usability tasks with honest evidence.
+## Active work handles
 
-## Limits and handoff
+- Session 53535: 30-minute LOCAL soak, eight rooms / 32 clients. artifacts/soak-8-1800.log, final JSON artifacts/soak-8-1800.json. Started about 04:03 UTC. Running with periodic progress and no failure so far. Do not restart because observation times out.
+- All sequence/finale/jitter/multiplayer handles prior to this update are complete.
 
-Original MVP-01/MVP-02 acceptance is in QA_LOG.md. MVP-03/MVP-04 remain IMPLEMENTED_UNVERIFIED because physical-device acceptance and human submission review were deferred. Automated evidence is not human balance or physical-device testing. Nothing has been submitted.
+Two actual clients completed the entire earlier campaign; three completed all 15 stages/default scenes on b2f91f in 787 seconds. Four-player full runs remain failed: initial failures at 14, newest warning-aware driver failed at 3. Focused four-client 6-8 and 14-15 pass; six Level 14 repeats pass. No complete four-client claim. Automated bots are not human balance testing.
 
-Rooms support 1-4 players, joining before start, one Node process. Persistent reconnect identity/cloud saves are absent. Saved sound settings and synthesized cues exist; physical listening and mobile performance remain unverified.
+## Next work and limits
 
-Continue until 06:00 America/New_York October 30 (10:00 UTC), then save a handoff and stop. TASK_LIST.md is the canonical task board; QA_LOG.md holds evidence; CAMPAIGN_BUILD.md explains rules.
+Publish current fixes, pass CI/browser, deploy and rerun public smoke. Continue game testing and polish until 06:00 America/New_York October 30 (10:00 UTC), then save handoff and stop. Potential next useful work: Firefox/WebKit compatibility, live browser performance, robot/throw animation, friend invitation links, and additional route QA.
+
+MVP-03/MVP-04 remain IMPLEMENTED_UNVERIFIED because physical-device acceptance and human submission review were deferred. Nothing submitted. Rooms hold 1-4 players, join before start, one Node process; reconnect cleanly returns to title/new lobby, without persistent identity/cloud saves. Physical listening and phone performance remain pending. TASK_LIST.md is canonical; QA_LOG.md holds evidence.

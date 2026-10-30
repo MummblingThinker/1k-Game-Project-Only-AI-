@@ -62,7 +62,11 @@ class Peer extends EventEmitter {
 }
 async function connect() { const peer = new Peer(); await until(() => peer.connected, 'Socket.IO handshake'); return peer; }
 async function walk(peer, target) {
-  const send = () => peer.send('input', { right: peer.state.you.x < target, left: peer.state.you.x > target + 7 });
+  const send = () => {
+    const p=peer.state.you;
+    const obstacle=peer.state.world.platforms.some(s=>p.y<s.y+s.h && p.y+p.h>s.y+3 && s.x>=p.x+p.w-2 && s.x<p.x+p.w+8);
+    peer.send('input', { right: p.x < target, left: p.x > target + 7, jump: !!p.onGround && obstacle });
+  };
   send();
   const heartbeat = setInterval(send, 50);
   try { await until(() => !peer.state.you.alive || Math.abs(peer.state.you.x - target) < 7, `walk to ${target}`, 14000); }

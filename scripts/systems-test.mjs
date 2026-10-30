@@ -102,8 +102,8 @@ check('jump struggle is edge-triggered and shares the four-extension cap', () =>
   for (let i = 0; i < 12; i++) { a.input = { jump: i % 2 === 1 }; stepRun(r); }
   assert.equal(a.capture.struggle, 4);
 });
-check('every expanded shelter has usable ground exits and a reachable roof', () => {
-  for (let level = 2; level <= 15; level++) {
+check('every shelter including the tutorial has usable ground exits and a reachable roof', () => {
+  for (let level = 1; level <= 15; level++) {
     const reference = runAt(level, 1);
     for (let index = 0; index < reference.world.checkpoints.length; index++) {
       for (const direction of [-1, 1]) {

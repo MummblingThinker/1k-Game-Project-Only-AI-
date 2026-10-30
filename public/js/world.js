@@ -128,6 +128,10 @@ export function buildLevel(levelId = 1, partySize = 1) {
     world.giant.crossingSeconds = 120;
     world.giant.wakeTicks = 480;
     world.finish.locked = true;
+    for(const cp of world.checkpoints) world.platforms.push(
+      {x:cp.x,y:113,w:cp.w,h:5,kind:'shelter-roof',shelterX:cp.x},
+      {x:cp.x-31,y:132,w:15,h:5,kind:'step',shelterX:cp.x},
+      {x:cp.x+cp.w+16,y:132,w:15,h:5,kind:'step',shelterX:cp.x});
     world.terrain = [];
     world.signs = [{ x: 100, text: 'SPACE: JUMP • E: RELAY' }, { x: 490, text: 'RED RELAY → E' }];
     return world;

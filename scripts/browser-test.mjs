@@ -64,6 +64,21 @@ try {
   await solo.waitForFunction(() => document.querySelector('#game').dataset.state === 'playing');
   await solo.keyboard.press('Escape'); assert.equal(await state(solo), 'paused');
   await solo.keyboard.press('Escape'); assert.equal(await state(solo), 'playing');
+  await walk(solo,165);
+  await solo.waitForTimeout(150);
+  await solo.keyboard.press('Escape');
+  const pausedX=await x(solo), pausedThreat=await solo.locator('#threat-status').textContent();
+  await solo.keyboard.press('f');await solo.keyboard.down('ArrowRight');await solo.keyboard.down('Space');
+  await solo.waitForTimeout(1200);
+  assert.equal(await x(solo),pausedX,'pause freezes movement');
+  assert.equal(await solo.locator('#threat-status').textContent(),pausedThreat,'pause freezes pursuit timer');
+  assert.ok(!(JSON.parse(await solo.locator('#game').getAttribute('data-players'))[0].carryId),'paused F cannot pick up a crate');
+  await solo.keyboard.press('Escape');await solo.waitForTimeout(300);
+  await solo.keyboard.up('ArrowRight');await solo.keyboard.up('Space');
+  assert.ok(Math.abs(await x(solo)-pausedX)<1,'resume clears held input');
+  await solo.keyboard.press('f');
+  await solo.waitForFunction(()=>!!JSON.parse(document.querySelector('#game').dataset.players)[0].carryId);
+  await solo.keyboard.press('q');
   for (const level of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]) {
     await solo.goto(`${base}/?level=${level}`);
     await solo.waitForFunction(level => document.querySelector('#region-badge').textContent.includes(String(level).padStart(2, '0')), level);
@@ -143,6 +158,8 @@ try {
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.state === 'playing')));
   await Promise.all([walk(a, 256), walk(b, 256)]);
   await Promise.all([jump(a), jump(b)]);
+  await Promise.all([walk(a,420),walk(b,420)]);
+  await Promise.all([jump(a),jump(b)]);
   await Promise.all([walk(a, 530), walk(b, 520)]);
   await a.keyboard.press('e');
   await Promise.all([a, b].map(p => p.waitForFunction(() => document.querySelector('#game').dataset.switchActive === 'true')));
@@ -176,7 +193,9 @@ try {
   await phone.evaluate(() => scrollTo(0, 0));
   await phone.screenshot({ path: 'artifacts/mobile.png' });
   await phone.goto(base);
-  await phone.locator('#start-story').tap(); await phone.evaluate(() => scrollTo(0, 0));
+  await phone.locator('#start-story').tap();
+  assert.ok(Math.abs((await phone.locator('.screen-frame').boundingBox()).y)<3,'starting from below the screen brings the phone game into view');
+  await phone.evaluate(() => scrollTo(0, 0));
   await phone.locator('#story-next').tap();
   await phone.waitForFunction(() => document.querySelector('#story-heading').textContent === 'RUN!');
   assert.equal(await phone.locator('#story-heading').textContent(), 'RUN!');
