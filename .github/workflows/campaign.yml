@@ -72,6 +72,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node scripts/browser-rescue-test.mjs
       - run: node scripts/browser-giant-test.mjs
+      - run: node scripts/browser-memory-test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -79,6 +80,7 @@ jobs:
           path: |
             artifacts/rescue/
             artifacts/giant/
+            artifacts/memory/
   compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15

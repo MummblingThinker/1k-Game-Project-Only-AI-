@@ -31,7 +31,7 @@ Touch controls stay at the screen bottom during play on narrow screens. Pause/re
 
 ## Campaign
 
-Level 1 is the 960-unit tutorial. Normal later maps are 3x as wide; Levels 5/10/15 are 5.5x/6x/6.5x. Routes have authored pits, ledges, shelters, relays, enemy mixes, water, conveyors and cracked salvage that breaks under a stomp or thrown crate. The giant crosses a normal map in about two minutes without catch-up teleportation. Boss boundaries exclude it.
+Level 1 is the roughly 960-unit tutorial/reference. Normal later maps are 3x the reference width; Levels 5/10/15 are 5.5x/6x/6.5x. Routes have authored pits, ledges, shelters, relays, enemy mixes, water, conveyors and cracked salvage that breaks under a stomp or thrown crate. The giant crosses a normal map in about two minutes without catch-up teleportation. Boss boundaries exclude it.
 
 - Level 5: evade the Warden slam, then use relays 2–1–3 during its exposed window.
 - Level 10: activate three beacons and survive 45 seconds. A covered route shelters the team beneath a drone swarm.
@@ -44,6 +44,8 @@ Robots are indestructible. Jump onto a grabber only while it holds a teammate to
 Shared hearts start at three solo, four for two/three players and five for four. Each fatal transition charges once. A checkpoint revives the longest-dead survivor OR restores one heart if everyone is alive. Full stage transitions reset the original party's life pool. Carry/throw, stacking and fallback stepping stones support teamwork. See [campaign rules](docs/CAMPAIGN_BUILD.md).
 
 Shelters have two ground exits and an overhead ladder. Stand at the central ladder and use E (Interact on touch) to climb to the roof; move sideways to step off. Put carried objects down first. The roaming giant can destroy the shelter and its ladder.
+
+Find optional blue MEMORY / E terminals in stages 2-15 to discover fourteen original story fragments. Teammates share each discovery; the Memory archive below the game lets you reread it after replaying or reloading. The archive saves in this browser when available and does not change the required route or default ending.
 
 ## Verification and limits
 

@@ -32,6 +32,8 @@ Automated last-survivor audit: scripts/last-survivor-test.mjs creates each origi
 
 Solo and Socket.IO rooms use simulation.js. E uses a relay/memory terminal or picks up a nearby crate; use E again to throw. F prioritizes a nearby teammate, then crates; F again throws. Q safely drops. A carried teammate can jump free. Living teammates are standable top surfaces for stacking. Jumping on a robot stuns it only while it is actually grabbing a teammate. Alternating A/D or tapping Jump during capture buys a limited extension (four increments shared across both inputs).
 
+The optional memory archive holds fourteen distinct original fragments, one for each stage 2-15. A shared terminal read adds the fragment to every current teammate's local archive. Local storage failure keeps it for the session and shows an honest save-status message. No fragment is required for a relay, boss, exit or ending.
+
 Sentinels mark an impending strike; creepers count down to a radius blast and recover; scanners mark a vertical scan target; grabbers patrol and capture. All machines are indestructible. Solo grabbers use a telegraphed crush window because no teammate can rescue a solo player. Shallow water slows ground movement; conveyors push. Optional machine memory terminals never gate completion.
 
 N / Continue advances a completed stage; R replays the current stage. Online only the host may advance/replay or skip a shared story. Story scenes after 5/10/15 are server-timed, with native HTML captions. In the lobby the host may select any practice stage. Join before start; leaving/disconnecting clears identity and releases carry/grab relationships.

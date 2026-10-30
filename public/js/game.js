@@ -10,6 +10,7 @@ import { readProgress, saveProgress } from './progress.js';
 import { SnapshotInterpolator } from './interpolation.js';
 import { diagnosticReport } from './telemetry.js';
 import { createVisualOptions } from './visual-options.js';
+import { createMemoryArchive } from './memories.js';
 import { startLevel, stepRun, interactRun, objectiveText } from './simulation.js';
 
 const canvas = document.getElementById('game');
@@ -39,6 +40,7 @@ const visualSnapshots = new SnapshotInterpolator();
 let progressStorage = null;
 try { progressStorage = window.localStorage; } catch { /* Storage can be disabled. Gameplay still works. */ }
 const visualOptions=createVisualOptions($('motion-setting'),$('effects-setting'),progressStorage);
+const memoryArchive=createMemoryArchive($('memory-archive'),progressStorage,stage=>getLevel(stage).title);
 let savedProgress = readProgress(progressStorage);
 function updateResumeButton() {
   $('resume-solo').hidden = !savedProgress;
@@ -395,6 +397,7 @@ function syncTextUI() {
 }
 
 function draw(dtMs = 1000 / 60) {
+  memoryArchive.observe(world);
   gameAudio.observe({ state: gameState, world, player, listener: viewPlayer(), hearts, storyVisual: gameState === 'cutscene' ? currentCutscene?.panels[cutscenePanelIndex]?.visual : null });
   syncTextUI();
   if (gameState === 'title') {

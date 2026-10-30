@@ -216,3 +216,9 @@ body[data-game-state=cutscene] .screen-frame { min-height: 450px; }
 .visual-options select { margin:6px 12px 6px 4px; max-width:100%; }
 body[data-motion=reduced] .comic-cell { animation:none;opacity:1;transform:none; }
 @media (prefers-reduced-motion: reduce) { body:not([data-motion=full]) .comic-cell { animation:none;opacity:1;transform:none; } }
+/* Optional story archive uses native disclosure and readable display text. */
+.memory-archive { margin-top: 18px; }
+.memory-archive summary { cursor: pointer; font-weight: 700; color: var(--text, #e8edf2); padding: 4px 0; }
+.memory-archive ol { margin: 16px 0 0; padding-left: 24px; display: grid; gap: 16px; }
+.memory-archive h3 { margin: 0 0 6px; font-size: 16px; }
+.memory-archive li p { margin: 0; max-width: 76ch; line-height: 1.6; }

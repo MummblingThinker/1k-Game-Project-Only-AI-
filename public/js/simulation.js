@@ -1,6 +1,7 @@
 import { buildLevel } from './world.js';
 import { createPlayer, stepPlayer, overlaps, updateCrates } from './physics.js';
 import { recordRunEvent } from './telemetry.js';
+import { MEMORY_FRAGMENTS } from './memories.js';
 
 export const heartMaximum = count => count <= 1 ? 3 : Math.min(10, 3 + Math.ceil((count - 1) / 2));
 export const playersOf = run => [...run.players.values()];
@@ -142,7 +143,7 @@ export function interactRun(run, id, action = 'use') {
     if (sw) { openRelay(run, sw); return true; }
     if (run.world.memory && !run.world.memory.read && Math.abs(p.x - run.world.memory.x) < 26) {
       run.world.memory.read = true;
-      run.notice = ['MEMORY: We were told protecting you meant keeping you here.', 'MEMORY: The factory still remembers the people who built it.', 'MEMORY: A machine can obey and still remember kindness.'][Math.floor((run.level - 1) / 5)];
+      run.notice = 'MEMORY: '+MEMORY_FRAGMENTS[run.level];
       return true;
     }
     const shelter=run.world.checkpoints.find(c=>!c.destroyed&&Math.abs(p.x+p.w/2-(c.x+c.w/2))<=9&&p.y>=118&&p.onGround);

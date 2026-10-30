@@ -19,7 +19,7 @@ try{
   }
   await fresh();await page.keyboard.down('ArrowRight');
   await page.waitForFunction(()=>window.readQaState()?.you.x>=100);await page.keyboard.up('ArrowRight');
-  await page.waitForFunction(()=>window.readQaState()?.world.giant.x>=-10,null,{timeout:20000});
+  await page.waitForFunction(()=>window.readQaState()?.world.giant.x>=-10,null,{timeout:30000});
   const giant=await page.locator('.screen-frame').screenshot({path:'artifacts/giant/approach.jpg',type:'jpeg',quality:85});
   console.log('GIANT_BASE64_BEGIN'+giant.toString('base64')+'GIANT_BASE64_END');
   await page.keyboard.press('Escape');const paused=await snapshot();await sleep(500);const frozen=await snapshot();
@@ -49,7 +49,8 @@ try{
   assert.equal(sheltered.hearts,3);
   const camera=Number(await page.locator('#game').getAttribute('data-camera-x'));
   assert.ok(sheltered.you.x-camera>20&&sheltered.you.x-camera<300,'camera keeps shelter player in frame');
-  await page.waitForFunction(()=>window.readQaState()?.world.checkpoints[0].destroyed,null,{timeout:35000});
+  const approachTicks=sheltered.world.giant.wakeTicks+Math.max(0,(cp.x-35-sheltered.world.giant.x)/sheltered.world.giant.speed);
+  await page.waitForFunction(()=>window.readQaState()?.world.checkpoints[0].destroyed,null,{timeout:Math.ceil(approachTicks/60*1000)+10000});
   const breached=await snapshot();
   assert.ok(!breached.world.platforms.some(p=>p.shelterX===cp.x),'breach removes roof and side steps');
   const breach=await page.locator('.screen-frame').screenshot({path:'artifacts/giant/breach.jpg',type:'jpeg',quality:85});

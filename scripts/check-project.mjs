@@ -63,6 +63,15 @@ for (const bad of ['{', 'null', '{"version":2,"stage":7}', '{"version":1,"stage"
 const blocked = { getItem() { throw Error('blocked'); }, setItem() { throw Error('quota'); } };
 assert.equal(readProgress(blocked),null); assert.equal(saveProgress(blocked,7),false);
 console.log('Solo stage storage PASS: validated version/stage, corrupted and blocked storage are harmless.');
+const {MEMORY_FRAGMENTS,readMemories,saveMemories}=await import('../public/js/memories.js');
+assert.equal(Object.keys(MEMORY_FRAGMENTS).length,14);assert.equal(new Set(Object.values(MEMORY_FRAGMENTS)).size,14);
+saved=null;assert.deepEqual(readMemories(storage),[]);
+assert.equal(saveMemories(storage,[15,2,2,8]),true);assert.deepEqual(readMemories(storage),[2,8,15]);
+for(const invalid of [[1],[16],['2'],[2.5],null,{}])assert.equal(saveMemories(storage,invalid),false);
+for(const corrupt of ['{','null','{"version":2,"stages":[2]}','{"version":1,"stages":3}']){saved=corrupt;assert.deepEqual(readMemories(storage),[]);}
+saved='{"version":1,"stages":[2,2,999,"3",4]}';assert.deepEqual(readMemories(storage),[2,4]);
+assert.deepEqual(readMemories(blocked),[]);assert.equal(saveMemories(blocked,[2]),false);
+console.log('Memory archive PASS: 14 distinct fragments, validated/deduplicated local progress and blocked storage.');
 
 // Verify a real jump arc crosses every solo Level 1 gap from a readable approach.
 for (const pit of solo.pits) {
