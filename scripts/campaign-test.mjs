@@ -63,14 +63,15 @@ function drive(r, id = 'p0') {
     else if (b.kind === 'gatewarden') target = b.pylons[[1, 0, 2][b.activeRelay] ?? 2].x;
     else if (b.kind === 'background' && b.phase === 'stunned') target = b.x + 310;
     else target = b.pylons.find(s => !s.active)?.x ?? b.x + 190;
-    if (((b.phase === 'warning' && b.timer < 45) || b.phase === 'attack') && Math.abs(p.x - b.targetX) < 60) target = b.targetX + (b.targetX > b.x + b.w - 110 ? -85 : 85);
+    if ((b.phase === 'warning' || b.phase === 'attack') && Math.abs(p.x - b.targetX) < 90) target = b.targetX + (p.x >= b.targetX && b.targetX < b.x + b.w - 110 ? 100 : -100);
   }
   const pit = w.pits.find(pit => p.x + p.w > pit.x - 8 && p.x < pit.x + pit.w && !w.platforms.some(s => s.kind === 'switch-bridge' && s.x === pit.x));
   const blockedLedge = w.platforms.some(s => p.y + p.h > s.y + 3 && (target > p.x ? s.x >= p.x + p.w - 1 && s.x < p.x + p.w + 4 : p.x >= s.x + s.w - 1 && p.x < s.x + s.w + 4));
   const rescue = w.enemies.find(e => e.grabbedId && e.grabbedId !== p.id);
   if (rescue) target = rescue.x + 4;
   const robot = w.enemies.some(e => e.kind === 'grabber' && !e.stunned && Math.abs(p.x - e.x) < 36);
-  p.input = { right: p.x < target - 3, left: p.x > target + 5, jump: !!p.onGround && (!!pit || blockedLedge || robot) };
+  const jumpStrike = b && b.kind !== 'background' && ((b.phase === 'warning' && b.timer < 24) || b.phase === 'attack') && Math.abs(p.x - b.targetX) < 80;
+  p.input = { right: p.x < target - 3, left: p.x > target + 5, jump: !!p.onGround && (!!pit || blockedLedge || robot || jumpStrike) };
   if (Math.abs(p.x - target) < 23 && r.tick % 13 === 0) interactRun(r, p.id);
 }
 for (const count of [1, 2, 3, 4]) for (let level = 1; level <= 15; level++) {

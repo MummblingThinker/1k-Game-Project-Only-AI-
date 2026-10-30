@@ -71,6 +71,7 @@ check('boss order, stun window, survival requirement and background core cycles 
   interactRun(r, p.id); assert.equal(boss.activeRelay, 0);
   r.tick += 12; p.x = boss.pylons[1].x; interactRun(r, p.id); assert.equal(boss.activeRelay, 1); assert.equal(boss.phase, 'stunned');
   const r10 = runAt(10, 1), b10 = r10.world.boss; r10.players.get('p0').x = b10.x + 20;
+  r10.world.switches.forEach(s => { s.active = true; });
   b10.pylons.forEach(s => { s.active = true; }); b10.activeRelay = 3;
   stepRun(r10); assert.equal(b10.solved, false); b10.elapsed = 2700; stepRun(r10); assert.ok(b10.solved);
   const r15 = runAt(15, 1), b15 = r15.world.boss, p15 = r15.players.get('p0');
@@ -79,6 +80,7 @@ check('boss order, stun window, survival requirement and background core cycles 
 });
 check('drop/carry cannot use relays, and boss waits for the living party', () => {
   const r = runAt(15), [a, b] = [...r.players.values()], boss = r.world.boss;
+  r.world.switches.forEach(s => { s.active = true; });
   a.x = boss.pylons[0].x;
   assert.equal(interactRun(r, a.id), false);
   assert.equal(boss.activeRelay, 0); assert.equal(boss.phase, 'waiting');
@@ -142,6 +144,23 @@ check('conveyor drift respects walls and upward ceiling collisions use the head 
   stepPlayer(p, {}, w); assert.equal(p.y, 106); assert.equal(p.vy, 0);
   p.y = 90; p.vy = -5;
   stepPlayer(p, {}, w); assert.ok(p.y < 90, 'existing overlap must not eject player downward through floor');
+});
+check('missing route relays cannot trap the party inside an active arena', () => {
+  const r = runAt(15), boss = r.world.boss;
+  for (const p of r.players.values()) p.x = boss.x + 4;
+  stepRun(r); assert.equal(boss.phase, 'waiting');
+  const a = r.players.get('p0'); a.input = { left: true };
+  for (let i = 0; i < 10; i++) stepRun(r);
+  assert.ok(a.x < boss.x, 'party can return to missed relays');
+});
+check('a surviving heart retries the encounter explicitly without teleporting from a shelter', () => {
+  const r = runAt(10, 1), p = r.players.get('p0'), b = r.world.boss;
+  r.world.switches.forEach(s => { s.active = true; }); p.x = b.x + 20; stepRun(r);
+  b.elapsed = 2500; b.pylons[0].active = true; b.activeRelay = 1;
+  killPlayer(r, p, 'Arena strike'); const hearts = r.hearts; stepRun(r);
+  assert.ok(p.alive); assert.equal(r.hearts, hearts); assert.ok(p.x >= b.x && p.x < b.x + 100);
+  assert.equal(b.phase, 'recover'); assert.equal(b.elapsed, 0); assert.equal(b.activeRelay, 0);
+  assert.ok(b.pylons.every(s => !s.active)); assert.equal(b.timer, 120);
 });
 console.log('Shared systems regression complete.');
 

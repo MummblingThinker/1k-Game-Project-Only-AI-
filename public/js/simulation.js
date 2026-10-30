@@ -199,6 +199,7 @@ function updateBoss(run) {
   if (!b || b.solved) return;
   const alive = playersOf(run).filter(p => p.alive);
   if (b.phase === 'waiting') {
+    if (run.world.switches.some(s => !s.active)) return;
     if (!alive.length || !alive.every(p => p.x >= b.x)) return;
     b.phase = 'recover'; b.timer = 120;
     run.notice = b.kind === 'gatewarden' ? 'WARDEN: bait a slam, then relay 2 → 1 → 3 while exposed.' : b.kind === 'gauntlet' ? 'SURVIVE 45 seconds. Activate all three beacons; jump the warning stripes.' : 'COLOSSUS: charge three relays, then E at the central core. Repeat three times.';
@@ -266,10 +267,15 @@ export function stepRun(run) {
   if (!alive.length) {
     // Spend the already-deducted hearts to retry the segment, without banking recovery.
     const cp = world.checkpoints.filter(c => c.active && !c.destroyed).at(-1);
-    const x = cp ? cp.x + 6 : 27;
+    const arenaRetry = b && b.phase !== 'waiting' && !b.solved;
+    const x = arenaRetry ? b.x + 24 : cp ? cp.x + 6 : 27;
     for (const p of participants) Object.assign(p, makeParticipant(p.id, p.slot, world), { x: x + p.slot * 14, invulnerability: 120 });
     world.giant.x = Math.min(world.giant.x, x - 160);
-    run.notice = 'Team down. Retrying the segment with remaining hearts.';
+    if (arenaRetry) {
+      b.phase = 'recover'; b.timer = 120; b.elapsed = 0; b.activeRelay = 0; b.cycle = 0;
+      b.pylons.forEach(s => { s.active = false; });
+    }
+    run.notice = arenaRetry ? 'Team down. Encounter reset with remaining hearts. Get ready!' : 'Team down. Retrying the segment with remaining hearts.';
     return;
   }
   world.finish.locked = world.switches.some(s => !s.active) || !!(b && !b.solved);

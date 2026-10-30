@@ -294,3 +294,11 @@ Status: IN_PROGRESS. New source fixes, supported by focused shared-engine tests 
 - Rendered story screenshot from job 123853949710 inspected: text is sharp and panels reveal, but repeated full-frame atlas crops distort illustration proportions. Next visual refinement will preserve aspect ratio and use focused crops with captions inside each panel.
 
 Follow-up: real-client Level 15 rerun PASS after shelter/input/terrain fixes (npm run test:live-campaign, local Node 24.20.0, two actual WebSocket clients). Comic art now preserves its 3:2 quadrant proportions inside cropped cells and includes native-text captions per cell. End card aligned with the established tragic ending. Browser visual recheck queued for the new source.
+
+## 2026-10-30 CAMP-01 arena-entry and retry hardening
+
+- A party that bypasses a route relay can return from the arena; the encounter cannot start until every route relay is active. New direct regression passes.
+- A full party wipe with hearts remaining now retries inside the encounter entrance with 120 ticks of recovery/invulnerability; relay, cycle and survival timer progress reset. It no longer respawns at a distant shelter and then clamps/teleports into a live attack. Shared hearts are not restored. New retry assertions pass.
+- The route driver now reacts to the full visible warning and chooses the nearest safe direction rather than crossing the marked impact while returning to its objective. It jumps ground strikes where appropriate. This is a test-driver correction, not reduced hazard damage/timing.
+- `npm test` and `npm run test:live-campaign` both PASS after these changes. All 60 campaign routes still finish; the actual two-client finale reaches the shared ending.
+- Previous shelter/comic source 5ea0b4222e157b4f6fa57fed09efe1cd3d111787 passed CI 40992225925 including live finale and browser. Its rendered story JPEG was visually inspected: aspect ratio preserved, distinct crops, readable in-panel captions. Fixed a stray encoding character in the region badge for the next commit.
