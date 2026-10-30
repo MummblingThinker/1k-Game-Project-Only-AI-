@@ -247,5 +247,18 @@ check('loose crates can be pushed but cannot pass through a solid wall', () => {
   for(let i=0;i<80;i++)updateCrates(w);
   assert.equal(upper.y+upper.h,crate.y,'loose crates can be stacked');
 });
+check('box chains move together, stop atomically at walls, and thrown boxes hit ceilings',()=>{
+  const boxes=[100,114,128].map((x,i)=>({id:'chain-'+i,x,y:137,w:14,h:14,vx:0,vy:0}));
+  const w={width:300,height:180,floorY:151,floors:[{x:0,y:151,w:300,h:30}],platforms:[{x:180,y:80,w:10,h:71}],crates:boxes};
+  const p=createPlayer('push',85,129);p.onGround=true;
+  for(let i=0;i<100;i++){stepPlayer(p,{right:true},w);updateCrates(w);}
+  assert.ok(boxes[0].x>130);assert.ok(boxes[2].x+14<=180);
+  assert.ok(boxes.every((b,i)=>!i||boxes[i-1].x+14<=b.x+.001),'chain never overlaps');
+  const positions=boxes.map(b=>b.x);for(let i=0;i<20;i++)stepPlayer(p,{right:true},w);
+  assert.deepEqual(boxes.map(b=>b.x),positions,'blocked chain leaves every box stationary');
+  w.platforms=[{x:0,y:90,w:300,h:8}];w.crates=[{...boxes[0],x:20,y:110,vy:-4}];
+  for(let i=0;i<8;i++)updateCrates(w);
+  assert.ok(w.crates[0].y>=98,'thrown box cannot pass through ceiling');
+});
 console.log('Shared systems regression complete.');
 

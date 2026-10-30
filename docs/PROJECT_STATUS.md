@@ -1,6 +1,6 @@
 ﻿# Implementation status
 
-Updated October 30, 2026, 04:53 UTC.
+Updated October 30, 2026, 04:55 UTC.
 
 GitHub is MummblingThinker with repository write access. Render uses My Workspace, service srv-dbhnfcm1egvs73817n4g. Public game: https://tiny-teamwork-last-spark.onrender.com.
 
@@ -18,7 +18,8 @@ Main e2c7896b6ca83b3f66932e8dc272ec7bf60a2f9e passed CI 41003469869 in Chromium,
 
 - COMPLETE 53535: 30-minute local soak PASS, 8 rooms / 32 clients, 132560 checks, 313 resets, peak RSS 133.01 MiB, all rooms cleaned. artifacts/soak-8-1800.json. Not Render capacity evidence.
 - COMPLETE 54199: full four-client campaign/default stories PASS, 847 seconds. artifacts/live-sequence-4-spaced.log. Spaced departures/one boss leader change bot strategy only.
-- ACTIVE crate-version full campaigns: two clients 8146, three 40132, four 87489; artifacts/live-sequence-N-crates.log. Do not restart on observation timeout.
+- Crate-version two/four runs 8146/87489 failed Level 4; complete. Three-client 40132 active beyond Level 9. Bot now settles on approach ledges before a new pit jump; focused two-client Level 4 PASS.
+- Main 1c465e54d0a8d577df9132d56f85bb2c0e1616c9 CI 41004923651 failed jitter pressure check; npm/adversarial/Firefox/WebKit passed. Local chain-push and ceiling fixes pass npm and jitter; publish next and await Chromium spectator coverage.
 
 Two clients completed a full earlier campaign. Three completed all 15 stages/default stories on b2f91f in 787 seconds. Four now passed the full pre-crate campaign; older failed drivers remain logged. These bots are not human balance evidence.
 

@@ -21,6 +21,7 @@ Create a room, share its six-character code, and join before the host starts. Gu
 | Relay, pylon, terminal, crate | E |
 | Carry / throw teammate or crate | F |
 | Drop | Q |
+| Watch next living teammate while down | V |
 | Continue after victory | N (host online) |
 | Restart after defeat/victory | R (host online) |
 | Pause solo / release online input | Esc |
@@ -63,3 +64,5 @@ Read [PRIORITY_ROADMAP.md](PRIORITY_ROADMAP.md), [TASK_LIST.md](TASK_LIST.md), [
 Solo stage resume is saved in this browser and restarts the last begun solo/practice stage with full hearts. It does not save within-stage progress or multiplayer rooms. Storage being unavailable does not prevent play. Online survivor motion is smoothed visually between server snapshots; collisions, timers and actions always use the authoritative server state.
 
 In a lobby, Copy invite link gives friends a URL with the room code filled in. They still choose Join and Ready before the host starts. The button is hidden once the run begins; if clipboard access is blocked, copy the selected code instead.
+
+Walk against a loose crate to push it. Boxes stop at walls and other boxes, can be stacked, and still support carry/throw. When down in co-op, the camera follows a living teammate; V or Watch next switches survivor. A shelter revives the longest-down teammate.

@@ -18,6 +18,27 @@ export function overlaps(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 }
 
+// Plan an entire horizontal box chain before moving anything, so a wall at
+// the far end cannot leave an earlier box embedded in its neighbor.
+function pushCrates(first, nextX, world) {
+  const movingRight=nextX>first.x, planned=new Map();
+  const loose=(world.crates||[]).filter(c=>!c.used&&!c.carriedBy);
+  function plan(crate,x) {
+    if(planned.has(crate))return false;
+    const proposed={...crate,x};
+    if(x<0||x+crate.w>world.width||[...world.floors,...world.platforms].some(s=>overlaps(proposed,s)))return false;
+    planned.set(crate,x);
+    for(const other of loose) {
+      if(other===crate||!overlaps(proposed,{...other,x:planned.get(other)??other.x}))continue;
+      if(!plan(other,movingRight?x+crate.w:x-other.w))return false;
+    }
+    return true;
+  }
+  if(!plan(first,nextX))return false;
+  for(const [crate,x] of planned){crate.x=x;crate.vx=0;}
+  return true;
+}
+
 export function stepPlayer(player, input, world, dt = 1) {
   if (!player.alive) return player;
   const p = player;
@@ -65,9 +86,7 @@ export function stepPlayer(player, input, world, dt = 1) {
     const movingLeft = p.x < oldX;
     if (!movingRight && !movingLeft) continue;
     const proposed = { ...crate, x: movingRight ? p.x + p.w : p.x - crate.w };
-    const solids = [...world.floors, ...world.platforms, ...(world.crates || []).filter(c => c !== crate && !c.used && !c.carriedBy)];
-    const blocked = proposed.x < 0 || proposed.x + proposed.w > world.width || solids.some(s => overlaps(proposed, s));
-    if (!blocked) { crate.x = proposed.x; crate.vx = 0; }
+    const blocked = !pushCrates(crate,proposed.x,world);
     p.x = movingRight ? crate.x - p.w : crate.x + crate.w;
     if (blocked) p.vx = 0;
   }
@@ -100,7 +119,7 @@ export function updateCrates(world, dt = 1) {
   for (const crate of world.crates) {
     if (crate.carriedBy || crate.used) continue;
     const oldX = crate.x;
-    const oldBottom = crate.y + crate.h;
+    const oldTop = crate.y, oldBottom = crate.y + crate.h;
     crate.vy = Math.min(4.5, (crate.vy || 0) + 0.22 * dt);
     const solids = [...world.floors, ...world.platforms, ...world.crates.filter(c => c !== crate && !c.used && !c.carriedBy)];
     crate.x += (crate.vx || 0) * dt;
@@ -116,10 +135,12 @@ export function updateCrates(world, dt = 1) {
       if (horizontally && crate.vy >= 0 && oldBottom <= solid.y + 2 && crate.y + crate.h >= solid.y) {
         crate.y = solid.y - crate.h;
         crate.vy = 0;
+      } else if(horizontally && crate.vy<0 && oldTop>=solid.y+solid.h && crate.y<=solid.y+solid.h) {
+        crate.y=solid.y+solid.h;crate.vy=0;
       }
     }
     crate.x = Math.max(0, Math.min(world.width - crate.w, crate.x));
-    // A thrown crate over a pit settles on its base as a temporary step instead of disappearing immediately.
+    // A crate dropped below the death zone is removed from collision/weight checks.
     if (crate.y > world.height + 12) { crate.used = true; crate.y = world.floorY - crate.h; crate.vy = 0; }
   }
 }

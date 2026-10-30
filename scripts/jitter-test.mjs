@@ -43,7 +43,11 @@ try {
   a.send('input',{x:99999,hearts:999,right:'true'});await sleep(600);
   assert.equal(a.state.you.x,stopped);assert.equal(a.state.hearts,4);
   const plate=a.state.world.plates[0];
-  driver=setInterval(()=>{const x=a.state.you.x; a.send('input',{right:x<plate.x-3,left:x>plate.x+12});},80);
+  driver=setInterval(()=>{
+    const p=a.state.you,w=a.state.world;
+    const obstacle=[...w.platforms,...w.crates.filter(c=>!c.used&&!c.carriedBy)].some(q=>p.y+p.h>q.y+3&&q.x>=p.x+p.w-2&&q.x<p.x+p.w+18);
+    a.send('input',{right:p.x<plate.x-3,left:p.x>plate.x+12,jump:p.onGround&&obstacle});
+  },80);
   await until(()=>a.state.world.plates[0].held&&b.state.world.plates[0].held,'shared pressure bridge',6000);
   clearInterval(driver);a.send('input',{});await sleep(500);
   assert.ok(a.state.world.platforms.some(p=>p.kind==='pressure-bridge'));

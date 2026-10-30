@@ -28,6 +28,10 @@ class Peer {
     });
   }
   send(event, value) {
+    if(event==='input'&&process.env.TRACE_SEQUENCE){
+      const p=this.state?.you;
+      if(p){this.trace??=[];this.trace.push({tick:this.state.tick,x:p.x,y:p.y,vy:p.vy,onGround:p.onGround,coyote:p.coyoteTicks,lastJump:p.lastJump,input:value});if(this.trace.length>35)this.trace.shift();}
+    }
     if(event==='interact'){const now=Date.now();if(now-(this.lastUse||0)<220)return;this.lastUse=now;}
     this.socket.send('42' + JSON.stringify(value === undefined ? [event] : [event, value]));
   }
@@ -57,7 +61,10 @@ function drive(peer) {
   const robot = w.enemies.some(e => e.kind === 'grabber' && !e.stunned && Math.abs(p.x - e.x) < 36);
   const jumpStrike = b && b.kind !== 'background' && ((b.phase === 'warning' && b.timer < 24) || b.phase === 'attack') && Math.abs(p.x - b.targetX) < 80;
   const groundStrike=w.enemies.some(e=>e.kind!=='scanner' && ((e.phase==='warning' && e.timer<28)||e.phase==='attack') && Math.abs(p.x-e.targetX)<(e.kind==='creeper'?62:40));
-  peer.send('input', { right: p.x < target - 3, left: p.x > target + 5, jump: !!p.onGround && (pit || ledge || robot || jumpStrike || groundStrike) });
+  // Land on the approach ledge before attempting another gap. Walking off a
+  // shelter step during an earlier jump is not a valid jump across the next pit.
+  const settle=!p.onGround&&p.vy>=0&&target>p.x&&w.pits.some(q=>p.x<q.x&&p.x+p.w>q.x-28&&!w.platforms.some(t=>['switch-bridge','pressure-bridge'].includes(t.kind)&&t.x===q.x));
+  peer.send('input', { right: !settle&&p.x < target - 3, left: p.x > target + 5, jump: !!p.onGround && (pit || ledge || robot || jumpStrike || groundStrike) });
   if (Math.abs(p.x - target) < 23) peer.send('interact');
 }
 
@@ -93,7 +100,7 @@ try {
     const stageStarted = Date.now(), end = stageStarted + 260000;
     let lastHearts = host.state.hearts;
     while (Date.now() < end && host.state.phase === 'playing') {
-      if (host.state.hearts < lastHearts) { console.log('LIVE heart event: ' + JSON.stringify({level,hearts:host.state.hearts,notice:host.state.notice,players:host.state.players.map(p=>({slot:p.slot,x:Math.round(p.x),y:Math.round(p.y),alive:p.alive}))})); lastHearts = host.state.hearts; }
+      if (host.state.hearts < lastHearts) { console.log('LIVE heart event: ' + JSON.stringify({level,hearts:host.state.hearts,notice:host.state.notice,players:host.state.players.map(p=>({slot:p.slot,x:Math.round(p.x),y:Math.round(p.y),alive:p.alive}))})); if(process.env.TRACE_SEQUENCE)console.log('TRACE '+JSON.stringify(peers.map(p=>p.trace))); lastHearts = host.state.hearts; }
       if (host.state.world.boss) assert.ok(host.state.world.giant.x + 44 < host.state.world.boss.x, 'pursuer excluded');
       await sleep(100);
     }
