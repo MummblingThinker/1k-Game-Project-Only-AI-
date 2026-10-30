@@ -75,6 +75,7 @@ jobs:
       - run: node scripts/browser-giant-test.mjs
       - run: node scripts/browser-memory-test.mjs
       - run: node scripts/browser-hazards-test.mjs
+      - run: node scripts/browser-carry-test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -84,6 +85,7 @@ jobs:
             artifacts/giant/
             artifacts/memory/
             artifacts/hazards/
+            artifacts/carry/
   compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15
