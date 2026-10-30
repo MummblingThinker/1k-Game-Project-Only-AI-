@@ -20,7 +20,10 @@ export function driveRevision(state,p,memo={}){
   const sw=w.switches.find(s=>!s.active&&near(s));
   if(sw){command.action='use';return command;}
   const plate=w.plates.find(s=>p.x>s.x-130&&p.x<s.bridgeX+10);
-  if(plate){
+  // A ground-floor plate must not override rooftop obstacle/ladder routing.
+  // Otherwise the controller walks into a roof prop while chasing a weight
+  // 180 units below it, without ever asking for an ordinary jump.
+  if(plate&&Math.abs(feet-plate.y)<100){
     const weight=w.crates.find(c=>c.plateId===plate.id);
     const placed=w.crates.some(c=>!c.used&&!c.carriedBy&&c.x+c.w>plate.x&&c.x<plate.x+plate.w&&Math.abs(c.y+c.h-plate.y)<2);
     if(!placed&&weight){
