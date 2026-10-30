@@ -1,0 +1,63 @@
+name: October revision public acceptance
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/revision-public.yml']
+permissions:
+  contents: read
+env:
+  BROWSER_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
+jobs:
+  public-campaign:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        party: [2, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 24, cache: npm}
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Confirm deployed game source
+        run: |
+          node --input-type=module <<'JS'
+          import {readFile} from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          for(const p of ['revision-world.js','revision-simulation.js','revision-art.js','physics.js','game.js']) {
+            const response=await fetch(process.env.BROWSER_BASE_URL+'/js/'+p);
+            assert.equal(response.status,200);
+            assert.equal((await response.text()).replaceAll('\r\n','\n'),(await readFile('public/js/'+p,'utf8')).replaceAll('\r\n','\n'),p+' deployed source differs');
+          }
+          console.log('Deployed runtime modules match checked-out source.');
+          JS
+      - run: node scripts/revision-campaign-test.mjs
+        env:
+          TEST_PARTY: ${{ matrix.party }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-revision-campaign-${{ matrix.party }}
+          path: artifacts/browser-campaign/
+  public-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 24, cache: npm}
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/smoke-test.mjs
+        env:
+          TEST_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
+      - run: node scripts/revision-browser-test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-revision-browser
+          path: artifacts/revision/
