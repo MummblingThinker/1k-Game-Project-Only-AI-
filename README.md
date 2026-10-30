@@ -1,6 +1,6 @@
 # Tiny Teamwork: The Last Spark
 
-A solo or 2â€“4-player browser platformer across 15 stages: escape the city, cross the forest, and destroy the factory. Original pixel gameplay and 33 distinct anime comic illustrations.
+A solo or 2–4-player browser platformer across 15 stages: escape the city, cross the forest, and destroy the factory. Original pixel gameplay and 33 distinct anime comic illustrations.
 
 Play: https://tiny-teamwork-last-spark.onrender.com
 
@@ -47,7 +47,7 @@ Hearts start at three solo, four for two/three players and five for four. Ordina
 
 ## Verification
 
-`npm test` runs current construction, movement/timing, storage, revised rules, client-session and HTTP/asset checks. `node scripts/revision-route-test.mjs` drives all stages with ordinary input; TEST_PARTY selects 1â€“4. `node scripts/revision-network-test.mjs` uses two actual WebSocket clients. CI installs Playwright for `revision-browser-test.mjs` and `revision-campaign-test.mjs`; public acceptance verifies deployed source before traversing the campaign.
+`npm test` runs current construction, movement/timing, storage, revised rules, client-session and HTTP/asset checks. `node scripts/revision-route-test.mjs` drives all stages with ordinary input; TEST_PARTY selects 1–4. `node scripts/revision-network-test.mjs` uses two actual WebSocket clients. CI installs Playwright for `revision-browser-test.mjs` and `revision-campaign-test.mjs`; public acceptance verifies deployed source before traversing the campaign.
 
 Historical tests for shelters and indestructible bosses are retained as historical contracts, not evidence for the current rules. Exact passes, failures, replays and limitations are recorded in [QA_LOG.md](QA_LOG.md). Automated reachability does not establish human difficulty balance or physical mobile usability.
 

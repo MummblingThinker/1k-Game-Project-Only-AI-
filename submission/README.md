@@ -10,7 +10,7 @@ Play: https://tiny-teamwork-last-spark.onrender.com
 
 The source and game now include all 15 stages, solo and up to four-player co-op, shared hearts/rescue, three milestone encounters and original anime comic chapters. Automated full browser campaigns passed at 1/2/3/4 players; see QA_LOG.md for exact revisions. Physical-device/network acceptance and human difficulty review remain pending.
 
-An actual public solo Warden fight (source 0606bcb7, run 41067528871/job 124102766580) is saved at submission/cover.jpg (1440 by 960, 3:2). The source archive is generated at release/TinyTeamwork-source.zip with a SHA256 manifest. No contest entry has been submitted.
+An actual public solo Warden fight (source 393f9ae8, run 41090585233/job 124183108418) is saved at submission/cover.jpg (1440 by 960, 3:2). The source archive is generated at release/TinyTeamwork-source.zip with a SHA256 manifest. No contest entry has been submitted.
 
 Before publishing, the owner should complete the deferred two-device/separate-network test, review the description/link/cover, verify eligibility and required disclosures, and submit personally. Run npm run check:submission for the remaining evidence gates. Do not set humanReviewed, humanSubmitted or external-playtest fields based on automated tests.
 

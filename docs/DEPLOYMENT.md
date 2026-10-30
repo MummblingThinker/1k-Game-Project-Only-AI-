@@ -10,14 +10,14 @@ Status: campaign release 0.3.0 deployed on Render; physical-device/network accep
 - Service: `srv-dbhnfcm1egvs73817n4g`; https://dashboard.render.com/web/srv-dbhnfcm1egvs73817n4g
 - Free Node service, Virginia, one instance, manual deploys. Build `npm ci && npm test`; start `npm start`; Node 24.20.0; NODE_ENV=production. No database or secrets.
 - Initial live deploy: `dep-dbhnfde1egvs73817pj0`, runtime source `269fc0e4384ebd9cf44bdd6cb6caaa81dcc0c776`. Logs confirm assigned PORT=10000.
-- Current gameplay-revision runtime: `913a4342c04552849b6fe696c18ea26cc2ba0017`, deploy `dep-dbiada1srm7s73dmsht0`, LIVE October 30 at 14:16:47 UTC. Later tests/cover/documentation commits do not require redeployment.
+- Current follow-up runtime: `393f9ae8fc9715e427d130ced9cdb66ccee2249e`, deploy `dep-dbicbru1egvs73e72db0`, LIVE October 30 at 16:30:10 UTC. Runtime matches cc8b4efe production code; later commits adjust tests/documentation only and do not require redeployment.
 - Direct MCP creation uses Render's default TCP readiness checks; its limited tool cannot set `healthCheckPath`. The existing `/health` HTTP endpoint is independently tested below. To enable provider HTTP checks, set `/health` in Dashboard Settings; the supplied Blueprint already requests it.
 
 The repository also contains a Public multiplayer smoke GitHub Actions workflow. It tests this deployed URL from an Ubuntu runner, without a ChatGPT login. It does not replace the physical-device test below.
 
 Full public regression passed: https://github.com/MummblingThinker/1k-Game-Project-Only-AI-/actions/runs/40915358003. Includes HTTP assets/health and actual WSS gameplay through shared victory/replay, isolation and cleanup. See QA_LOG.md for the earlier failures and corrections.
 
-Current replacement acceptance: public browser/assets/comics PASS 41070578466/job 124113263906; complete two-player campaign 124113263592 PASS all 15/default chapters/ending with one Level 14 replay. Focused final boss two/four-player follow-up 41071836457 also PASS. Full 1/2/3/4 CI campaigns passed on the exact runtime (41069764037). See QA_LOG.md for all failed patrol attempts, replays and final follow-up results. These are automated independent browsers, not physical-device testing.
+Current follow-up acceptance: exact deployed-runtime CI 41090331309 passed all eight jobs and all four full party sizes (recorded replays). Full PUBLIC solo 41090585233/124183108418 passed all 15/default ending first attempts. Public browser and W/S/shared victory/host-transfer WSS checks passed job 124183108266; focused public two-player Levels 8-10/cleanup passed 41092685216/124190368293 with two replays. Full public co-op and focused four-player attempts also failed on patrol, Warden and lava outcomes: hosted difficulty/latency acceptance remains unresolved. Do not label the whole public workflow green. Final controls-only public 41093615761/job 124193555355 also PASS, including explicit network ladder coverage. See QA_LOG.md and QA-HOSTED-01. These are automated independent contexts, not physical-device testing.
 
 Historical pre-revision quiet-interval smoke: 41036079502/job 123997121435, runtime 13744978, first health response 21404ms. Provider sleep is not inferred solely from the delay. This timing is historical, not a fresh cold-start measurement of the replacement.
 
@@ -47,10 +47,10 @@ Render Free sleeps after 15 minutes without traffic and can take about a minute 
 
 ## External acceptance procedure
 
-- Device A: use the public HTTPS link, create a room, and record the random code.
-- Device B on a separate network (for example cellular): open the same link and join the code without a ChatGPT/hosting login or installation.
+- Device A: use the public HTTPS link, select Multiplayer and create a room, and record the random code.
+- Device B on a separate network (for example cellular): open the same link, select Multiplayer and join the code without a ChatGPT/hosting login or installation.
 - Guest chooses Ready; host starts. Both move/jump; compare player positions, relay/bridge state and shared hearts.
-- One player activates the relay with E. Both cross the bridge and reach the shelter; both must see victory. Host replay must reset both.
+- One player activates the relay with E. Both cross the bridge, pass the flag and reach the exit door; both must see victory. Host replay must reset both.
 - Try an invalid code and a second isolated room; check browser errors, HTTPS assets, WebSocket traffic and `/health`.
 - Log URL, date, devices, browsers, networks, exact steps and results in QA_LOG.md. Any untested part stays unverified.
 

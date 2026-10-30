@@ -1,4 +1,4 @@
-# Playing Tiny Teamwork â€” October revision
+# Playing Tiny Teamwork — October revision
 
 Open https://tiny-teamwork-last-spark.onrender.com. Choose Single Player, then Start Story, Resume, or a practice stage. Multiplayer and Settings have their own title buttons. The free service can take time to wake. Solo reload resumes the last stage with full hearts; flag checkpoints apply during the current run.
 

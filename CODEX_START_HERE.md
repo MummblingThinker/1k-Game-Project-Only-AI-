@@ -22,7 +22,7 @@ Physical-device acceptance remains deferred. Never invent human testing or conte
 - Level 5: climb and throw at Warden, then final floor/exit. Level 10: chainsaw tree maze and lethal falling-tree finale. Level 15: rising lava/three console phases, lasers/platform break, left breach/leap and leftward machinery escape. Boss deaths use pixel animation.
 - Level 11 contains forest-to-covered-building-to-factory with protected overhead swarm. Chapters occur after 5/10/11/15. Eleven original triptychs provide 33 different illustrations.
 
-Latest follow-up: W/S deliberately climbs ladders and release holds position; facade fronts are walkable scenery, solid tree trunks block passage. Giant contact ends the run with at most two survivors; with 3+ it spends one heart and returns the caught teammate if hearts remain. Title menus and zone music are being verified. README.md and docs/PRACTICE_GUIDE.md are reconciled at handoff. docs/CAMPAIGN_BUILD.md and old test files preserve historical rules; they are not current acceptance criteria.
+Latest follow-up: W/S deliberately climbs ladders and release holds position; facade fronts are walkable scenery, solid tree trunks block passage. Giant contact ends the run with at most two survivors; with 3+ it spends one heart and returns the caught teammate if hearts remain. Title menus, original zone music, detailed scenery and bridge art are implemented with automated browser acceptance. README.md and docs/PRACTICE_GUIDE.md describe the current controls; exact final public results are in PROJECT_STATUS and QA_LOG. docs/CAMPAIGN_BUILD.md and old test files preserve historical rules; they are not current acceptance criteria.
 
 ## Resume discipline
 
