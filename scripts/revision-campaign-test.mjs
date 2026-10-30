@@ -135,6 +135,7 @@ try {
   if(server)await until(async()=> (await(await fetch(base+'/health')).json()).rooms===0,'cleanup');
   else if(createdRoom){
     await Promise.all(peers.map(p=>p.page.waitForFunction(()=>document.querySelector('#game').dataset.room==='')));
+    await host.page.locator('#menu-multi').click();
     await host.page.locator('#room-code').fill(createdRoom);await host.page.locator('#join-room').click();
     await until(()=>host.roomErrors.some(e=>/not found/i.test(e)),'own public room removed');
     assert.equal(await host.page.locator('#game').getAttribute('data-room'),'');
