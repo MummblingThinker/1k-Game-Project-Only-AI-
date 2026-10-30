@@ -9,20 +9,20 @@ Use Render My Workspace. GitHub connection: MummblingThinker, admin/push access.
 
 ## Authorization and cutoff
 
-The owner authorized this revision until 11:00 America/New_York October 30, 2026 (15:00 UTC). It supersedes the earlier 06:00 cutoff. Save the final handoff and stop at the current cutoff. A historical deadline is not authorization for another autonomous session.
+The owner authorized this revision until 13:00 America/New_York October 30, 2026 (17:00 UTC). The latest follow-up supersedes both earlier 06:00 and 11:00 cutoffs. Save the final handoff and stop at the current cutoff. A historical deadline is not authorization for another autonomous session.
 
 Physical-device acceptance remains deferred. Never invent human testing or contest submission. No submission has been performed.
 
 ## Current design
 
-- Flags replace save rooms, grant one heart once and record in-run respawn points. Solo death with hearts left respawns there. Flags can revive one downed co-op survivor.
+- Flags replace save rooms, restore one heart once up to the original party cap (three solo) and record in-run respawn points. Solo death with hearts left respawns there. Flags can revive one downed co-op survivor.
 - Relay and weight bridges must be used; gaps exceed ordinary jump reach. Pressure bridges require sustained weight, with only a short release grace. Yellow puzzle weights are durable and recover from pits.
 - Ground robots patrol/turn/charge, with visible facing. Flying scan attacks remain. Thrown debris destroys small robots, damages medium robots, and only stuns big normal robots. Most debris breaks.
 - Authored vertical city/forest/factory routes, biome props/enemies, breakable barriers, water, conveyors and wildlife. Level 1 is 960 units, normals 2880, milestones 5280/5760/6240. Giant normal crossing about 120 seconds; no boss-zone entry.
 - Level 5: climb and throw at Warden, then final floor/exit. Level 10: chainsaw tree maze and lethal falling-tree finale. Level 15: rising lava/three console phases, lasers/platform break, left breach/leap and leftward machinery escape. Boss deaths use pixel animation.
 - Level 11 contains forest-to-covered-building-to-factory with protected overhead swarm. Chapters occur after 5/10/11/15. Eleven original triptychs provide 33 different illustrations.
 
-README.md and docs/PRACTICE_GUIDE.md describe current play. docs/CAMPAIGN_BUILD.md and old test files preserve historical rules; they are not current acceptance criteria.
+Latest follow-up: W/S deliberately climbs ladders and release holds position; facade fronts are walkable scenery, solid tree trunks block passage. Giant contact ends the run with at most two survivors; with 3+ it spends one heart and returns the caught teammate if hearts remain. Title menus and zone music are being verified. README.md and docs/PRACTICE_GUIDE.md are reconciled at handoff. docs/CAMPAIGN_BUILD.md and old test files preserve historical rules; they are not current acceptance criteria.
 
 ## Resume discipline
 

@@ -8,6 +8,12 @@ This is the single source of truth for the remaining build. Codex must update th
 
 > Current owner revision: REV-01/02/03 govern the October 30 replacement. Older checked entries retain their dated baseline evidence; they do not certify changed shelter, enemy, bridge or boss rules. Explicitly replaced requirements are SUPERSEDED and unchecked. Physical/human acceptance remains separate.
 
+## October 30 follow-up until 1 PM
+
+- [ ] `FIX-01` · `P0` · Reachable facade ladders, W/S manual climbing, solid Level 10 trunks and prompt tree finale. **Status: IN_PROGRESS** - Reproduced embedded ladder/solid-block issue; replacing collision geometry and controls.
+- [ ] `FIX-02` · `P0` · Solo three-heart cap, bounded flag healing and new giant defeat/team recovery rules. **Status: IN_PROGRESS** - Explicit regression coverage and full routes required.
+- [ ] `FIX-03` · `P1` · Detailed cohesive environment/bridge rendering, zone music, title navigation with single/multiplayer/settings/stage select. **Status: IN_PROGRESS** - Implementing and preparing browser/visual acceptance.
+
 ## Submission-critical path — do these before optional polish
 
 - [x] `REV-01` · `P0` · Owner playtest revision: flag recovery, long bridge puzzles, vertical/biome-varied maps, throwable combat and directional patrol/charge enemies. **Status: VERIFIED** - Current rules, all 60 ordinary-input routes, 45 last-survivor routes, three browser engines and full 1/2/3/4 browser campaigns PASS on runtime 913a4342. Public full two-player campaign PASS with one recorded replay. See QA_LOG.md 14:40 revision acceptance; human difficulty review remains separate.

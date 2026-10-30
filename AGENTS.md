@@ -1,5 +1,9 @@
 # Codex Instructions — Tiny Teamwork: The Last Spark
 
+## Latest owner fixes, October 30 11:19 AM
+
+The owner resumed work until **1 PM America/New_York today (17:00 UTC)**. This supersedes the morning deadline and heart/ladder rules. Fix reachable facade ladders and prevent solid tree clipping; W/S deliberately climbs up/down and releasing holds position, Space jumps. Solo hearts cap at three; flags heal only to the original party cap. Giant contact ends the run unless more than two players are alive, in which case the caught player spends one heart and returns if hearts remain. Trigger the Level 10 tree finale promptly once a player crosses it, with a fast visible boss approach. Improve cohesive detailed scenery/bridges and unmistakable solid versus background surfaces. Add zone music/ambience and a real title menu with Single Player, Multiplayer/room setup, level select and Settings. Test/deploy stable changes and hand off by cutoff. Prior requirements below are historical where they conflict.
+
 # Limited-budget execution priority
 
 ## Owner gameplay replacement, October 30 morning

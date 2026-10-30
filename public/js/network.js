@@ -96,6 +96,7 @@ export class NetworkClient {
       left: !!input.left,
       right: !!input.right,
       jump: !!input.jump,
+      up: !!input.up, down: !!input.down,
     });
   }
 

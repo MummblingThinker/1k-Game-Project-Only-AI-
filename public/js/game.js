@@ -1,3 +1,4 @@
+import { createTitleMenu } from './title-menu.js';
 import { CAMPAIGN, getLevel, STORY_BEATS } from './campaign.js';
 import { buildLevel } from './world.js';
 import { createPlayer, overlaps, stepPlayer, updateCrates } from './physics.js';
@@ -51,12 +52,18 @@ updateResumeButton();
 
 const keys = new Set();
 const justPressed = new Set();
-const touchInput = { left: false, right: false, jump: false, interact: false };
+const touchInput = { left: false, right: false, jump: false, up:false, down:false, interact: false };
 function clearInput() {
   keys.clear();justPressed.clear();
-  touchInput.left=touchInput.right=touchInput.jump=touchInput.interact=false;
+  touchInput.left=touchInput.right=touchInput.jump=touchInput.up=touchInput.down=touchInput.interact=false;
 }
 let gameState = 'title';
+const titleMenu=createTitleMenu({
+  release:()=>{clearInput();if(typeof network!=='undefined')network.sendInput({},true);},
+  pause:()=>{if(!network.inRoom&&gameState==='playing'){gameState='paused';return true;}return false;},
+  resume:()=>{if(gameState==='paused')gameState='playing';}
+});
+
 let currentLevel = 1;
 let partySize = 1;
 let maxHearts = 3;
@@ -365,7 +372,7 @@ function syncTextUI() {
   const wakeSeconds = Math.ceil((world.giant.wakeTicks || 0) / 60);
   const secondsBehind = Math.max(0, Math.ceil((viewed.x + 4 - world.giant.x - 44) / world.giant.speed / 60)) + wakeSeconds;
   const threat = inArena ? 'BLAST DOOR • The roaming giant cannot enter this arena.'
-    : ['playing', 'paused'].includes(gameState) ? wakeSeconds ? `PURSUER WAKES IN ${wakeSeconds}s • Start toward the route relays.` : `PURSUER • About ${secondsBehind}s to ${spectating?'the watched survivor':'your current position'}. Keep moving.`
+    : ['playing', 'paused'].includes(gameState) ? wakeSeconds ? `PURSUER WAKES IN ${wakeSeconds}s • Start toward the route relays.` : `PURSUER • About ${secondsBehind}s to ${spectating?'the watched survivor':'your current position'}. Keep moving. Giant contact ends the run unless 3+ teammates are alive.`
     : 'The giant follows the route. Boss blast doors keep it outside.';
   if ($('threat-status').textContent !== threat) $('threat-status').textContent = threat;
   $('threat-status').dataset.urgent = String(!inArena && secondsBehind < 10 && gameState === 'playing');
@@ -406,6 +413,7 @@ function syncTextUI() {
 function draw(dtMs = 1000 / 60) {
   memoryArchive.observe(world);
   gameAudio.observe({ state: gameState, world, player, listener: viewPlayer(), hearts, storyVisual: gameState === 'cutscene' ? currentCutscene?.panels[cutscenePanelIndex]?.visual : null });
+  titleMenu.update(gameState,network.inRoom);
   syncTextUI();
   if (gameState === 'title') {
     drawTitle(ctx, visualOptions.reducedMotion?0:clock);
@@ -439,7 +447,9 @@ function update(dtMs) {
     const input = {
       left: keys.has('ArrowLeft') || keys.has('KeyA') || touchInput.left,
       right: keys.has('ArrowRight') || keys.has('KeyD') || touchInput.right,
-      jump: keys.has('Space') || keys.has('ArrowUp') || keys.has('KeyW') || touchInput.jump,
+      jump: keys.has('Space') || touchInput.jump,
+      up:keys.has('KeyW')||keys.has('ArrowUp')||touchInput.up,
+      down:keys.has('KeyS')||keys.has('ArrowDown')||touchInput.down,
     };
     if (!network.inRoom && justPressed.has('KeyE')) interact();
     if (network.inRoom) {
@@ -461,6 +471,7 @@ function frame(now) {
 }
 
 window.addEventListener('keydown', (event) => {
+  if(titleMenu.visible)return;
   if (['INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName)) return;
   // Let focused native buttons keep their keyboard activation (including sound settings).
   if (event.target.tagName === 'BUTTON' && ['Space', 'Enter'].includes(event.code)) return;
@@ -549,6 +560,8 @@ for (const button of document.querySelectorAll('[data-control]')) {
     if (action === 'left') touchInput.left=value;
     if (action === 'right') touchInput.right=value;
     if (action === 'jump') touchInput.jump=value;
+    if (action === 'up') touchInput.up=value;
+    if (action === 'down') touchInput.down=value;
     if (action==='interact' && value) interact();
     if (action==='carry' && value) interact('carry');
     if (action==='drop' && value) interact('drop');
@@ -587,7 +600,9 @@ function sendNetworkInput() {
   network.sendInput({
     left: playing && (keys.has('ArrowLeft') || keys.has('KeyA') || touchInput.left),
     right: playing && (keys.has('ArrowRight') || keys.has('KeyD') || touchInput.right),
-    jump: playing && (keys.has('Space') || keys.has('ArrowUp') || keys.has('KeyW') || touchInput.jump),
+    jump: playing && (keys.has('Space') || touchInput.jump),
+    up:playing&&(keys.has('KeyW')||keys.has('ArrowUp')||touchInput.up),
+    down:playing&&(keys.has('KeyS')||keys.has('ArrowDown')||touchInput.down),
   }, true);
 }
 setInterval(sendNetworkInput, 100);

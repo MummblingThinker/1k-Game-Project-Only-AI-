@@ -13,16 +13,32 @@ try{
   browser=await ({chromium,firefox,webkit}[process.env.TEST_BROWSER||'chromium']).launch({headless:true});
   const context=await browser.newContext({viewport:{width:1440,height:960}}),page=await context.newPage();
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(base+'/?debug=1');await page.locator('#level-select').selectOption('1');await page.locator('#play-selected').click();await page.locator('#game').focus();
+  await page.goto(base+'/?debug=1');
+  await page.locator('#menu-single').waitFor({state:'visible'});
+  assert.equal(await page.locator('#create-room').isVisible(),false,'room setup belongs inside Multiplayer');
+  const title=await page.locator('.screen-frame').screenshot({path:'artifacts/revision/title-menu.jpg',type:'jpeg',quality:82});console.log('TITLE_BASE64_BEGIN'+title.toString('base64')+'TITLE_BASE64_END');
+  await page.locator('#menu-settings').click();assert.ok(await page.locator('#sound-volume').isVisible());assert.ok(await page.locator('#motion-setting').isVisible());
+  await page.locator('#menu-back').click();await page.locator('#menu-multi').click();assert.ok(await page.locator('#create-room').isVisible());assert.ok(await page.locator('#join-room').isVisible());
+  await page.locator('#menu-back').click();await page.locator('#menu-single').click();await page.locator('#level-select').selectOption('1');await page.locator('#play-selected').click();await page.locator('#game').focus();
   const snapshot=()=>page.evaluate(async()=> (await import('/js/game.js')).readDebugSnapshot());
+  let manual=await snapshot();const ladder=manual.world.ladders[0];
+  await page.keyboard.down('ArrowRight');
+  for(let i=0;i<200;i++){manual=await snapshot();if(manual.you.x>=ladder.x-4)break;await sleep(30);}
+  await page.keyboard.up('ArrowRight');await sleep(90);
+  const floorY=(await snapshot()).you.y;await page.keyboard.down('KeyW');await sleep(500);await page.keyboard.up('KeyW');await sleep(80);
+  const heldY=(await snapshot()).you.y;assert.ok(heldY<floorY-20,'W grabs facade ladder and climbs');
+  await sleep(250);assert.ok(Math.abs((await snapshot()).you.y-heldY)<.1,'releasing W holds still');
+  await page.keyboard.down('KeyS');await sleep(200);await page.keyboard.up('KeyS');assert.ok((await snapshot()).you.y>heldY+8,'S descends');
+  const facade=await page.locator('.screen-frame').screenshot({path:'artifacts/revision/facade-ladder.jpg',type:'jpeg',quality:86});console.log('FACADE_BASE64_BEGIN'+facade.toString('base64')+'FACADE_BASE64_END');
+  console.log('MENU / MANUAL LADDER PASS: title branches, reachable facade, W climb, release hold, S descend.');
   let s=await snapshot(),held={},memo={},lastUse=0;const deadline=Date.now()+90000;
   while(s?.phase==='playing'&&Date.now()<deadline){
     const cmd=driveRevision(s,s.you,memo);
-    for(const [key,code]of Object.entries({left:'ArrowLeft',right:'ArrowRight',jump:'Space'}))if(!!held[key]!==!!cmd.input[key]){await page.keyboard[cmd.input[key]?'down':'up'](code);held[key]=!!cmd.input[key];}
+    for(const [key,code]of Object.entries({left:'ArrowLeft',right:'ArrowRight',jump:'Space',up:'KeyW',down:'KeyS'}))if(!!held[key]!==!!cmd.input[key]){await page.keyboard[cmd.input[key]?'down':'up'](code);held[key]=!!cmd.input[key];}
     if(cmd.action&&Date.now()-lastUse>220){await page.keyboard.press(cmd.action==='carry'?'f':cmd.action==='drop'?'q':'e');lastUse=Date.now();}
     await sleep(25);s=await snapshot();
   }
-  for(const code of ['ArrowLeft','ArrowRight','Space'])await page.keyboard.up(code);
+  for(const code of ['ArrowLeft','ArrowRight','Space','KeyW','KeyS'])await page.keyboard.up(code);
   await page.screenshot({path:'artifacts/revision/level1.png'});
   assert.equal(s.phase,'victory',JSON.stringify({phase:s.phase,player:s.you,hearts:s.hearts}));
   console.log('REAL INPUT BROWSER PASS: flag, vertical roof, debris, patrol, relay bridge and Level 1 exit.');
@@ -39,7 +55,7 @@ try{
     },level);
     const shot=await page.locator('#revision-preview').screenshot({path:`artifacts/revision/scene-${level}.png`});
     console.log('RENDER PASS',JSON.stringify(metadata));
-    if([5,11,15].includes(level))console.log(`SCENE_${level}_BASE64_BEGIN`+shot.toString('base64')+`SCENE_${level}_BASE64_END`);
+    if([3,5,10,11,15].includes(level))console.log(`SCENE_${level}_BASE64_BEGIN`+shot.toString('base64')+`SCENE_${level}_BASE64_END`);
   }
   for(const level of [5,10,15]){
     const frames=await page.evaluate(async level=>{
@@ -60,7 +76,15 @@ try{
     return{scenes,loaded};
   });
   assert.equal(new Set(art.scenes).size,11);assert.ok(art.loaded.every(i=>i.width>1500&&i.height>500),JSON.stringify(art));
-  await page.goto(base+'/?debug=1');await page.locator('#start-story').click();await sleep(1800);
+  for(const [level,zone] of [[1,'city'],[6,'forest'],[12,'factory']]){
+    await page.goto(base+'/?debug=1');await page.locator('#menu-single').click();await page.locator('#level-select').selectOption(String(level));await page.locator('#play-selected').click();
+    await page.waitForFunction(zone=>document.querySelector('#sound-toggle').dataset.audioZone===zone,zone);
+    await page.locator('#open-settings').click();assert.equal(await page.locator('#game').getAttribute('data-state'),'paused');
+    await page.locator('#sound-toggle').click();assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');await page.locator('#sound-toggle').click();await page.locator('#menu-back').click();
+    await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing');
+  }
+  console.log('ZONE AUDIO PASS: city/forest/factory scheduler, gesture unlock, saved mute/volume and settings pause/resume.');
+  await page.goto(base+'/?debug=1');await page.locator('#menu-single').click();await page.locator('#start-story').click();await sleep(1800);
   const story=await page.locator('#story-panel').screenshot({path:'artifacts/revision/comic-desktop.jpg',type:'jpeg',quality:80});console.log('COMIC_BASE64_BEGIN'+story.toString('base64')+'COMIC_BASE64_END');
   const positions=await page.locator('.comic-original').evaluateAll(es=>es.map(e=>getComputedStyle(e).backgroundPosition));assert.equal(new Set(positions).size,3);
   await page.setViewportSize({width:430,height:932});await sleep(300);await page.screenshot({path:'artifacts/revision/comic-mobile.png'});

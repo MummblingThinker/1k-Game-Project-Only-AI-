@@ -1,6 +1,6 @@
-# QA Log — Tiny Teamwork: The Last Spark
+# QA Log â€” Tiny Teamwork: The Last Spark
 
-## 2026-10-28 — MVP-01 / baseline inspection and browser verification blocker
+## 2026-10-28 â€” MVP-01 / baseline inspection and browser verification blocker
 
 Environment: Windows PowerShell; Node.js v24.20.0; project extracted under `TinyTeamwork_Project_Download/Tiny_Teamwork_The_Last_Spark`. No gameplay code changed.
 
@@ -12,13 +12,13 @@ Commands and results:
 
 Required acceptance: fresh load, start/menu, keyboard movement, readable obstacle, reachable goal, clear victory, and replay/restart twice in a real browser with browser/version and console observations.
 
-Actual result: BLOCKED before gameplay edits. `cua.createBrowserTab("chrome", "http://localhost:4173", {sessionName:"🎮 Tiny Teamwork QA"})` returned `Browser is not available: chrome`; `cua.getState()` returned `{"apps":[],"browsers":[]}`. Native computer APIs are disabled in this session. No browser playthrough, screenshot, browser version, or console check could be obtained. HTTP and automated checks do not substitute for that evidence.
+Actual result: BLOCKED before gameplay edits. `cua.createBrowserTab("chrome", "http://localhost:4173", {sessionName:"ðŸŽ® Tiny Teamwork QA"})` returned `Browser is not available: chrome`; `cua.getState()` returned `{"apps":[],"browsers":[]}`. Native computer APIs are disabled in this session. No browser playthrough, screenshot, browser version, or console check could be obtained. HTTP and automated checks do not substitute for that evidence.
 
 Follow-up: enable/connect a supported browser surface accessible to this session, then explicitly authorize resuming MVP-01. MVP-01 remains unchecked/BLOCKED; MVP-02 through MVP-04 were not started. No public deployment or submission is claimed. Work stopped at the user's blocker boundary.
 
 This is the evidence record that supports claims in `TASK_LIST.md`. Update it whenever tests are run for a task, including failures. Do not erase failures; append a later pass entry with the fix noted.
 
-## 2026-10-28 — Starter baseline in current working package
+## 2026-10-28 â€” Starter baseline in current working package
 
 ### Environment
 
@@ -26,7 +26,7 @@ This is the evidence record that supports claims in `TASK_LIST.md`. Update it wh
 - Multiplayer dependencies: not installed in the working folder (`node_modules` absent at the time of the check).
 - Browser-based visual/manual QA: not performed as part of this command-line run.
 
-### PASS — `QA-001` / baseline project checks
+### PASS â€” `QA-001` / baseline project checks
 
 Command: `npm run check`
 
@@ -34,7 +34,7 @@ Result: PASS. Existing assertions report `campaign, region mapping, gap scaling,
 
 Scope limitation: this is a small deterministic check set; it does not prove all in-game flows, multiplayer state, cutscene visuals, or all softlock routes.
 
-### PASS — `QA-002` / offline static server smoke tests
+### PASS â€” `QA-002` / offline static server smoke tests
 
 Command: `npm run smoke`
 
@@ -49,7 +49,7 @@ Result: PASS. Automated smoke test starts `server/static-server.mjs` on a free l
 
 Scope limitation: HTTP checks establish that files are served, not that every feature renders or behaves correctly in a browser.
 
-### PASS — `QA-003` / JavaScript syntax checks
+### PASS â€” `QA-003` / JavaScript syntax checks
 
 Command: `node --check` on `public/js/art.js`, `campaign.js`, `game.js`, `network.js`, `physics.js`, `world.js`, `server/server.js`, `server/static-server.mjs`, `scripts/check-project.mjs`, and `scripts/smoke-test.mjs`.
 
@@ -66,7 +66,7 @@ Result: PASS. No syntax errors reported.
 Append a new section for each QA session; do not overwrite the earlier record.
 
 ```text
-## YYYY-MM-DD — TASK-ID / concise check name
+## YYYY-MM-DD â€” TASK-ID / concise check name
 Environment: OS, browser/version or Node version, party size, commit/hash if available
 Command or steps: exact command(s) and manual procedure
 Expected result: ...
@@ -75,13 +75,13 @@ Artifacts: screenshots/log paths, if any
 Follow-up: bug/task IDs created
 ```
 
-### PASS — task-board evidence guard
+### PASS â€” task-board evidence guard
 
 Command: `npm run verify:board`
 
 Result: PASS. The script confirms every checked task is labelled `Status: VERIFIED` and has a task-ID reference in this QA log. This is a lightweight evidence-presence guard; reviewers still need to inspect that the evidence truly covers the acceptance criteria.
 
-### PASS — packaged handoff validation
+### PASS â€” packaged handoff validation
 
 Command/steps: created `Tiny_Teamwork_The_Last_Spark_Codex_Starter.zip`, ran `unzip -t`, extracted it into a fresh temporary directory without `node_modules`, and ran `npm test` inside the extracted project.
 
@@ -89,9 +89,9 @@ Result: PASS. Archive integrity reported no errors; `npm run check`, `npm run sm
 
 Scope limitation: this validates archive integrity and repeatable command-line checks, not manual visual gameplay or online multiplayer.
 
-## 2026-10-28 — Budget-conscious task prioritization update
+## 2026-10-28 â€” Budget-conscious task prioritization update
 
-### PASS — project regression checks after roadmap/documentation updates
+### PASS â€” project regression checks after roadmap/documentation updates
 
 Environment: Node.js in the current working package; multiplayer dependencies not required for this check; no browser session used.
 
@@ -104,7 +104,7 @@ Scope limitation: this run verifies project checks and static serving only. It d
 Final regression after recording the blocker in TASK_LIST.md and docs/PROJECT_STATUS.md: npm test PASS (exit 0; checks, HTTP smoke, and board guard). The temporary offline server was stopped during handoff cleanup.
 
 
-## 2026-10-28 — MVP-01 / resumed implementation and regression checks
+## 2026-10-28 â€” MVP-01 / resumed implementation and regression checks
 Environment: Windows, Node.js v24.20.0, connected Chrome extension browser 1. User explicitly resumed MVP-01. Earlier browser blocker is resolved: local game title and keyboard movement were observed in Chrome.
 Changes: added a Level 1 victory state with replay/title buttons, keyboard replay/title actions, route progress and clear goal guidance. Kept existing campaign geometry and temporary sprites. No additional levels or optional art pass.
 Commands: node --check public/js/game.js; npm test after victory/UI change; npm test after fixed-step timing change. All PASS (exit 0).
@@ -272,9 +272,9 @@ Status: IN_PROGRESS; automated evidence does not substitute for full human campa
 
 - GitHub campaign commit 54a83a0d8ee5b27f6305336ba8b03927d9c95a90: Actions 40984883655 passed npm test and Playwright browser regression.
 - Anime comic commit 9b3097d4db6e71241da785d6b5a95d2b4726134e: Actions 40985355657 passed again. Chromium 156.0.8078.4 loaded/moved in all 15 stages, tested story/pause, two independent browser contexts completed tutorial relay/victory/shared Continue into Level 2, emulated touch cancellation; zero console/page errors.
-- Actual 1800×1200 JPEG browser screenshot recovered from public-game-only CI evidence and visually inspected; saved submission/cover.jpg. Story atlas visually inspected separately. Full rendered sequential-story screenshot is queued for next browser pass.
+- Actual 1800Ã—1200 JPEG browser screenshot recovered from public-game-only CI evidence and visually inspected; saved submission/cover.jpg. Story atlas visually inspected separately. Full rendered sequential-story screenshot is queued for next browser pass.
 - Render My Workspace deployment dep-dbhvpbajnfac73cgdc4g reported live at 02:11:42 UTC, commit 9b3097d. Public smoke from the earlier campaign source push failed because that test expected simulation.js before the old live service had been updated. Refresh hosted evidence after deployment; do not count that failure as a gameplay pass.
-- Local `npm test` passed with additional systems tests: actual capture rescue, ordinary jump does not stun, bounded struggle, disconnect cleanup, giant shelter breach despite invulnerability, multi-victim blast one-charge-per-player, oldest-dead recovery, boss ordering/window/survival/core rules. Campaign traversal passed 60 input-only routes across all 15 stages at party sizes 1–4.
+- Local `npm test` passed with additional systems tests: actual capture rescue, ordinary jump does not stun, bounded struggle, disconnect cleanup, giant shelter breach despite invulnerability, multi-victim blast one-charge-per-player, oldest-dead recovery, boss ordering/window/survival/core rules. Campaign traversal passed 60 input-only routes across all 15 stages at party sizes 1â€“4.
 - Local `node scripts/live-campaign-test.mjs` exited 0 at 02:17 UTC: real two-client room, host-only stage selection, full Level 15 input-only route, three background-boss core cycles, pursuer exclusion, shared victory/story/ending, guest authority rejection. Output saved artifacts/live-campaign.log. Added standalone npm command and CI step; not added to Render's fast build check.
 - Local server now limits message bursts and room creation; shared action notices update HUD. These changes await published CI/deployment.
 - Submission draft now describes the campaign and references the real cover. Physical-device/network evidence, eligibility and human preview/submission remain pending; no contest submission attempted.
@@ -305,7 +305,7 @@ Follow-up: real-client Level 15 rerun PASS after shelter/input/terrain fixes (np
 
 ## 2026-10-30 LIFE-02 VERIFIED starting-heart ranges
 
-Acceptance is automated range-boundary verification. `npm run test:campaign` asserts counts 1 through 16 against the documented pool, covering every transition: 1=3, 2–3=4, 4–5=5, 6–7=6, 8–9=7, 10–11=8, 12–13=9, 14+=10. PASS in local Node 24.20.0 and campaign CI. Runtime supports lobbies up to four; larger counts are design-function tests, not claims of larger online lobbies. Task LIFE-02 checked; broader manual co-op/life tasks remain IMPLEMENTED_UNVERIFIED.
+Acceptance is automated range-boundary verification. `npm run test:campaign` asserts counts 1 through 16 against the documented pool, covering every transition: 1=3, 2â€“3=4, 4â€“5=5, 6â€“7=6, 8â€“9=7, 10â€“11=8, 12â€“13=9, 14+=10. PASS in local Node 24.20.0 and campaign CI. Runtime supports lobbies up to four; larger counts are design-function tests, not claims of larger online lobbies. Task LIFE-02 checked; broader manual co-op/life tasks remain IMPLEMENTED_UNVERIFIED.
 
 ## 2026-10-30 ART-07 sound implementation IN_PROGRESS
 
@@ -318,7 +318,7 @@ Deployment/packaging follow-up: Render dep-dbi08ics728c73buufu0 for d56fc94 repo
 - New `node scripts/adversarial-test.mjs` PASS: stable 2/3/4-player stacks and clean jump separation, then 120 seeded scenarios mixing movement, carry/drop/use, capture/death and one disconnect. Checked 169,223 simulation ticks for finite coordinates, symmetric carry/capture ownership, heart bounds, indestructible enemies and unique fatal-event IDs. These are scenario tests, not human playtests. Added standalone command and CI step.
 - Cracked salvage barriers added to selected city/forest/factory stages. Stomps and moving/falling crates break them once, producing short debris effects; resting crates do not. Required routes remain jumpable. Shared systems and all 60 campaign routes pass; robots remain indestructible. Browser render inspection pending.
 - Stage-specific original code scenery added: subway cars, rooftop tanks, dispatch searchlights, roots/canopy ropes, river ripples, ranger cabin, assembly machinery, furnace grilles, prototype pods and power coils. Scenery has no hidden collision/hazard rules.
-- Optional memory terminals were previously invisible and could be placed over a pit. They now render with a clear interaction marker and are positioned on clear floor. Automated placement checks pass for all stages and party sizes 1–4.
+- Optional memory terminals were previously invisible and could be placed over a pit. They now render with a clear interaction marker and are positioned on clear floor. Automated placement checks pass for all stages and party sizes 1â€“4.
 - Covered Way now has a physical roof and its 100 decorative drones remain above it. Initial lower ceiling shortened the solo jump over its last gap; raised it to preserve the full jump arc. All 60 routes pass with the final roof height. Rendering fixtures added for ten themed states; these are art inspection, not gameplay evidence.
 - Sound + native-button keyboard source 377f8a0832ae58c338b05fb7b5df118a9bc2020b passed CI 40993686881 and is LIVE on Render (dep-dbi0cp1srm7s73csh340, finished 02:53:10 UTC). Public audio-source smoke 40993335495 rerun requested after deployment.
 
@@ -332,16 +332,16 @@ Deployment/packaging follow-up: Render dep-dbi08ics728c73buufu0 for d56fc94 repo
 
 ## 2026-10-30 long campaign results and input timing
 
-- Two actual local socket clients completed consecutive stages 1–15 and default timed after5/after10/after15 scenes in 779 seconds on bbf6536. Shared victories, host authority and full-level life/revival assertions passed. Log: artifacts/live-sequence-2.log. This is automated evidence, not physical devices.
-- Four-client sequence passed stages 1–13 and the first two scenes, then exhausted hearts at Level 14's narrow crossing. Failure retained in artifacts/live-sequence-4.log; not a full four-player pass.
+- Two actual local socket clients completed consecutive stages 1â€“15 and default timed after5/after10/after15 scenes in 779 seconds on bbf6536. Shared victories, host authority and full-level life/revival assertions passed. Log: artifacts/live-sequence-2.log. This is automated evidence, not physical devices.
+- Four-client sequence passed stages 1â€“13 and the first two scenes, then exhausted hearts at Level 14's narrow crossing. Failure retained in artifacts/live-sequence-4.log; not a full four-player pass.
 - Added 5-tick coyote time and 6-tick landing buffer. Edge/early-landing presses are accepted once; repeated air jumps remain rejected. Carry release clears stale ground/buffer state. Focused tests, all 60 deterministic routes and full npm test PASS.
-- Four actual clients passed focused stages 14–15 and timed ending after this change (156 seconds), with one heart left after the finale route. Log: artifacts/live-sequence-4-late.log. Further full/repeat checks remain useful; this is not human balance proof.
+- Four actual clients passed focused stages 14â€“15 and timed ending after this change (156 seconds), with one heart left after the finale route. Log: artifacts/live-sequence-4-late.log. Further full/repeat checks remain useful; this is not human balance proof.
 - Three-client full sequence on earlier bbf6536 remains active in session 87523. Do not restart on observation timeout.
 - Roster signature now refreshes carrying status. New pose/giant/mobile browser inspection is pending.
 
 ## 2026-10-30 pacing and jump-repeat evidence
 
-- Three-player old-source sequence also failed at Level 14 after passing 1–13. Its failure remains in artifacts/live-sequence-3.log; session 87523 is complete.
+- Three-player old-source sequence also failed at Level 14 after passing 1â€“13. Its failure remains in artifacts/live-sequence-3.log; session 87523 is complete.
 - With short jump buffering/coyote time, Level 14 passed three independent real-client trials at party size 3 and three at party size 4. All six finished with two hearts. Logs: artifacts/repeat-3-1.log through repeat-4-3.log. Fresh full 3/4-player sequences are now running on this improved local source.
 - Normal-map pursuer walking speed remains calibrated to 120 seconds. Giant milestone maps now use that same walking speed instead of accelerating with map width (nominal full-width travel about 216/235/255 seconds, before the boss boundary). Every stage has an eight-second wake warning; contact is still lethal and boss exclusion unchanged. Shared timing tests and all 60 campaign routes pass. Countdown UI includes the warning delay.
 - Motion/mobile CI 40997368197 passed npm tests, adversarial scenarios and live finale. Browser passed all stage loads/co-op, held touch movement/cancel, pause/resume and no-horizontal-overflow, but its immediate phone story-heading assertion failed before the next animation frame. Story button now calls syncTextUI immediately, and its test awaits the observable heading change. Full browser rerun pending. No deployment of this failed browser revision was attempted.
@@ -726,20 +726,20 @@ Added browser-performance-test.mjs: 240 measured native-canvas frames after warm
 - QA-011 implementation/handoff prepared: root startup instructions, roadmap override, controls/help, task evidence, live/validation revisions, known limits and submission draft are consistent. 47 board entries VERIFIED; human/device/playback/difficulty acceptance remains unchecked. Current source ZIP: release/TinyTeamwork-source.zip. Original downloaded archive is preserved.
 - Autonomous owner cutoff: 06:00 America/New_York October 30, 2026 (10:00 UTC). Stop at cutoff; no contest submission, paid deployment change or fabricated physical playtest. Next human acceptance is MVP-03's separate-device/network session, then MVP-04 review/submission when the owner is ready.
 
-## 2026-10-30 13:55 UTC — REV-01 / REV-02 / REV-03 replacement verification in progress
+## 2026-10-30 13:55 UTC â€” REV-01 / REV-02 / REV-03 replacement verification in progress
 
 Owner authorized the replacement until 15:00 UTC (11:00 America/New_York). Earlier shelter, indestructible-boss, covered-Level-10 and optional-short-bridge acceptance is historical and is not evidence for this revision.
 
 - Revision 32b1e073d39be322fd98f7fb8d05a99f878f2dea: GitHub Actions 41061857490 ALL EIGHT PASS: current rules/network/60 ordinary-input routes; Chromium/Firefox/WebKit browser and comic checks; solo/two/three/four actual browser campaigns through all 15 stages and default ending. No simulation mutation in gameplay drivers. Detached scene renders are separate visual fixtures.
 - fcb7c6202dd70b115d6b423f37b765c712f8513c added 90-tick pressure-bridge release grace, one-time flags crossed while jumping, durable/nearest pickup preference, and reduced-effects handling. Local npm test and all 60 input routes PASS. Controller failures during development exposed bots stealing a just-dropped weight and oscillating around clutter; the driver now waits for the falling weight and jumps past clutter. Those were test-controller issues; no gameplay state is patched by the driver.
 - Render My Workspace verified. Manual deploy dep-dbi9pegn74is73aqoubg became LIVE 13:34:25 UTC on fcb7c620. Public source-matched acceptance run 41064466320 PASS: public-browser job 124092139887, full four-player 124092140318, full two-player 124092140443. All 15 stages and synchronized chapters/ending completed, own rooms cleaned without disturbing others.
-- fcb7c620 CI 41064178881: rules/network/60 routes, three browser engines, two/three/four full campaigns PASS; solo job 124091162644 FAILED at Level 15 timeout after Levels 1–14 passed. Snapshot showed all consoles inactive and survivor above the first console. Investigation reproduced E selecting an overlapping ladder before the console. Runtime now prioritizes terminals, with an exact dual-interaction regression. Failure is retained; final rerun pending.
+- fcb7c620 CI 41064178881: rules/network/60 routes, three browser engines, two/three/four full campaigns PASS; solo job 124091162644 FAILED at Level 15 timeout after Levels 1â€“14 passed. Snapshot showed all consoles inactive and survivor above the first console. Investigation reproduced E selecting an overlapping ladder before the console. Runtime now prioritizes terminals, with an exact dual-interaction regression. Failure is retained; final rerun pending.
 - fe663990871669d14b0e5813e5882e6ab89309a5 polish: chainsaw body/blade collision permits climbing above it, starts safely outside entry and moves continuously under falling tree; distinct level palettes/scenery; three pixel death cards remain visible and animate even when the victory tick is frozen. npm test and all 60 routes PASS. CI 41065634624 rules/network and Chromium/Firefox/WebKit PASS; full campaigns pending at this entry. Screenshots from Chromium job 124096148595 visually inspected: Warden/climb, Level 11 swarm/roof, factory background attacker, comic and death card. Review prompted clearer boss chassis art and separated overlapping entrance/flag labels.
 - Eleven original triptychs (33 distinct illustrations) generated and visually inspected; all eleven JPEG loads and three distinct panel positions pass desktop/narrow browser checks. Provenance in docs/OCTOBER_REVISION_ART.md.
-- Four-room, sixteen-client local 1800-second soak is active (scripts/revision-soak-test.mjs); no final pass is claimed yet. Early memory samples about 98–116 MiB. Final results will be appended.
+- Four-room, sixteen-client local 1800-second soak is active (scripts/revision-soak-test.mjs); no final pass is claimed yet. Early memory samples about 98â€“116 MiB. Final results will be appended.
 
 Physical-device/network, uninstructed human onboarding, difficulty balance, human animation playback and physical audio acceptance remain deferred. No contest submission performed. REV tasks remain IN_PROGRESS until final source, public acceptance and handoff are reconciled.
-## 2026-10-30 14:22 UTC — REV-01/02/03 hardening and public results
+## 2026-10-30 14:22 UTC â€” REV-01/02/03 hardening and public results
 
 - 0606bcb77f579e8df9d19673bf30ad0c74e85537: all eight CI jobs PASS, run 41067226004. All four full browser campaign sizes completed after terminal priority repair. fe663990 CI 41065634624 also completed all eight PASS.
 - Public 0606bcb7 acceptance run 41067528871: solo job 124102766580 PASS all 15 first attempt; four-player 124102766026 PASS all 15 with one recorded replay at Level 6 and 18672 matching complete snapshots; public-browser PASS. Two-player job 124102766567 FAILED after exhausting the suite's two-replay allowance: ordinary patrol-collision game-overs at Level 4 and twice at Level 10, no connection/console/softlock error. Retain this loss; do not describe the whole run as green. Earlier fcb public two/four first-attempt campaigns passed with 16524/15198 matches. This remains a challenging game; human balance review is deferred.
@@ -753,7 +753,7 @@ Physical-device/network, uninstructed human onboarding, difficulty balance, huma
 - Source package preflight PASS: 128 allowlisted files, ZIP integrity, fresh dependency-free extraction runs npm test. This was a preflight; final docs/test additions and manifest will be regenerated at handoff.
 
 Explicitly superseded task entries are unchecked/SUPERSEDED; old dated verification stays historical. Current board guard passes with 39 historical/baseline verified entries. REV tasks stay IN_PROGRESS until current-source public acceptance and final handoff are reconciled. Physical/human gates remain unchanged.
-## 2026-10-30 14:40 UTC — current revision acceptance and final soak
+## 2026-10-30 14:40 UTC â€” current revision acceptance and final soak
 
 - REV-01/REV-02 and CAMP-01 current runtime 913a4342: CI 41069764037 ALL EIGHT PASS. Rules/network/disconnect/60 routes job 124110470333; Chromium/Firefox/WebKit 124110470425/124110470420/124110469955; full solo/two/three/four campaigns 124110470615/124110470501/124110470370/124110470377. Current browser campaigns use Chromium 156.0.8078.4, actual UI/keyboard and independent contexts; all 15 stages/default chapters/ending, no simulation injection or console/page errors.
 - Public final runtime 913a4342, run 41070578466: full two-player job 124113263592 PASS all 15, with one recorded Level 14 game-over/UI replay. 17452 complete matching snapshots. Default chapters after 5/10/11/15 and final blackout PASS; own room removed while other rooms preserved. Public-browser job 124113263906 PASS.
@@ -764,10 +764,23 @@ Explicitly superseded task entries are unchecked/SUPERSEDED; old dated verificat
 - Added exact regression for the giant remaining outside the leftward factory escape while a living player crosses behind the arena entrance at escape altitude. npm test PASS including this case, artifacts/revision-final-npm-test.log. No production file changed.
 - Final cover, controls and release status are reconciled with the replacement. REV-01/02 mechanical/automated acceptance is VERIFIED; human difficulty, animation preference, onboarding, physical audio and physical-device/network gates remain unverified. REV-03 final archive reconciliation remains underway. No contest submission performed.
 
-## 2026-10-30 14:47 UTC — final campaigns and handoff reconciliation
+## 2026-10-30 14:47 UTC â€” final campaigns and handoff reconciliation
 
 - Final test-source 2ffcfc04, unchanged live runtime 913a4342: CI 41071836462 ALL EIGHT PASS. Rules/network job 124117705398; Chromium/Firefox/WebKit 124117706252/124117706188/124117706346. Full solo 124117706058 PASS all 15 with one recorded Level 4 replay. Full two/three/four 124117715044/124117705997/124117706185 PASS all 15 first attempts, with 14987/15108/16116 complete matching snapshots respectively. Default chapters/ending and no console/page errors in every run.
 - Public follow-up 41071836457 ALL FOUR PASS: full solo 124117705634 completed all 15 and default story/ending first attempt; public browser and focused two/four Level 15 results are recorded above. This, the full public two-player 41070578466 result, and current CI establish the released revision's automated acceptance. Prior failed patrol runs remain failures and human difficulty balance remains unverified.
 - REV-03 implementation/art/release handoff verified: 33 unique illustrations reviewed, three-engine desktop/narrow loads and default story order PASS; Level 11 covered swarm transition passed all campaigns. Current cover is actual public gameplay. PROJECT_STATUS, deployment/network/art notes and task board now distinguish current rules from historical shelter/boss evidence.
 - Clean source package verification PASS: 130 allowlisted files, ZIP integrity and npm test in isolated fresh extraction without node_modules. Installed-dependency/network/public tests are separately recorded above. artifacts/revision-handoff-archive.log. Final documentation additions are repackaged after this entry; release/source-manifest.json supplies the definitive checksum rather than embedding a self-referential hash in the archive.
 - Final changes after deployed 913a4342 are tests/cover/documentation only. File comparison confirmed no uncommitted production differences. Physical separate-device/network, uncoached onboarding, human balance/animation/audio review and final submission remain incomplete by design; no acceptance was fabricated and no contest submission performed. Archive and final source are saved before the 15:00 UTC owner cutoff.
+
+
+## 2026-10-30 15:38 UTC — FIX-01/02/03 implementation and local verification
+
+Owner resumed until 17:00 UTC / 1 PM America/New_York. Latest requests supersede auto-climbing, uncapped flag hearts, former giant death cost, embedded maze ladders and flat title controls.
+
+- Reproduced building ladders placed inside solid facade blocks. Facades now render behind the walking lane; thin one-way roofs support players. All nine solid Level 10 trunks retain collision and place ladders outside their left edges. W/Up grabs and ascends, S/Down descends, releasing holds position, sideways/Space leaves. E no longer auto-climbs. Controls propagate through authoritative WebSocket input and touch buttons.
+- Solo cap stays three; flags heal up to original party cap. Giant contact ends the whole run with at most two living survivors. With 3+ alive it costs one heart, then returns the caught teammate to an active survivor after 90 ticks if hearts remain. Arena exclusion remains.
+- Crossing the final tree triggers its warning immediately independent of boss distance. Boss rushes continuously into the fall, then dies within about 65 ticks; rush animation itself does not inflict untelegraphed collision damage, but the tree remains lethal underneath.
+- Added layered original pixel scenery/facades, outlined solid surfaces, riveted truss bridges, title Single Player/Multiplayer/Settings navigation using existing live controls, and original synthesized city/forest/factory music/ambience under saved sound controls.
+- npm test PASS, including scripts/followup-test.mjs exact facade/W/S/hold/roof, nine-trunk clipping, overlapping-ladder endpoint, capped flags, giant solo/two/three/four recovery and remote-boss tree finale regressions.
+- First local route run failed because the test driver requested W outside the narrower grab range. Corrected the ordinary-input controller's approach. Then found an actual completed-ladder endpoint stealing W from the next ladder; physics now selects a ladder with upward travel remaining.
+- All 60 local ordinary-input routes PASS after fixes. Two-player Level 11 initially lost all hearts by landing on heavy armor after a debris jump; controller now steers away while descending rather than changing enemies or granting lives. No hidden retries or injected gameplay state. Browser/menu/audio/visual checks are pending.

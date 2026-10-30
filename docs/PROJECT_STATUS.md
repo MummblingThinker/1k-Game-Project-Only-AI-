@@ -1,3 +1,7 @@
+# Active 1 PM follow-up
+
+The owner resumed work until 13:00 America/New_York October 30 (17:00 UTC). FIX-01/02/03 replace manual ladder/heart/pursuer/tree/menu/presentation rules below. New code passed local npm test and all 60 input routes; browser and hosted verification is in progress. Live remains 913a4342 until new acceptance completes. The following is the historical 11 AM handoff, not the current completion claim.
+
 # October 30 gameplay revision handoff
 
 Owner cutoff: October 30, 2026 at 11:00 America/New_York (15:00 UTC). Stop autonomous work at that cutoff. The requested replacement is implemented and deployed; the remaining acceptance is human/device testing, not more unattended feature work.

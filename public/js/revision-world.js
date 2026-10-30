@@ -39,7 +39,7 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
   const width=id===1?960:milestone?(id===5?5280:id===10?5760:6240):2880;
   const floorY=540, route=ROUTES[id], bossX=milestone?width-(id===10?1550:950):null;
   const w={revision:2,id,title:level.title,region:level.palette,summary:level.summary,goal:level.goal,width,height:610,topY:120,floorY,partySize,
-    floors:[],platforms:[],pits:[],crates:[],enemies:[],checkpoints:[],switches:[],plates:[],ladders:[],terrain:[],scenery:[],animals:[],districts:[],breakEffects:[],nextProp:0,nextLadder:0,
+    floors:[],platforms:[],facades:[],pits:[],crates:[],enemies:[],checkpoints:[],switches:[],plates:[],ladders:[],terrain:[],scenery:[],animals:[],districts:[],breakEffects:[],nextProp:0,nextLadder:0,
     finish:{x:width-55,y:floorY-30,w:28,h:30,locked:true},giant:{x:-180,y:floorY-120,speed:(2880+114)/7200,wakeTicks:id===1?1200:720}};
   const routeEnd=bossX??(width-100), cell=(routeEnd-100)/route.length;
   const gaps=[];
@@ -51,8 +51,10 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
     if(['roof','canopy','tower','cabin'].includes(type)) {
       const height=type==='tower'?180:type==='roof'?120:type==='canopy'?90:60;
       deckY=y-height;
-      // The building/trunk is solid: the player must climb onto it to proceed.
-      w.platforms.push({x:x+70,y:deckY,w:Math.max(100,cell-120),h:height,kind:type,essential:true});
+      // Recessed facades are scenery behind the walking lane. Only the
+      // highlighted roof edge supports players; ladders remain reachable.
+      w.facades.push({x:x+70,y:deckY,w:Math.max(100,cell-120),h:height,kind:type});
+      w.platforms.push({x:x+70,y:deckY,w:Math.max(100,cell-120),h:8,kind:type,essential:true,oneWay:true});
       addLadder(w,x+76,y,deckY);
       w.platforms.push({x:x+35,y:y-38,w:24,h:8,kind:'step'});
       if(type==='tower') { w.platforms.push({x:x+30,y:y-92,w:28,h:8,kind:'step'}); }
@@ -114,7 +116,7 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
       for(let j=0;j<9;j++){
         const tx=bossX+160+j*130, height=j%2?85:130;
         w.platforms.push({x:tx,y:floorY-height,w:34,h:height,kind:'maze-tree',essential:true});
-        addLadder(w,tx+3,floorY,floorY-height);
+        addLadder(w,tx-18,floorY,floorY-height);
         w.platforms.push({x:tx+52,y:floorY-height+35,w:35,h:8,kind:'branch',essential:true});
         supply(w,tx+65,floorY-height+35,'stick');
       }

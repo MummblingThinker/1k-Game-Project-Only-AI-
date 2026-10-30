@@ -190,7 +190,7 @@ io.on('connection', (socket) => {
     const room = code ? rooms.get(code) : null;
     const player = room?.players.get(socket.id);
     if (!player || room.phase !== 'playing' || !player.alive || !input || typeof input !== 'object') return;
-    player.input = { left: input.left === true, right: input.right === true, jump: input.jump === true };
+    player.input = { left: input.left === true, right: input.right === true, jump: input.jump === true, up:input.up===true, down:input.down===true };
     player.lastInputTick = room.tick;
   });
   socket.on('interact', () => {

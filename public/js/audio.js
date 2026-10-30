@@ -2,6 +2,42 @@
 export function createGameAudio(button, slider) {
   let context, master, voices = 0, previous = null, lastCueAt = 0, lastFootstepAt = 0;
   let enabled = true, volume = .25;
+  let ambience, musicAt=0, beat=0, musicZone='', ambienceMix='';
+  // Original, lightweight procedural scores. Noise beds and bass oscillators
+  // run through the same saved mute/volume control as every gameplay cue.
+  function createAmbience(){
+    if(ambience)return;
+    ambience={};
+    const buffer=context.createBuffer(1,context.sampleRate*2,context.sampleRate),data=buffer.getChannelData(0);let smooth=0;
+    for(let i=0;i<data.length;i++){smooth=(smooth+(Math.random()*2-1)*.035)/1.025;data[i]=smooth*5;}
+    for(const zone of ['city','forest','factory']){
+      const gain=context.createGain(),noise=context.createBufferSource(),filter=context.createBiquadFilter();
+      gain.gain.value=0;gain.connect(master);noise.buffer=buffer;noise.loop=true;
+      filter.type=zone==='factory'?'bandpass':'lowpass';filter.frequency.value=zone==='forest'?1400:zone==='city'?420:190;filter.Q.value=zone==='factory'?2:.5;
+      noise.connect(filter);filter.connect(gain);noise.start();
+      const hum=context.createOscillator(),humGain=context.createGain();hum.type=zone==='factory'?'triangle':'sine';hum.frequency.value=zone==='factory'?55:zone==='city'?73.42:98;
+      humGain.gain.value=zone==='factory'?.16:.055;hum.connect(humGain);humGain.connect(gain);hum.start();
+      ambience[zone]={gain,noise,filter,hum};
+    }
+  }
+  function score(world,state,listener){
+    if(!context||context.state!=='running'||!enabled)return;
+    createAmbience();
+    const zone=world.id===11&&listener.x<(world.coveredWay?.x||0)?'forest':world.region||'city';
+    const active=['playing','title','lobby','paused','cutscene'].includes(state),now=context.currentTime;
+    if(zone!==musicZone){musicZone=zone;musicAt=now;beat=0;button.dataset.audioZone=zone;}
+    const mix=zone+':'+state;if(mix!==ambienceMix){ambienceMix=mix;for(const [key,bus] of Object.entries(ambience))bus.gain.gain.setTargetAtTime(active&&key===zone?(state==='cutscene'?.13:state==='paused'?.12:.35):0,now,.45);}
+    if(!active||now<musicAt)return;
+    const notes=zone==='city'?[146.83,0,220,261.63,0,196,174.61,0,146.83,220,293.66,0,261.63,196,0,0]
+      :zone==='forest'?[196,293.66,0,329.63,392,0,293.66,246.94,196,0,246.94,293.66,440,392,0,0]
+      :[110,0,110,164.81,0,130.81,0,146.83,110,0,164.81,0,130.81,0,98,0];
+    const interval=zone==='factory'?.34:zone==='forest'?.56:.44, note=notes[beat%notes.length];
+    if(note)tone(note,note,zone==='forest'?.7:.28,zone==='factory'?'triangle':'sine',0,state==='cutscene'?.045:.11);
+    if(beat%4===0)tone(zone==='factory'?65:zone==='forest'?98:73.42,zone==='factory'?40:zone==='forest'?98:73.42,.55,'triangle',0,.1);
+    if(zone==='factory'&&beat%2===1){tone(410+(beat%3)*90,90,.085,'square',0,.025);tone(80,45,.12,'triangle',0,.15);}
+    if(zone==='forest'&&beat%8===5){tone(1200,1550,.12,'sine',0,.035);tone(1450,1100,.1,'sine',.17,.025);}
+    beat++;musicAt=now+interval;
+  }
   try {
     const saved = JSON.parse(localStorage.getItem('tiny-teamwork-audio') || 'null');
     if (saved) { enabled = saved.enabled !== false; volume = Math.max(0, Math.min(1, Number(saved.volume) || 0)); }
@@ -27,13 +63,13 @@ export function createGameAudio(button, slider) {
       button.dataset.audioState = context.state;
     } catch { button.dataset.audioState = 'unavailable'; }
   }
-  function tone(frequency, endFrequency, duration, type = 'triangle', delay = 0) {
+  function tone(frequency, endFrequency, duration, type = 'triangle', delay = 0, strength=.7) {
     if (!enabled || !context || context.state !== 'running' || voices >= 12 || volume === 0) return;
     const start = context.currentTime + delay;
     const oscillator = context.createOscillator(), gain = context.createGain();
     oscillator.type = type; oscillator.frequency.setValueAtTime(frequency, start);
     oscillator.frequency.exponentialRampToValueAtTime(Math.max(25, endFrequency), start + duration);
-    gain.gain.setValueAtTime(0, start); gain.gain.linearRampToValueAtTime(.7, start + .008);
+    gain.gain.setValueAtTime(0, start); gain.gain.linearRampToValueAtTime(strength, start + .008);
     gain.gain.exponentialRampToValueAtTime(.001, start + duration);
     oscillator.connect(gain); gain.connect(master); voices++;
     oscillator.onended = () => { voices--; oscillator.disconnect(); gain.disconnect(); };
@@ -63,6 +99,7 @@ export function createGameAudio(button, slider) {
   refresh();
   return {
     observe({ state, world, player, listener = player, hearts, storyVisual }) {
+      score(world,state,listener);
       const warnings = world.enemies.filter(e => e.phase === 'warning' && Math.abs(e.x - listener.x) < 260).map(e => e.id);
       if (world.boss?.phase === 'warning' && listener.x >= world.boss.x) warnings.push('boss');
       const now = { state, level: world.id, hearts, vy: player.vy, capture: !!player.capture, captureSeconds: Math.ceil(player.capture?.remaining || 0),

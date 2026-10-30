@@ -26,7 +26,7 @@ export function startLevel(run, level = 1, resetRun = false) {
   run.stageEvents = [];
   run.respawnX=null;run.respawnY=null;
   recordRunEvent(run,'stage-start');
-  run.notice = level === 1 ? 'E climbs ladders and lifts debris. Use the red relay to open the long bridge.' : 'Activate every route relay. Reach the exit together.';
+  run.notice = level === 1 ? 'W/S climbs ladders. E lifts debris. Use the red relay to open the long bridge.' : 'Activate every route relay. Reach the exit together.';
   for (const [id, p] of run.players) run.players.set(id, makeParticipant(id, p.slot || 0, run.world));
 }
 

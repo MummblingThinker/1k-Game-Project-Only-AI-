@@ -47,13 +47,21 @@ export function stepPlayer(player, input, world, dt = 1) {
   const jump = !!input.jump;
   p.ladderBlocked=false;
 
+  // W/S are deliberate ladder motion, never jump aliases. Facade ladders
+  // have a clear shaft; solid maze trunks keep their ladders outside the wall.
+  if(world.revision && p.climbing==null && left===right && (input.up||input.down) && !p.carriedBy){
+    const ladder=world.ladders.find(l=>Math.abs(p.x+p.w/2-l.x-l.w/2)<15&&p.y+p.h>=l.y-2&&p.y<l.y+l.h&&!(input.down&&p.y+p.h>=l.y+l.h)&&!(input.up&&p.y+p.h<=l.y+.5));
+    if(ladder){p.climbing=ladder.id;p.vx=p.vy=0;}
+  }
   if(world.revision && p.climbing!=null){
     const ladder=world.ladders.find(l=>l.id===p.climbing);
-    if(!ladder||left!==right){p.climbing=null;p.vy=0;}
+    if(!ladder||left!==right||(jump&&!p.lastJump)){p.climbing=null;p.vy=jump?-5.2:0;if(jump){p.lastJump=true;p.throwTicks=8;p.throwVx=left?-1.8:right?1.8:p.face*1.8;}}
     else {
-      p.x=ladder.x+(ladder.w-p.w)/2;p.y=Math.max(ladder.y-p.h,p.y-1.5*dt);
+      const direction=Number(!!input.down)-Number(!!input.up);
+      p.x=ladder.x+(ladder.w-p.w)/2;p.y=Math.max(ladder.y-p.h,Math.min(ladder.y+ladder.h-p.h,p.y+direction*1.5*dt));
       p.vx=p.vy=0;p.onGround=false;p.lastJump=jump;
-      if(p.y<=ladder.y-p.h){p.climbing=null;p.onGround=true;}
+      if(p.y<=ladder.y-p.h&&direction<0){p.climbing=null;p.onGround=true;}
+      if(p.y>=ladder.y+ladder.h-p.h&&direction>0){p.climbing=null;p.onGround=true;}
       if(p.invulnerability>0)p.invulnerability--;
       if(p.carryId){const c=world.crates.find(c=>c.id===p.carryId);if(c){c.x=p.x;c.y=p.y-c.h;}}
       return p;

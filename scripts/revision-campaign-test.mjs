@@ -13,7 +13,7 @@ let browser,createdRoom,coverTaken=false;const peers=[],errors=[],results=[],los
 const consistency=snapshotAudit(party,message=>errors.push(message));
 async function until(test,label,timeout=10000){const end=Date.now()+timeout;while(Date.now()<end){if(await test())return;await sleep(40);}throw Error('Timed out: '+label);}
 async function input(peer,intent){
-  const mapping={left:'ArrowLeft',right:'ArrowRight',jump:'Space'};
+  const mapping={left:'ArrowLeft',right:'ArrowRight',jump:'Space',up:'KeyW',down:'KeyS'};
   for(const [key,code] of Object.entries(mapping)){
     if(!!intent.input[key]===!!peer.held[key])continue;
     peer.held[key]=!!intent.input[key];await peer.page.keyboard[intent.input[key]?'down':'up'](code);
@@ -42,6 +42,7 @@ try {
   }
   const host=peers[0];
   if(party===1){
+    await host.page.locator('#menu-single').click();
     if(first===1){
       await host.page.locator('#start-story').click();
       const opening=new Set();
@@ -56,6 +57,7 @@ try {
       await host.page.locator('#level-select').selectOption(String(first));await host.page.locator('#play-selected').click();
     }
   }else{
+    for(const peer of peers)await peer.page.locator('#menu-multi').click();
     await host.page.locator('#create-room').click();
   await host.page.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);
   const code=await host.page.locator('#game').getAttribute('data-room');

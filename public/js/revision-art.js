@@ -1,3 +1,4 @@
+import { drawLandscape, drawFacade, drawSurface } from './environment-art.js';
 const rect=(c,x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.max(1,Math.round(w)),Math.max(1,Math.round(h)));};
 const label=(c,text,x,y,color='#e9f4d8')=>{c.font='6px monospace';c.fillStyle='#101b29';c.fillText(text,Math.round(x)+1,Math.round(y)+1);c.fillStyle=color;c.fillText(text,Math.round(x),Math.round(y));};
 const COLORS={city:['#182239','#263c55','#42566a','#94b5b8','#efc17b'],forest:['#102c33','#234840','#3c6852','#a0c982','#e5d48b'],factory:['#171f2e','#293949','#4a5967','#a6b9bc','#f2a457']};
@@ -113,16 +114,10 @@ function scenery(c,o,t){
 export function drawRevision(c,w,player,peers,cameraX,state,drawSurvivor){
   const cy=state.cameraY||0,t=state.reducedMotion?0:state.clock||0,tick=state.tick||0;
   const biome=w.id===11?(cameraX<w.coveredWay.x?'forest':cameraX<w.coveredWay.x+w.coveredWay.w?'city':'factory'):w.region,P=LEVEL_COLORS[w.id]||COLORS[biome];
-  rect(c,0,0,320,180,P[0]);
-  for(let i=0;i<12;i++){
-    const x=((i*41-cameraX*.14)%430+430)%430-50,y=30+((i*23+w.id*7)%65)-cy*.025;
-    rect(c,x,y,25+i%3*9,180,P[1]);
-    if(biome==='city')for(let j=0;j<6;j++)rect(c,x+4,y+j*15+6,4,3,j%3?'#617577':'#c49c6e');
-    if(biome==='forest'){rect(c,x-12,y-10,50,25,'#274b43');rect(c,x+9,y-20,6,180,'#2c5048');}
-    if(biome==='factory'){rect(c,x+5,y+12,15,4,'#605f5a');rect(c,x+10,y+16,4,160,'#465662');}
-  }
+  drawLandscape(c,w,biome,P,cameraX,cy,t,state.reducedEffects);
   c.save();c.translate(-Math.round(cameraX),-Math.round(cy));
   const visible=o=>o.x+o.w>cameraX-65&&o.x<cameraX+385&&o.y+(o.h||60)>cy-100&&o.y<cy+280;
+  for(const s of w.facades||[])if(visible(s))drawFacade(c,s,biome);
   for(const s of w.scenery)if(s.x>cameraX-100&&s.x<cameraX+400)scenery(c,s,t);
   if(w.coveredWay&&cameraX+320>w.coveredWay.x&&cameraX<w.coveredWay.x+w.coveredWay.w){
     const r=w.coveredWay;
@@ -136,13 +131,10 @@ export function drawRevision(c,w,player,peers,cameraX,state,drawSurvivor){
     rect(c,bx-35,by+62,23,65,'#697d8c');rect(c,bx+78,by+62,23,65,'#697d8c');rect(c,bx+12,by+70,45,35,'#82694f');for(let j=0;j<4;j++)rect(c,bx+17+j*10,by+76,4,24,'#f0a66b');c.globalAlpha=1;
   }
   for(const s of [...w.floors,...w.platforms])if(visible(s)){
-    const bridge=s.kind?.includes('bridge'),wood=['canopy','maze-tree','branch','cabin'].includes(s.kind);
-    rect(c,s.x,s.y,s.w,s.h,bridge?'#526b74':wood?'#6c6145':P[2]);rect(c,s.x,s.y,s.w,3,bridge?'#d2bb7e':P[3]);
-    if(s.h>20){for(let y=s.y+12;y<s.y+s.h;y+=20)for(let x=s.x+8;x<s.x+s.w-8;x+=30)if(x>cameraX-20&&x<cameraX+340&&y>cy&&y<cy+180)rect(c,x,y,wood?2:12,wood?12:6,wood?'#9a865d':'#243d4e');}
-    if(bridge)for(let x=s.x+5;x<s.x+s.w;x+=12)rect(c,x,s.y+4,6,2,'#91a7aa');
+    drawSurface(c,s,P,biome,cameraX,cy);
     if(s.kind==='breakable'){rect(c,s.x+2,s.y+2,s.w-4,s.h-4,s.material==='forest'?'#a88b59':s.material==='city'?'#ba8a73':'#99a5a2');for(let j=0;j<4;j++)rect(c,s.x+6+j*2,s.y+3+j*4,3,4,'#3c4b4c');label(c,'CRACKED',s.x-8,s.y-5,'#e8c999');}
   }
-  for(const l of w.ladders)if(visible(l)){rect(c,l.x,l.y,2,l.h,'#d9bf7e');rect(c,l.x+10,l.y,2,l.h,'#d9bf7e');for(let y=l.y+4;y<l.y+l.h;y+=8)rect(c,l.x,y,12,2,'#9ca58b');label(c,'E',l.x+3,l.y+l.h-6);}
+  for(const l of w.ladders)if(visible(l)){rect(c,l.x,l.y,2,l.h,'#d9bf7e');rect(c,l.x+10,l.y,2,l.h,'#d9bf7e');for(let y=l.y+4;y<l.y+l.h;y+=8)rect(c,l.x,y,12,2,'#9ca58b');if(Math.abs(player.x-l.x)<30)label(c,'W / S',l.x-8,l.y+l.h-6);}
   for(const cp of w.checkpoints)if(visible(cp)){rect(c,cp.x+2,cp.y,2,cp.h,'#dbe4d1');rect(c,cp.x+4,cp.y+2,17,11,cp.active?'#79d6ba':'#d3a15f');rect(c,cp.x+7,cp.y+5,4,4,'#f6ebc5');label(c,cp.active?'SAVED':'FLAG +1',cp.x-8,cp.y-6);}
   if(w.memory){const m=w.memory;rect(c,m.x,m.y,10,25,'#446e88');rect(c,m.x+2,m.y+3,6,6,m.read?'#96b8b3':'#8fdfeb');label(c,m.read?'READ':'MEMORY / E',m.x-16,m.y-6);}
   for(const s of [...w.switches,...(w.boss?.pylons||[])])if(visible(s)){rect(c,s.x,s.y,s.w,s.h,'#647f8b');rect(c,s.x+2,s.y+2,s.w-4,5,s.active?'#92e6b8':'#ec8468');label(c,s.active?'ON':'E',s.x,s.y-5);}
