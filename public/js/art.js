@@ -1,3 +1,5 @@
+import { drawRobot } from './robot-art.js';
+export { getRobotSheet, ROBOT_KINDS, ROBOT_POSES, ROBOT_TILE, robotPose } from './robot-art.js';
 const SPRITES = [
   'human_amber.png', 'human_cyan.png', 'human_rose.png', 'robot_sentinel.png',
   'robot_flyer.png', 'robot_creeper.png', 'giant_pursuer.png', 'crate.png', 'checkpoint_shelter.png',
@@ -419,18 +421,7 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
   for(const enemy of world.enemies) {
     if(enemy.dead) continue;
     const x=enemy.x-cameraX; if(x<-25||x>345) continue;
-    const im=sprite(enemy.kind === 'scanner' ? 'robot_flyer.png' : enemy.kind === 'creeper' ? 'robot_creeper.png' : 'robot_sentinel.png');
-    const bob = enemy.kind === 'scanner' ? Math.sin((gameState.clock || 0) * .005 + enemy.x) * 2 : 0;
-    if(im?.complete&&im.naturalWidth) ctx.drawImage(im,rnd(x),rnd(enemy.y + bob));
-    if(enemy.kind!=='scanner' && !enemy.stunned && !enemy.grabbedId && !['warning','attack'].includes(enemy.phase)) {
-      const stride=Math.sin((gameState.clock||0)*.012)*2;
-      RECT(ctx,x+2+stride,enemy.y+25,6,3,'#738b98'); RECT(ctx,x+12-stride,enemy.y+25,6,3,'#738b98');
-    }
-    if(enemy.grabbedId) {
-      RECT(ctx,x-4,enemy.y+14,9,3,'#b4a071');RECT(ctx,x+15,enemy.y+14,9,3,'#b4a071');
-      RECT(ctx,x-4,enemy.y+14,3,8,'#b4a071');RECT(ctx,x+21,enemy.y+14,3,8,'#b4a071');
-    }
-    if(enemy.phase==='recover') RECT(ctx,x+5,enemy.y+5,10,2,'#718b9c');
+    drawRobot(ctx,enemy,x,gameState.clock||0);
     if (enemy.phase === 'warning' || enemy.phase === 'attack') {
       const tx = (enemy.targetX ?? enemy.x) - cameraX, radius = enemy.kind === 'creeper' ? 48 : 23;
       RECT(ctx, tx - radius, 148, radius * 2, 3, enemy.phase === 'attack' ? '#fc7663' : '#edc879');

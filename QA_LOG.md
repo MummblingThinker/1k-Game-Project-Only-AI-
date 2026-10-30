@@ -536,3 +536,8 @@ Evidence: local npm test artifacts/gap-band-test-2.log; clean extraction artifac
 - 6b9816bb full browser matrix 41013264131 all four jobs PASS: solo 123923702930, two 123923703110, three 123923703119, four 123923703104. All 15 levels/default stories; no game-over replay in any run. Solo Level 6 used a heart and took 151 seconds; normal recovery remains part of the evidence. Previous failed run retained above.
 - Inspected artifacts/core-latest.jpg and sheet-latest.png: floor core location/CORE E and progress are visible; crisp separate 16-pose/four-palette survivor frames. Screenshot fixture is visual evidence only; live Level 15 test covers actual three-cycle objective.
 - LIVE 8e54252c2360960206d89bdb1b9d9cbbdef8538f, Render My Workspace dep-dbi3mrifngtc73c731o0, finished 06:39:31 UTC. Added public-browser workflow to run HTTP, actual WSS and independent-browser regression against deployed service; execution pending. Physical-device/network acceptance still deferred.
+
+## 2026-10-30 ART-01 robot frame upgrade
+
+- Added an original cached robot sheet with four machine silhouettes and six state poses/four frame slots. Read-only pose selection preserves every attack/capture/stun timer and collision. Warning geometry and countdown text remain visible; reduced decorative motion freezes frame cycling while state changes still show distinct poses.
+- npm test PASS locally, artifacts/robot-frames-test.log; node --check public/js/robot-art.js PASS. Browser frame containment, patrol animation and phase distinction checks added; exported contact-sheet review pending. ART-01 remains IN_PROGRESS.

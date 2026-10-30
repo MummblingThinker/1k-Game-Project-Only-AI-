@@ -132,6 +132,25 @@ try {
   });
   await writeFile('artifacts/survivor-sheet.png',Buffer.from(sheet,'base64'));
   console.log('SHEET_BASE64_BEGIN'+sheet+'SHEET_BASE64_END');
+  const robotSheet=await fixture.evaluate(()=>{
+    const {getRobotSheet,ROBOT_TILE,ROBOT_KINDS,ROBOT_POSES,robotPose}=window.renderTools;
+    const sheet=getRobotSheet(),ctx=sheet.getContext('2d'),pixels=ctx.getImageData(0,0,sheet.width,sheet.height).data;
+    if(sheet!==getRobotSheet())throw Error('Robot sheet must be cached');
+    for(let y=0;y<sheet.height;y++)for(let x=0;x<sheet.width;x++)
+      if((x%ROBOT_TILE===0||x%ROBOT_TILE===ROBOT_TILE-1||y%ROBOT_TILE===0||y%ROBOT_TILE===ROBOT_TILE-1)&&pixels[(y*sheet.width+x)*4+3])throw Error('Robot frame spills outside tile');
+    for(let row=0;row<ROBOT_KINDS.length;row++){
+      const tile=(pose,frame=0)=>ctx.getImageData((ROBOT_POSES.indexOf(pose)*4+frame)*ROBOT_TILE,row*ROBOT_TILE,ROBOT_TILE,ROBOT_TILE).data;
+      const patrol=tile('patrol'),next=tile('patrol',1);
+      if(patrol.every((v,i)=>v===next[i]))throw Error('Missing robot patrol frames '+ROBOT_KINDS[row]);
+      for(const pose of ['warning','attack','stunned','recover']){
+        const other=tile(pose);if(patrol.every((v,i)=>v===other[i]))throw Error('Missing robot tell '+ROBOT_KINDS[row]+'/'+pose);
+      }
+    }
+    if(robotPose({phase:'attack',grabbedId:'p',stunned:1})!=='stunned'||robotPose({phase:'patrol',grabbedId:'p'})!=='grab')throw Error('Wrong robot pose priority');
+    return sheet.toDataURL('image/png').split(',')[1];
+  });
+  await writeFile('artifacts/robot-sheet.png',Buffer.from(robotSheet,'base64'));
+  console.log('ROBOT_BASE64_BEGIN'+robotSheet+'ROBOT_BASE64_END');
   await fixture.evaluate(() => {
     for (const level of [2, 3, 7, 9, 10, 11, 12, 13, 14, 15]) {
       const { buildLevel, createPlayer, drawGame } = window.renderTools;
