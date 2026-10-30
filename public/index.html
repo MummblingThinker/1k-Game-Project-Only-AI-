@@ -55,6 +55,12 @@
         <div id="live-status" class="screen-status" aria-live="polite">READY / PRESS START</div>
         <div id="tactical-status" class="tactical-status" aria-live="polite"></div>
         <div class="route-readout"><span id="route-label">Reach the shelter gate. Jump the gaps. Evade the robots.</span><progress id="route-progress" max="100" value="0" aria-label="Route to shelter gate"></progress></div>
+        <div class="audio-controls" aria-label="Audio settings">
+          <button id="sound-toggle" class="text-button" type="button" aria-pressed="true">Sound on</button>
+          <label for="sound-volume">Volume</label>
+          <input id="sound-volume" type="range" min="0" max="100" value="25" aria-label="Sound volume" />
+          <span>Warnings also appear on screen.</span>
+        </div>
         <div class="quick-controls">
           <span><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd> Move</span>
           <span><kbd>SPACE</kbd> Jump</span>
@@ -121,7 +127,7 @@
             <input id="room-code" maxlength="6" placeholder="E.G. K7P4QX" autocomplete="off" spellcheck="false" />
           </div>
           <button id="join-room" class="secondary-button">Join Room</button>
-          <p id="objective-status" class="microcopy" aria-live="polite">Create or join a room to play Level 1 together.</p>
+          <p id="objective-status" class="microcopy" aria-live="polite">Create or join a room to play the campaign together.</p>
           <p id="room-roster" class="microcopy" aria-label="Room players"></p>
           <div class="room-line"><span id="room-status">No room connected.</span><button id="leave-room" class="text-button" disabled>Leave</button></div>
         </section>

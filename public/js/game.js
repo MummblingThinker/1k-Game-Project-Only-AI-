@@ -5,6 +5,7 @@ import { drawGame, drawTitle, drawCutscenePanel } from './art.js';
 import { NetworkClient } from './network.js';
 import { advanceSimulation } from './timing.js';
 import { createTextUI } from './text-ui.js';
+import { createGameAudio } from './audio.js';
 import { startLevel, stepRun, interactRun, objectiveText } from './simulation.js';
 
 const canvas = document.getElementById('game');
@@ -29,6 +30,7 @@ const routeProgress = $('route-progress');
 const routeLabel = $('route-label');
 const heartReadout = $('heart-readout');
 const updateTextUI = createTextUI();
+const gameAudio = createGameAudio($('sound-toggle'), $('sound-volume'));
 
 const keys = new Set();
 const justPressed = new Set();
@@ -315,6 +317,7 @@ function syncTextUI() {
 }
 
 function draw() {
+  gameAudio.observe({ state: gameState, world, player, hearts, storyVisual: gameState === 'cutscene' ? currentCutscene?.panels[cutscenePanelIndex]?.visual : null });
   syncTextUI();
   if (gameState === 'title') {
     drawTitle(ctx, clock);

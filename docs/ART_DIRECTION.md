@@ -19,3 +19,10 @@ All PNG sprites under `public/assets/sprites/` are generated with simple shapes 
 Sprites: `human_amber.png`, `human_cyan.png`, `human_rose.png`, `robot_sentinel.png`, `robot_flyer.png`, `robot_creeper.png`, `giant_pursuer.png`, `crate.png`, `checkpoint_shelter.png`.
 
 The current sprite work is a placeholder-quality first pass; upgrade with custom sprite sheets, walk/jump/carry/throw/climb/captured/rescue animations, enemy telegraphs, environmental tiles, and proper frame timings. Keep assets original.
+
+
+## October 2026 campaign presentation
+
+The owner authorized 2D anime comic presentation for story scenes. Original story-atlas.png contains four regional illustrations, generated with the built-in imagegen tool; exact prompt and provenance are in STORY_ART_PROMPT.md. Native-text caption cards reveal with three focused, aspect-preserving crops per story beat. Gameplay remains crisp pixel art. Reduced-motion media preferences suppress panel motion. No external reference images were used.
+
+Sound cues are original Web Audio oscillator synthesis in public/js/audio.js, with no sampled recordings. Saved sound/volume controls and gesture unlocking are implemented; physical speaker/headphone review remains pending.

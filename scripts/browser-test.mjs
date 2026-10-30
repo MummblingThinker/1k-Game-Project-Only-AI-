@@ -45,6 +45,14 @@ try {
   const soloContext = await browser.newContext({ viewport: { width: 1800, height: 1200 } });
   const solo = await pageIn(soloContext);
   await solo.goto(base); await solo.waitForFunction(() => document.querySelector('#game').dataset.state === 'title');
+  await solo.locator('#sound-toggle').click();
+  assert.equal(await solo.locator('#sound-toggle').getAttribute('aria-pressed'), 'false');
+  await solo.locator('#sound-volume').evaluate(el => { el.value = '17'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await solo.reload();
+  assert.equal(await solo.locator('#sound-toggle').getAttribute('aria-pressed'), 'false', 'mute survives reload');
+  assert.equal(await solo.locator('#sound-volume').inputValue(), '17', 'volume survives reload');
+  await solo.locator('#sound-toggle').click();
+  await solo.waitForFunction(() => document.querySelector('#sound-toggle').dataset.audioState === 'running');
   await solo.screenshot({ path: 'artifacts/title.png' });
   await solo.locator('#start-story').click();
   assert.equal(await state(solo), 'cutscene');
@@ -95,7 +103,7 @@ try {
   await phone.locator('[data-control=right]').dispatchEvent('pointercancel', { pointerId: 1 });
   await phone.screenshot({ path: 'artifacts/mobile.png' });
   assert.deepEqual(errors, [], `browser errors: ${JSON.stringify(errors)}`);
-  console.log('Browser PASS: title/story/pause; all 15 stage loads and movement; two isolated browser contexts create/join/relay/bridge/victory and shared Level 2 transition; touch cancel; zero console/page errors.');
+  console.log('Browser PASS: saved mute/volume and gesture-unlocked AudioContext; title/story/pause; all 15 stage loads and movement; two isolated browser contexts create/join/relay/bridge/victory and shared Level 2 transition; touch cancel; zero console/page errors.');
 } finally {
   await browser?.close();
   if (child) child.kill('SIGTERM');

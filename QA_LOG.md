@@ -302,3 +302,11 @@ Follow-up: real-client Level 15 rerun PASS after shelter/input/terrain fixes (np
 - The route driver now reacts to the full visible warning and chooses the nearest safe direction rather than crossing the marked impact while returning to its objective. It jumps ground strikes where appropriate. This is a test-driver correction, not reduced hazard damage/timing.
 - `npm test` and `npm run test:live-campaign` both PASS after these changes. All 60 campaign routes still finish; the actual two-client finale reaches the shared ending.
 - Previous shelter/comic source 5ea0b4222e157b4f6fa57fed09efe1cd3d111787 passed CI 40992225925 including live finale and browser. Its rendered story JPEG was visually inspected: aspect ratio preserved, distinct crops, readable in-panel captions. Fixed a stray encoding character in the region badge for the next commit.
+
+## 2026-10-30 LIFE-02 VERIFIED starting-heart ranges
+
+Acceptance is automated range-boundary verification. `npm run test:campaign` asserts counts 1 through 16 against the documented pool, covering every transition: 1=3, 2–3=4, 4–5=5, 6–7=6, 8–9=7, 10–11=8, 12–13=9, 14+=10. PASS in local Node 24.20.0 and campaign CI. Runtime supports lobbies up to four; larger counts are design-function tests, not claims of larger online lobbies. Task LIFE-02 checked; broader manual co-op/life tasks remain IMPLEMENTED_UNVERIFIED.
+
+## 2026-10-30 ART-07 sound implementation IN_PROGRESS
+
+Original oscillator cues added for jump, relay/checkpoint, capture/countdown/rescue, warning/blast, nearby giant footsteps, story transitions and victory/death. Sound starts only after a user gesture; mute/volume persist with guarded localStorage. Hidden tabs suspend audio; voice count is capped. No audio assets or new dependencies. Visual tells remain authoritative. Browser test now checks mute and volume after reload and gesture-unlocked AudioContext; execution pending. Physical headphone/speaker quality review is not claimed.

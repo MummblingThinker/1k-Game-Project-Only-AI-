@@ -46,7 +46,7 @@ Shared hearts start at three solo, four for two/three players and five for four.
 
 Chromium 156 passed all stage loads, story/pause, two isolated browser contexts through tutorial victory and Continue, and emulated touch cancellation. Render deployed commit 9b3097d on October 30 UTC. Exact evidence and subsequent local changes are in [QA_LOG.md](QA_LOG.md).
 
-Physical-device and separate-network acceptance remains pending at the owner's request. Automated traversal proves reachability, not human difficulty balance. Mobile emulation is not physical mobile testing. No audio or cloud saves yet. Rooms require joining before start; disconnect clears identity and requires a new lobby. Rooms disappear on server restart. One free Render instance can have cold starts.
+Physical-device and separate-network acceptance remains pending at the owner's request. Automated traversal proves reachability, not human difficulty balance. Mobile emulation is not physical mobile testing. Original synthesized sound cues have saved mute/volume controls; cloud saves are not implemented. Rooms require joining before start; disconnect clears identity and requires a new lobby. Rooms disappear on server restart. One free Render instance can have cold starts.
 
 Submission materials remain drafts. A real 1800×1200 browser screenshot is included. Physical-device evidence, eligibility and submission preview need human review. Nothing has been submitted.
 
