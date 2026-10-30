@@ -1,0 +1,30 @@
+name: Inspect saved campaign failure
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/inspect-campaign.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41022949874
+          name: public-campaign-4
+          path: artifacts/saved-failure
+      - run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import {routeIntent} from './scripts/route-driver.mjs';
+          for(const name of fs.readdirSync('artifacts/saved-failure').filter(n=>n.startsWith('state-')&&n.endsWith('.json'))){
+            const s=JSON.parse(fs.readFileSync('artifacts/saved-failure/'+name));
+            console.log(JSON.stringify({name,level:s.level,phase:s.phase,tick:s.tick,hearts:s.hearts,boss:s.world.boss,players:s.players,crates:s.world.crates.filter(c=>c.x>4500),grabbed:s.world.enemies.filter(e=>e.grabbedId),you:s.you,intent:routeIntent(s)}));
+          }
+          JS
