@@ -86,7 +86,7 @@ export function createGameAudio(button, slider) {
           if (warnings.some(id => !previous.warnings.includes(id)) && performance.now() - lastCueAt > 250) {
             cue('warning'); lastCueAt = performance.now();
           }
-          if (Math.abs(player.x - world.giant.x) < 260 && performance.now() - lastFootstepAt > 1100 && (!world.boss || player.x < world.boss.x)) {
+          if (!world.giant.wakeTicks && Math.abs(player.x - world.giant.x) < 260 && performance.now() - lastFootstepAt > 1100 && (!world.boss || player.x < world.boss.x)) {
             cue('footstep'); lastFootstepAt = performance.now();
           }
         }

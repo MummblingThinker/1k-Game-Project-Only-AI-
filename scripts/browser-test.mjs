@@ -93,7 +93,9 @@ try {
       if (level === 10) focus = world.coveredWay.x + 200;
       if (level === 15) { focus = world.boss.x + 320; world.boss.phase = 'warning'; world.boss.targetX = focus + 40; }
       const player = createPlayer('fixture', focus - 50, 129);
-      drawGame(canvas.getContext('2d'), world, player, [], Math.max(0, focus - 160), { clock: 1400, tick: 0, state: 'playing' });
+      player.onGround = true;
+      const ctx = canvas.getContext('2d'); ctx.imageSmoothingEnabled = false;
+      drawGame(ctx, world, player, [], Math.max(0, focus - 160), { clock: 1400, tick: 0, state: 'playing' });
     }
     const { drawSurvivor, buildLevel, createPlayer, drawGame } = window.renderTools;
     const poses = document.createElement('figure'), label = document.createElement('figcaption'), canvas = document.createElement('canvas');
@@ -112,7 +114,8 @@ try {
     const giantFigure=document.createElement('figure'), giantLabel=document.createElement('figcaption'), giantCanvas=document.createElement('canvas');
     giantLabel.textContent='RENDER FIXTURE / roaming giant footprint'; giantCanvas.width=320;giantCanvas.height=180;giantFigure.append(giantLabel,giantCanvas);document.body.append(giantFigure);
     const w=buildLevel(2);w.giant.x=80;
-    drawGame(giantCanvas.getContext('2d'),w,createPlayer('fixture',180,129),[],0,{clock:1400,tick:0,state:'playing'});
+    const giantCtx=giantCanvas.getContext('2d');giantCtx.imageSmoothingEnabled=false;
+    drawGame(giantCtx,w,createPlayer('fixture',180,129),[],0,{clock:1400,tick:0,state:'playing'});
   });
   const stages = await fixture.screenshot({ path: 'artifacts/stage-fixtures.jpg', type: 'jpeg', quality: 85, fullPage: true });
   console.log('STAGES_BASE64_BEGIN' + stages.toString('base64') + 'STAGES_BASE64_END');
@@ -164,6 +167,7 @@ try {
   await phone.goto(base);
   await phone.locator('#start-story').tap(); await phone.evaluate(() => scrollTo(0, 0));
   await phone.locator('#story-next').tap();
+  await phone.waitForFunction(() => document.querySelector('#story-heading').textContent === 'RUN!');
   assert.equal(await phone.locator('#story-heading').textContent(), 'RUN!');
   await phone.waitForTimeout(1600);
   const mobileStory = await phone.screenshot({ path: 'artifacts/mobile-story.jpg', type: 'jpeg', quality: 80 });

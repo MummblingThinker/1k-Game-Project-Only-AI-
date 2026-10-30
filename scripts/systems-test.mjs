@@ -193,5 +193,13 @@ check('short coyote and landing buffer help timing without granting repeated air
   for(let i=0;i<4;i++)stepPlayer(landing,{jump:false},w);
   assert.ok(landing.vy<0,'press just before landing is buffered once');
 });
+check('stage-entry warning lasts eight seconds and does not grant contact immunity', () => {
+  const r = runAt(2, 1), x = r.world.giant.x;
+  for(let i=0;i<480;i++)stepRun(r);
+  assert.equal(r.world.giant.x,x); assert.equal(r.world.giant.wakeTicks,0);
+  stepRun(r); assert.equal(r.world.giant.x,x+r.world.giant.speed);
+  const other=runAt(2,2), p=other.players.get('p0');
+  other.world.giant.x=p.x-30; stepRun(other); assert.equal(p.alive,false,'a parked giant still has contact collision');
+});
 console.log('Shared systems regression complete.');
 

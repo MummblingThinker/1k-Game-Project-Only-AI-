@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildLevel, REFERENCE_WIDTH } from '../public/js/world.js';
+import { buildLevel, REFERENCE_WIDTH, STANDARD_PURSUER_SPEED } from '../public/js/world.js';
 import { createPlayer } from '../public/js/physics.js';
 import { startLevel, stepRun, interactRun, killPlayer, releaseParticipant, heartMaximum } from '../public/js/simulation.js';
 
@@ -13,7 +13,8 @@ for (let id = 2; id <= 15; id++) for (let party = 1; party <= 4; party++) {
   const w = buildLevel(id, party), big = id % 5 === 0;
   assert.ok(big ? w.width / REFERENCE_WIDTH >= 5 && w.width / REFERENCE_WIDTH <= 7 : w.width === 3 * REFERENCE_WIDTH);
   assert.equal(w.checkpoints.length, big ? 2 : 1);
-  assert.ok(Math.abs((w.width + 114) / (w.giant.speed * 60) - 120) < 1e-9);
+  assert.equal(w.giant.speed, STANDARD_PURSUER_SPEED);
+  assert.ok(big ? w.giant.crossingSeconds > 210 : Math.abs(w.giant.crossingSeconds - 120) < 1e-9);
   for (const s of w.switches) assert.ok(w.floors.some(f => s.x >= f.x && s.x + s.w <= f.x + f.w), `relay ${id} must stand on floor`);
   for (const cp of w.checkpoints) assert.ok(w.floors.some(f => cp.x >= f.x && cp.x + cp.w <= f.x + f.w), `shelter ${id} needs ground exits`);
   assert.ok(w.floors.some(f => w.memory.x >= f.x && w.memory.x + 13 <= f.x + f.w), 'memory terminal has reachable floor ' + id);
@@ -28,6 +29,7 @@ for (let id = 2; id <= 15; id++) for (let party = 1; party <= 4; party++) {
 // Fixed-clock pursuit cannot warp towards a fast player and cannot enter any arena.
 for (const level of [2, 5, 10, 15]) {
   const r = runAt(level), p = r.players.get('p0'); p.x = r.world.width - 100;
+  r.world.giant.wakeTicks = 0;
   const x = r.world.giant.x; stepRun(r);
   assert.ok(Math.abs(r.world.giant.x - x - r.world.giant.speed) < 1e-8);
   if (r.world.boss) {

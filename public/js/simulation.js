@@ -282,7 +282,8 @@ export function stepRun(run) {
     if (Math.abs(p.x - b.targetX) < (b.kind === 'background' ? 32 : 25) && !isCover && (b.kind === 'background' || p.y + p.h > 124)) killPlayer(run, p, 'Arena strike');
   }
   // Absolute, fixed-speed pursuit: no rubber-band or player-position catch-up.
-  world.giant.x = Math.min(b ? b.x - 48 : world.width, world.giant.x + world.giant.speed);
+  if (world.giant.wakeTicks > 0) world.giant.wakeTicks--;
+  else world.giant.x = Math.min(b ? b.x - 48 : world.width, world.giant.x + world.giant.speed);
   for (const cp of world.checkpoints) if (!cp.destroyed && world.giant.x + 35 >= cp.x) {
     cp.destroyed = true;
     world.platforms = world.platforms.filter(p => p.shelterX !== cp.x);

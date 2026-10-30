@@ -197,6 +197,7 @@ function advanceCutscene() {
   cutscenePanelIndex += 1;
   if (cutscenePanelIndex >= currentCutscene.panels.length) finishCutscene();
   else cutscenePanelStart = performance.now();
+  syncTextUI();
 }
 function startStory() {
   startedIntro = true;
@@ -289,9 +290,10 @@ function updateOffline(dtFrames, input, dtMs) {
 function syncTextUI() {
   if (document.body.dataset.gameState !== gameState) document.body.dataset.gameState = gameState;
   const inArena = world.boss && player.x >= world.boss.x;
-  const secondsBehind = Math.max(0, Math.ceil((player.x + 4 - world.giant.x - 44) / world.giant.speed / 60));
+  const wakeSeconds = Math.ceil((world.giant.wakeTicks || 0) / 60);
+  const secondsBehind = Math.max(0, Math.ceil((player.x + 4 - world.giant.x - 44) / world.giant.speed / 60)) + wakeSeconds;
   const threat = inArena ? 'BLAST DOOR • The roaming giant cannot enter this arena.'
-    : ['playing', 'paused'].includes(gameState) ? `PURSUER • About ${secondsBehind}s to your current position. Keep moving.`
+    : ['playing', 'paused'].includes(gameState) ? wakeSeconds ? `PURSUER WAKES IN ${wakeSeconds}s • Start toward the route relays.` : `PURSUER • About ${secondsBehind}s to your current position. Keep moving.`
     : 'The giant follows the route. Boss blast doors keep it outside.';
   if ($('threat-status').textContent !== threat) $('threat-status').textContent = threat;
   $('threat-status').dataset.urgent = String(!inArena && secondsBehind < 10 && gameState === 'playing');

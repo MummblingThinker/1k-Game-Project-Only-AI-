@@ -99,6 +99,7 @@ function buildReferenceLevel(levelId = 1, partySize = 1) {
 }
 
 export const REFERENCE_WIDTH = 960;
+export const STANDARD_PURSUER_SPEED = (REFERENCE_WIDTH * 3 + 114) / (120 * 60);
 // Authored obstacle positions, rather than the same route with a palette swap.
 const ROUTES = {
   2: { pits: [340, 740, 1190, 1660, 2240], ledges: [210, 600, 1020, 1530, 2100], theme: 'transit', enemy: ['grabber', 'scanner', 'grabber', 'sentinel'] },
@@ -125,6 +126,7 @@ export function buildLevel(levelId = 1, partySize = 1) {
     world.giant.x = -114;
     world.giant.speed = (world.width + 114) / (120 * 60);
     world.giant.crossingSeconds = 120;
+    world.giant.wakeTicks = 480;
     world.finish.locked = true;
     world.terrain = [];
     world.signs = [{ x: 100, text: 'SPACE: JUMP • E: RELAY' }, { x: 490, text: 'RED RELAY → E' }];
@@ -137,7 +139,7 @@ export function buildLevel(levelId = 1, partySize = 1) {
   const world = { id: level.id, title: level.title, region: level.palette, summary: level.summary, goal: level.goal,
     width, height: 180, floorY, theme: route.theme, partySize, floors: [], pits: [], platforms: [], crates: [], enemies: [],
     checkpoints: [], switches: [], terrain: [], signs: [], finish: { x: width - 55, y: 121, w: 28, h: 30, locked: true },
-    giant: { x: -114, y: 111, speed: (width + 114) / (120 * 60), crossingSeconds: 120, caught: false } };
+    giant: { x: -114, y: 111, speed: STANDARD_PURSUER_SPEED, crossingSeconds: (width + 114) / (STANDARD_PURSUER_SPEED * 60), wakeTicks: 480, caught: false } };
   let cursor = 0;
   for (const [index, x] of route.pits.entries()) {
     const w = gapWidthForParty(partySize, index % 4);

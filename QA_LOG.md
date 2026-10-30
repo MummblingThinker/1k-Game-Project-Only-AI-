@@ -338,3 +338,11 @@ Deployment/packaging follow-up: Render dep-dbi08ics728c73buufu0 for d56fc94 repo
 - Four actual clients passed focused stages 14–15 and timed ending after this change (156 seconds), with one heart left after the finale route. Log: artifacts/live-sequence-4-late.log. Further full/repeat checks remain useful; this is not human balance proof.
 - Three-client full sequence on earlier bbf6536 remains active in session 87523. Do not restart on observation timeout.
 - Roster signature now refreshes carrying status. New pose/giant/mobile browser inspection is pending.
+
+## 2026-10-30 pacing and jump-repeat evidence
+
+- Three-player old-source sequence also failed at Level 14 after passing 1–13. Its failure remains in artifacts/live-sequence-3.log; session 87523 is complete.
+- With short jump buffering/coyote time, Level 14 passed three independent real-client trials at party size 3 and three at party size 4. All six finished with two hearts. Logs: artifacts/repeat-3-1.log through repeat-4-3.log. Fresh full 3/4-player sequences are now running on this improved local source.
+- Normal-map pursuer walking speed remains calibrated to 120 seconds. Giant milestone maps now use that same walking speed instead of accelerating with map width (nominal full-width travel about 216/235/255 seconds, before the boss boundary). Every stage has an eight-second wake warning; contact is still lethal and boss exclusion unchanged. Shared timing tests and all 60 campaign routes pass. Countdown UI includes the warning delay.
+- Motion/mobile CI 40997368197 passed npm tests, adversarial scenarios and live finale. Browser passed all stage loads/co-op, held touch movement/cancel, pause/resume and no-horizontal-overflow, but its immediate phone story-heading assertion failed before the next animation frame. Story button now calls syncTextUI immediately, and its test awaits the observable heading change. Full browser rerun pending. No deployment of this failed browser revision was attempted.
+- Motion/giant/pose fixtures were inspected. Giant render fixture now disables image smoothing like the real game, and stage fixtures correctly mark standing survivors grounded; these fix the inspection fixture, not gameplay.
