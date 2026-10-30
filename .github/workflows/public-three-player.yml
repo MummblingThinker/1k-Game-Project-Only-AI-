@@ -1,0 +1,34 @@
+name: Public three-player campaign
+# Complete the supported party-size matrix against live release 13744978.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/public-three-player.yml
+permissions:
+  contents: read
+concurrency:
+  group: public-three-player
+  cancel-in-progress: false
+jobs:
+  campaign:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/browser-campaign-test.mjs
+        env:
+          BROWSER_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
+          TEST_PARTY: 3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-campaign-3
+          path: artifacts/browser-campaign/
