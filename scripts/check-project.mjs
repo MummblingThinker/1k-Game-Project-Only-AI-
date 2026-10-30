@@ -53,6 +53,16 @@ let recoveryTicks = 0;
 advanceSimulation(recoveryTimer, 60000, () => recoveryTicks++);
 assert.equal(recoveryTicks, 60, 'returning from a suspended tab must have bounded catch-up');
 console.log('Fixed-step checks passed: matching movement/jump at 1/5/30/60/120Hz and bounded tab recovery.');
+const { readProgress, saveProgress } = await import('../public/js/progress.js');
+let saved = null;
+const storage = { getItem: () => saved, setItem: (_key, value) => { saved = value; } };
+assert.equal(readProgress(storage), null);
+assert.equal(saveProgress(storage, 7), true); assert.equal(readProgress(storage).stage, 7);
+for (const invalid of [0,16,2.5,'7',null,Infinity]) assert.equal(saveProgress(storage, invalid), false);
+for (const bad of ['{', 'null', '{"version":2,"stage":7}', '{"version":1,"stage":99}']) { saved=bad; assert.equal(readProgress(storage),null); }
+const blocked = { getItem() { throw Error('blocked'); }, setItem() { throw Error('quota'); } };
+assert.equal(readProgress(blocked),null); assert.equal(saveProgress(blocked,7),false);
+console.log('Solo stage storage PASS: validated version/stage, corrupted and blocked storage are harmless.');
 
 // Verify a real jump arc crosses every solo Level 1 gap from a readable approach.
 for (const pit of solo.pits) {

@@ -42,13 +42,16 @@ function drive(peer) {
     else target = b.pylons.find(sw => !sw.active)?.x ?? b.x + 190;
     if ((b.phase === 'warning' || b.phase === 'attack') && Math.abs(p.x - b.targetX) < 90) target = b.targetX + (p.x >= b.targetX && b.targetX < b.x + b.w - 110 ? 100 : -100);
   }
-  const pit = w.pits.some(q => p.x + p.w > q.x - 8 && p.x < q.x + q.w && !w.platforms.some(t => t.kind === 'switch-bridge' && t.x === q.x));
+  const scan=w.enemies.find(e=>e.kind==='scanner' && ['warning','attack'].includes(e.phase) && Math.abs(p.x-e.targetX)<40);
+  if(scan)target=scan.targetX+(p.x>=scan.targetX?60:-60);
+  const pit = w.pits.some(q => p.x + p.w > q.x - 8 && p.x < q.x + q.w && !w.platforms.some(t => ['switch-bridge','pressure-bridge'].includes(t.kind) && t.x === q.x));
   const ledge = w.platforms.some(q => p.y + p.h > q.y + 3 && (target > p.x ? q.x >= p.x + p.w - 1 && q.x < p.x + p.w + 5 : p.x >= q.x + q.w - 1 && p.x < q.x + q.w + 5));
   const rescue = w.enemies.find(e => e.grabbedId && e.grabbedId !== p.id);
   if (rescue) target = rescue.x + 4;
   const robot = w.enemies.some(e => e.kind === 'grabber' && !e.stunned && Math.abs(p.x - e.x) < 36);
   const jumpStrike = b && b.kind !== 'background' && ((b.phase === 'warning' && b.timer < 24) || b.phase === 'attack') && Math.abs(p.x - b.targetX) < 80;
-  peer.send('input', { right: p.x < target - 3, left: p.x > target + 5, jump: !!p.onGround && (pit || ledge || robot || jumpStrike) });
+  const groundStrike=w.enemies.some(e=>e.kind!=='scanner' && ((e.phase==='warning' && e.timer<28)||e.phase==='attack') && Math.abs(p.x-e.targetX)<(e.kind==='creeper'?62:40));
+  peer.send('input', { right: p.x < target - 3, left: p.x > target + 5, jump: !!p.onGround && (pit || ledge || robot || jumpStrike || groundStrike) });
   if (Math.abs(p.x - target) < 23) peer.send('interact');
 }
 

@@ -72,6 +72,12 @@ try {
     assert.ok(await x(solo) > before, `level ${level} controls`);
     if ([5, 10, 15].includes(level)) await solo.screenshot({ path: `artifacts/level-${level}.png` });
   }
+  await solo.goto(base);
+  assert.ok((await solo.locator('#resume-solo').textContent()).includes('15'));
+  await solo.locator('#resume-solo').click();
+  await solo.waitForFunction(() => document.querySelector('#region-badge').textContent.includes('LEVEL 15') && document.querySelector('#game').dataset.state === 'playing');
+  assert.ok(await x(solo) < 60, 'saved stage restarts from the entry');
+  assert.ok((await solo.locator('#hud-hearts').textContent()).includes('3 / 3'));
   const aContext = await browser.newContext({ viewport: { width: 1800, height: 1200 } });
   // Render fixtures inspect authored art states; these are not gameplay-completion evidence.
   const fixture = await pageIn(soloContext);

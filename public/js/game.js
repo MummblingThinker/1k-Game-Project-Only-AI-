@@ -6,6 +6,8 @@ import { NetworkClient } from './network.js';
 import { advanceSimulation } from './timing.js';
 import { createTextUI } from './text-ui.js';
 import { createGameAudio } from './audio.js';
+import { readProgress, saveProgress } from './progress.js';
+import { SnapshotInterpolator } from './interpolation.js';
 import { startLevel, stepRun, interactRun, objectiveText } from './simulation.js';
 
 const canvas = document.getElementById('game');
@@ -31,6 +33,16 @@ const routeLabel = $('route-label');
 const heartReadout = $('heart-readout');
 const updateTextUI = createTextUI();
 const gameAudio = createGameAudio($('sound-toggle'), $('sound-volume'));
+const visualSnapshots = new SnapshotInterpolator();
+let progressStorage = null;
+try { progressStorage = window.localStorage; } catch { /* Storage can be disabled. Gameplay still works. */ }
+let savedProgress = readProgress(progressStorage);
+function updateResumeButton() {
+  $('resume-solo').hidden = !savedProgress;
+  $('resume-note').hidden = !savedProgress;
+  if (savedProgress) $('resume-solo').textContent = `Resume stage ${String(savedProgress.stage).padStart(2,'0')} / ${getLevel(savedProgress.stage).title}`;
+}
+updateResumeButton();
 
 const keys = new Set();
 const justPressed = new Set();
@@ -80,10 +92,11 @@ function updatePanel() {
   heartReadout.textContent = `${'♥ '.repeat(Math.max(0,hearts)).trim()}${hearts === 0 ? '—' : ''}`;
   if (!heartReadout.textContent) heartReadout.textContent = '—';
 }
-function buildWorld(levelId) {
+function buildWorld(levelId, remember = true) {
   currentLevel = Math.max(1, Math.min(15, Number(levelId) || 1));
   soloRun = { players: new Map([['local', createPlayer('local')]]), partySize: 1, runId: 0 };
   startLevel(soloRun, currentLevel, true);
+  if (remember && saveProgress(progressStorage, currentLevel)) { savedProgress = readProgress(progressStorage); updateResumeButton(); }
   world = soloRun.world; player = soloRun.players.get('local'); peers = [];
   maxHearts = soloRun.heartMax; hearts = soloRun.hearts; capture = null; cameraX = 0;
   levelSelect.value = String(currentLevel);
@@ -105,6 +118,7 @@ const network = new NetworkClient({
   onState(data) {
     lastSnapshot = data;
     if (!data) {
+      visualSnapshots.clear();
       roomUiSignature = '';
       peers = [];
       gameState = 'title';
@@ -129,6 +143,7 @@ const network = new NetworkClient({
       return;
     }
     const phaseChanged = gameState !== data.phase;
+    visualSnapshots.push(data, performance.now());
     const runChanged = world.runId !== data.runId;
     currentLevel = data.level;
     partySize = data.partySize;
@@ -298,6 +313,7 @@ function syncTextUI() {
   if ($('threat-status').textContent !== threat) $('threat-status').textContent = threat;
   $('threat-status').dataset.urgent = String(!inArena && secondsBehind < 10 && gameState === 'playing');
   $('pause-game').disabled = !['playing', 'paused'].includes(gameState);
+  $('resume-solo').disabled = network.inRoom;
   $('pause-game').textContent = network.inRoom ? 'Release input' : gameState === 'paused' ? 'Resume' : 'Pause';
   updateTextUI({ state: gameState, level: getLevel(currentLevel), hearts, maxHearts,
     roomCode: network.roomCode, isHost: lastSnapshot?.hostId === network.playerId,
@@ -328,7 +344,7 @@ function syncTextUI() {
   if (routeLabel.textContent !== routeText) routeLabel.textContent = routeText;
 }
 
-function draw() {
+function draw(dtMs = 1000 / 60) {
   gameAudio.observe({ state: gameState, world, player, hearts, storyVisual: gameState === 'cutscene' ? currentCutscene?.panels[cutscenePanelIndex]?.visual : null });
   syncTextUI();
   if (gameState === 'title') {
@@ -339,9 +355,12 @@ function draw() {
     drawCutscenePanel(ctx, panel, elapsed, 8000, clock);
 
   } else {
-    const cameraTarget = Math.max(0, Math.min(world.width - 320, player.x - 108));
-    cameraX += (cameraTarget - cameraX) * 0.16;
-    drawGame(ctx, world, player, peers, cameraX, { clock, state: gameState, tick: network.inRoom ? lastSnapshot?.tick : soloRun?.tick });
+    const rendered = network.inRoom ? visualSnapshots.sample(performance.now()) : null;
+    const renderedPlayer = rendered?.get(player.id) || player;
+    const renderedPeers = rendered ? peers.map(p => rendered.get(p.id) || p) : peers;
+    const cameraTarget = Math.max(0, Math.min(world.width - 320, renderedPlayer.x - 108));
+    cameraX += (cameraTarget - cameraX) * (1 - Math.pow(.84, Math.min(100, dtMs) / (1000 / 60)));
+    drawGame(ctx, world, renderedPlayer, renderedPeers, cameraX, { clock, state: gameState, tick: network.inRoom ? lastSnapshot?.tick : soloRun?.tick });
   }
 }
 
@@ -372,7 +391,7 @@ function frame(now) {
   const dtMs = Math.max(0, now - lastFrame);
   lastFrame = now;
   advanceSimulation(simulationTimer, dtMs, update);
-  draw();
+  draw(dtMs);
   requestAnimationFrame(frame);
 }
 
@@ -427,9 +446,14 @@ startStoryButton.addEventListener('click', () => {
   if (gameState !== 'cutscene') startStory();
 });
 playSelectedButton.addEventListener('click', loadSelectedLevel);
+$('resume-solo').addEventListener('click', () => {
+  if (network.inRoom || !savedProgress) return;
+  levelSelect.value = String(savedProgress.stage);
+  loadSelectedLevel(); canvas.focus();
+});
 createRoomButton.addEventListener('click', () => network.createRoom());
 joinRoomButton.addEventListener('click', () => network.joinRoom(roomCodeInput.value));
-leaveRoomButton.addEventListener('click', () => { network.leaveRoom(); partySize=1; buildWorld(1); returnToTitle(); });
+leaveRoomButton.addEventListener('click', () => { network.leaveRoom(); partySize=1; buildWorld(1, false); returnToTitle(); });
 roomCodeInput.addEventListener('input', () => { roomCodeInput.value = roomCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6); });
 for (const button of document.querySelectorAll('[data-control]')) {
   const action = button.dataset.control;

@@ -29,3 +29,18 @@ try {
   assert.equal(client.playerId, null);
   console.log('Network client PASS: foreign/late room packets ignored; leave/disconnect clear membership.');
 } finally { delete globalThis.window; }
+
+const { SnapshotInterpolator } = await import('../public/js/interpolation.js');
+const visual = new SnapshotInterpolator();
+const packet = (x, extra={}) => ({ roomCode:'ABC234',runId:1,phase:'playing',players:[{id:'p',x,y:129,alive:true,...extra}] });
+visual.push(packet(0),0); visual.push(packet(4),50);
+assert.equal(visual.sample(75).get('p').x,2);
+assert.equal(visual.sample(500).get('p').x,4,'no extrapolation after a stalled connection');
+visual.push(packet(12),150); assert.equal(visual.sample(200).get('p').x,8);
+visual.push(packet(16),200); assert.equal(visual.sample(200).get('p').x,8,'late packet starts from current visual location');
+assert.equal(visual.sample(250).get('p').x,16);
+visual.push(packet(20,{alive:false}),250); assert.equal(visual.sample(250).get('p').x,20,'death snaps immediately');
+visual.push({...packet(27),runId:2},300); assert.equal(visual.sample(300).get('p').x,27,'new run clears old interpolation');
+visual.push(packet(400),350); assert.equal(visual.sample(350).get('p').x,400,'teleport/checkpoint snaps');
+visual.clear(); assert.equal(visual.sample(400).size,0);
+console.log('Visual interpolation PASS: jittered packets blend, stalls freeze, death/run/teleport reset, authority unchanged.');
