@@ -122,6 +122,19 @@ try {
     window.renderTools = { ...await import('/js/world.js'), ...await import('/js/physics.js'), ...await import('/js/art.js') };
   });
   await fixture.waitForTimeout(500);
+  await fixture.evaluate(()=>{
+    const {buildLevel,createPlayer,drawGame}=window.renderTools;
+    const world=buildLevel(2),canvas=document.createElement('canvas');canvas.width=320;canvas.height=180;
+    const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
+    const p=createPlayer('motion',100,129);p.onGround=true;p.vx=1.28;p.invulnerability=100;
+    world.enemies[0].x=180;world.giant.x=35;world.breakEffects=[{x:220,y:130,tick:0}];
+    const render=(clock,reducedMotion)=>{drawGame(ctx,world,p,[],0,{clock,tick:10,state:'playing',reducedMotion});return ctx.getImageData(0,0,320,180).data;};
+    const same=(a,b)=>a.every((v,i)=>v===b[i]);
+    if(!same(render(0,true),render(190,true)))throw Error('Reduced motion must freeze decorative sprite frames and debris');
+    if(same(render(0,false),render(190,false)))throw Error('Full motion must retain animated frames');
+    const before=render(190,true);world.enemies[0].phase='warning';world.enemies[0].timer=90;world.enemies[0].targetX=180;
+    if(same(before,render(190,true)))throw Error('Reduced motion must preserve semantic warning changes');
+  });
   const sheet=await fixture.evaluate(()=>{
     const {getSurvivorSheet,SURVIVOR_POSES,survivorPose}=window.renderTools;
     const sheet=getSurvivorSheet(),ctx=sheet.getContext('2d'),pixels=ctx.getImageData(0,0,sheet.width,sheet.height).data;

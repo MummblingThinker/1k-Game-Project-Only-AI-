@@ -366,7 +366,7 @@ export function getSurvivorSheet() {
 }
 export function drawSurvivor(ctx,p,x,clock=0,reducedMotion=false) {
   const pose=survivorPose(p),index=SURVIVOR_POSES.indexOf(pose),slot=(p.slot??p.colorIndex??0)%4;
-  const frame=pose.startsWith('throw')?Math.min(3,Math.max(0,Math.floor((18-p.gestureTicks)/5))):Math.floor(clock/(pose==='idle'?360:95))%4;
+  const frame=reducedMotion?0:pose.startsWith('throw')?Math.min(3,Math.max(0,Math.floor((18-p.gestureTicks)/5))):Math.floor(clock/(pose==='idle'?360:95))%4;
   ctx.save();ctx.translate(rnd(x),rnd(p.y));
   if(p.face<0){ctx.translate(p.w,0);ctx.scale(-1,1);}
   if(p.invulnerability>0&&(reducedMotion||Math.floor(clock/180)%2))ctx.globalAlpha=reducedMotion ? .7 : .45;
@@ -375,6 +375,7 @@ export function drawSurvivor(ctx,p,x,clock=0,reducedMotion=false) {
 }
 
 function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
+  const spriteClock=gameState.reducedMotion?0:gameState.clock||0;
   if (world.memory) {
     const x = world.memory.x-cameraX;
     if (x > -30 && x < 350) {
@@ -421,7 +422,7 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
   for(const enemy of world.enemies) {
     if(enemy.dead) continue;
     const x=enemy.x-cameraX; if(x<-25||x>345) continue;
-    drawRobot(ctx,enemy,x,gameState.clock||0);
+    drawRobot(ctx,enemy,x,spriteClock);
     if (enemy.phase === 'warning' || enemy.phase === 'attack') {
       const tx = (enemy.targetX ?? enemy.x) - cameraX, radius = enemy.kind === 'creeper' ? 48 : 23;
       RECT(ctx, tx - radius, 148, radius * 2, 3, enemy.phase === 'attack' ? '#fc7663' : '#edc879');
@@ -439,7 +440,7 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
   const all = [player, ...peerPlayers.filter(p => p.id !== player.id)];
   for(const p of all) {
     if(!p) continue;
-    const runClock = gameState.clock || 0;
+    const runClock = spriteClock;
     const x=p.x-cameraX;
     if(x<-24||x>335) continue;
     drawSurvivor(ctx, p, x, runClock,gameState.reducedMotion);
@@ -460,7 +461,7 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
     if(gx>-55&&gx<375) {
       const im=sprite('giant_pursuer.png');
       if(im?.complete&&im.naturalWidth) {
-        const step=Math.sin((gameState.clock||0)*.004);
+        const step=Math.sin(spriteClock*.004);
         ctx.drawImage(im,0,0,im.naturalWidth,im.naturalHeight-6,rnd(gx-52),rnd(world.floorY-88+Math.abs(step)),96,76);
         RECT(ctx,gx-28+step*3,world.floorY-13,17,13,'#40536b');
         RECT(ctx,gx+10-step*3,world.floorY-13,17,13,'#40536b');
@@ -487,7 +488,7 @@ export function drawGame(ctx, world, player, peerPlayers, cameraX, state) {
   drawFloor(ctx,world,cameraX,sceneryClock);
   // Checkpoint's interior is safe from ordinary enemies, but not from the giant pursuer.
   drawSprites(ctx,world,player,peerPlayers,cameraX,state);
-  for (const effect of state.reducedEffects?[]:world.breakEffects || []) {
+  for (const effect of state.reducedEffects||state.reducedMotion?[]:world.breakEffects || []) {
     const age = (state.tick || 0) - effect.tick;
     if (age < 0 || age >= 30) continue;
     for (let i=0;i<6;i++) {
