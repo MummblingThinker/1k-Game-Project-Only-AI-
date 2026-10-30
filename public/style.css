@@ -172,6 +172,8 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .comic-swarm { background-position: 100% 0; }
 .comic-assembly { background-position: 0 100%; }
 .comic-ambush { background-position: 100% 100%; }
+#debug-panel { margin-top: 20px; }
+#debug-report { display:block; width:100%; box-sizing:border-box; resize:vertical; margin:12px 0; padding:12px; color:#e9edf3; background:#101827; border:1px solid #58718c; font:13px/1.5 monospace; }
 @keyframes comic-reveal { to { opacity: 1; transform: translateY(0) scale(1); } }
 #story-heading, #story-caption, .story-skip { z-index: 1; }
 .story-panel[data-scene=darkTwist] .comic-panels { animation: comic-blackout 8s steps(1,end) forwards; }

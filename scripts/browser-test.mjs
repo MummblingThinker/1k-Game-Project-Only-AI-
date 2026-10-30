@@ -208,7 +208,7 @@ try {
   await Promise.all([a.locator('#leave-room').click(), b.locator('#leave-room').click()]);
   const cContext=await browser.newContext(),dContext=await browser.newContext();
   const c=await pageIn(cContext),d=await pageIn(dContext);
-  await Promise.all([c.goto(base),d.goto(base)]);
+  await Promise.all([c.goto(base),d.goto(base+'/?debug=1')]);
   await a.locator('#create-room').click();await a.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);
   const fourCode=await a.locator('#game').getAttribute('data-room');
   for(const page of [b,c,d]){await page.locator('#room-code').fill(fourCode);await page.locator('#join-room').click();await page.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);}
@@ -221,6 +221,11 @@ try {
   try{await d.waitForFunction(()=>document.querySelector('#game').dataset.alive==='false',null,{timeout:7000});}
   finally{await d.keyboard.up('ArrowRight');}
   await d.waitForFunction(()=>document.querySelector('#game').dataset.watching.length>0);
+  await d.waitForFunction(()=>{try{return JSON.parse(document.querySelector('#debug-report').value).events.some(e=>e.type==='death');}catch{return false;}});
+  assert.equal(await d.locator('#debug-panel').isVisible(),true);
+  const reportDownload=d.waitForEvent('download');await d.locator('#debug-download').click();
+  const reportFile=await reportDownload;assert.equal(reportFile.suggestedFilename(),'tiny-teamwork-stage-1-report.json');
+  await reportFile.saveAs('artifacts/browser-run-report.json');
   assert.equal(await d.locator('#spectator-status').isVisible(),true);
   const firstWatch=await d.locator('#game').getAttribute('data-watching');
   await d.locator('#watch-player').click();

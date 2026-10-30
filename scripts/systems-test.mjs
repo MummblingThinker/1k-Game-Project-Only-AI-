@@ -1,6 +1,7 @@
 ﻿import assert from 'node:assert/strict';
 import { createPlayer, stepPlayer, updateCrates, overlaps } from '../public/js/physics.js';
 import { startLevel, stepRun, interactRun, killPlayer, releaseParticipant, safeFromOrdinary } from '../public/js/simulation.js';
+import { diagnosticReport,recordRunEvent } from '../public/js/telemetry.js';
 const runAt = (level = 2, count = 2) => {
   const run = { players: new Map(Array.from({ length: count }, (_, slot) => [`p${slot}`, { ...createPlayer(`p${slot}`), slot }])) };
   startLevel(run, level, true); return run;
@@ -259,6 +260,22 @@ check('box chains move together, stop atomically at walls, and thrown boxes hit 
   w.platforms=[{x:0,y:90,w:300,h:8}];w.crates=[{...boxes[0],x:20,y:110,vy:-4}];
   for(let i=0;i<8;i++)updateCrates(w);
   assert.ok(w.crates[0].y>=98,'thrown box cannot pass through ceiling');
+});
+check('stage report records death/revival timing and never contains session identifiers',()=>{
+  const r=runAt(2,2),[a,b]=[...r.players.values()];
+  r.tick=120;killPlayer(r,a,'QA pit');killPlayer(r,a,'duplicate');
+  let report=diagnosticReport(r);
+  assert.equal(report.events.filter(e=>e.type==='death').length,1);
+  assert.equal(report.lastAlive,2);assert.equal(report.hearts,3);
+  const cp=r.world.checkpoints[0];b.x=cp.x-b.w-1;b.input={right:true};stepRun(r);
+  report=diagnosticReport(r);
+  assert.equal(report.checkpoints[0].reachedAtSeconds,2);
+  assert.ok(report.events.some(e=>e.type==='checkpoint-revive'&&e.survivor===1));
+  assert.equal(report.lastAlive,null);assert.equal(report.hearts,3);
+  assert.ok(!JSON.stringify(report).includes('p0'),'no transport participant identifier');
+  for(let i=0;i<100;i++)recordRunEvent(r,'bounded-fixture');
+  assert.equal(diagnosticReport(r).events.length,60);
+  startLevel(r,3);assert.deepEqual(diagnosticReport(r).events.map(e=>e.type),['stage-start']);
 });
 console.log('Shared systems regression complete.');
 

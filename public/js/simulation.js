@@ -1,5 +1,6 @@
 import { buildLevel } from './world.js';
 import { createPlayer, stepPlayer, overlaps, updateCrates } from './physics.js';
+import { recordRunEvent } from './telemetry.js';
 
 export const heartMaximum = count => count <= 1 ? 3 : Math.min(10, 3 + Math.ceil((count - 1) / 2));
 export const playersOf = run => [...run.players.values()];
@@ -20,6 +21,8 @@ export function startLevel(run, level = 1, resetRun = false) {
   run.objectiveVersion = 0;
   run.runId = (run.runId || 0) + 1;
   run.deathEvents = [];
+  run.stageEvents = [];
+  recordRunEvent(run,'stage-start');
   run.notice = level === 1 ? 'Jump the first gap. E activates the red relay.' : 'Activate every route relay. Reach the exit together.';
   for (const [id, p] of run.players) run.players.set(id, makeParticipant(id, p.slot || 0, run.world));
 }
@@ -63,6 +66,7 @@ export function killPlayer(run, player, cause, unavoidable = false) {
   run.hearts = Math.max(0, run.hearts - 1);
   run.deathEvents.push({ id: `${run.runId}:${run.tick}:${player.id}`, playerId: player.id, cause });
   if (run.deathEvents.length > 30) run.deathEvents.shift();
+  recordRunEvent(run,'death',{survivor:player.slot+1,cause,x:Math.round(player.x),y:Math.round(player.y)});
   run.notice = `${cause}. One team heart lost.`;
   if (!run.hearts) run.phase = 'gameover';
   return true;
@@ -70,15 +74,18 @@ export function killPlayer(run, player, cause, unavoidable = false) {
 
 function recover(run, checkpoint) {
   checkpoint.active = true;
+  checkpoint.reachedTick = run.tick;
   run.respawnX = checkpoint.x + 4;
   const dead = playersOf(run).filter(p => !p.alive).sort((a, b) => a.timeDead - b.timeDead);
   if (dead.length) {
     const p = dead[0];
     Object.assign(p, makeParticipant(p.id, p.slot, run.world), { x: checkpoint.x + 4, invulnerability: 90 });
     run.notice = 'Shelter reached. Longest-down teammate revived; no heart added.';
+    recordRunEvent(run,'checkpoint-revive',{survivor:p.slot+1,x:checkpoint.x});
   } else {
     run.hearts = Math.min(run.heartMax, run.hearts + 1);
     run.notice = 'Shelter reached. One heart restored up to the cap.';
+    recordRunEvent(run,'checkpoint-heart',{x:checkpoint.x});
   }
 }
 
@@ -321,11 +328,13 @@ export function stepRun(run) {
       b.pylons.forEach(s => { s.active = false; });
     }
     run.notice = arenaRetry ? 'Team down. Encounter reset with remaining hearts. Get ready!' : 'Team down. Retrying the segment with remaining hearts.';
+    recordRunEvent(run,'segment-retry',{x,arena:!!arenaRetry});
     return;
   }
   world.finish.locked = world.switches.some(s => !s.active) || !!(b && !b.solved);
   if (!world.finish.locked && alive.every(p => !p.capture && p.x + p.w >= world.finish.x && p.y + p.h >= 0 && p.y < world.floorY)) {
     run.phase = 'victory'; run.notice = run.level === 15 ? 'Factory disabled. The last spark survives…' : `Level ${run.level} complete. Continue together.`;
+    recordRunEvent(run,'stage-clear');
   }
 }
 

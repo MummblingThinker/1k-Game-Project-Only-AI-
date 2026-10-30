@@ -9,6 +9,7 @@ import { createPlayer, stepPlayer } from '../public/js/physics.js';
 import { advanceSimulation } from '../public/js/timing.js';
 import { startLevel, stepRun, interactRun, releaseParticipant, objectiveText } from '../public/js/simulation.js';
 import { STORY_BEATS } from '../public/js/campaign.js';
+import { diagnosticReport } from '../public/js/telemetry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -154,6 +155,13 @@ io.on('connection', (socket) => {
     next();
   });
   socket.emit('serverHello', { ok: true, maxPlayersPerRoom: MAX_PLAYERS_PER_ROOM });
+  let lastDiagnosticAt=0;
+  socket.on('getDiagnostics',()=>{
+    const room=rooms.get(socketRoom.get(socket.id)),now=Date.now();
+    if(!room||now-lastDiagnosticAt<900)return;
+    lastDiagnosticAt=now;
+    socket.emit('diagnostics',{roomCode:room.code,runId:room.runId,report:diagnosticReport(room)});
+  });
   socket.on('createRoom', () => {
     rate.creates = rate.creates.filter(time => Date.now() - time < 60000);
     if (rate.creates.length >= 8 || rooms.size >= 200) { socket.emit('roomError', 'Please wait before creating another room.'); return; }

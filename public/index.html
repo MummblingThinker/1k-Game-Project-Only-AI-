@@ -161,7 +161,13 @@
       </article>
     </section>
 
-    <footer class="footer-line"><span>Original prototype assets · No external artwork required</span><span>Use <code>npm install</code> then <code>npm start</code></span></footer>
+    <section id="debug-panel" class="lower-card" hidden>
+      <h2>Run report</h2>
+      <p>Stage-local deaths, hearts and checkpoint times. Download this report when describing a bug. Nothing is uploaded or saved automatically.</p>
+      <textarea id="debug-report" rows="12" readonly aria-label="Run diagnostic report"></textarea>
+      <button id="debug-download" class="secondary-button" disabled>Download run report</button>
+    </section>
+    <footer class="footer-line"><span>Original artwork and synthesized sound</span><span>Fifteen stages. One shared escape.</span></footer>
   </main>
   <script src="/socket.io/socket.io.js"></script>
   <script type="module" src="/js/game.js"></script>

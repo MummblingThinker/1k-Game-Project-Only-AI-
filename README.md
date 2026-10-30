@@ -68,3 +68,5 @@ In a lobby, Copy invite link gives friends a URL with the room code filled in. T
 Walk against loose crates to push them together. A wall stops the whole chain. Boxes can be stacked and still support carry/throw. When down in co-op, the camera follows a living teammate; V or Watch next switches survivor. A shelter revives the longest-down teammate.
 
 Comic scenes reveal three captioned panels in sequence, with original 2D anime artwork. The companion art adds distinct rescue, covered-walkway swarm, assembly and ambush compositions. Prompts/provenance: [original atlas](docs/STORY_ART_PROMPT.md), [companion atlas](docs/STORY_DETAILS_PROMPT.md).
+
+For bug reports, open the game with ?debug=1 (or &debug=1 after an existing query). A Run report panel records the current stage's deaths, hearts, checkpoint times, route and living survivors. Download its JSON when reporting a failure. It is optional, stage-local, and not uploaded automatically; ordinary gameplay sends no diagnostic history. In co-op the report comes only from your own room.

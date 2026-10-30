@@ -1,7 +1,8 @@
 export class NetworkClient {
-  constructor({ onStatus = () => {}, onState = () => {} } = {}) {
+  constructor({ onStatus = () => {}, onState = () => {}, onDiagnostics = () => {} } = {}) {
     this.onStatus = onStatus;
     this.onState = onState;
+    this.onDiagnostics = onDiagnostics;
     this.socket = null;
     this.connected = false;
     this.roomCode = null;
@@ -60,6 +61,9 @@ export class NetworkClient {
         this.onStatus(`Room ${data.roomCode} / ${data.players.length} players / ${data.phase}`, true);
       });
       socket.on('roomError', (message) => this.onStatus(String(message || 'Room error.'), this.connected));
+      socket.on('diagnostics',data=>{
+        if(this.inRoom&&data?.roomCode===this.roomCode&&data.runId===this.latestState?.runId)this.onDiagnostics(data.report);
+      });
     });
     return this.connectPromise;
   }
@@ -96,6 +100,7 @@ export class NetworkClient {
   }
 
   interact() { if (this.inRoom) this.socket.emit('interact'); }
+  requestDiagnostics() { if(this.inRoom)this.socket.emit('getDiagnostics'); }
   startRun() { if (this.inRoom) this.socket.emit('startRun'); }
   setReady(ready) { if (this.inRoom) this.socket.emit('ready', { ready: !!ready }); }
   restartRun() { if (this.inRoom) this.socket.emit('restartRun'); }

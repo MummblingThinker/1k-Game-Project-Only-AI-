@@ -8,6 +8,7 @@ import { createTextUI } from './text-ui.js';
 import { createGameAudio } from './audio.js';
 import { readProgress, saveProgress } from './progress.js';
 import { SnapshotInterpolator } from './interpolation.js';
+import { diagnosticReport } from './telemetry.js';
 import { startLevel, stepRun, interactRun, objectiveText } from './simulation.js';
 
 const canvas = document.getElementById('game');
@@ -78,6 +79,14 @@ let lastSnapshot = null;
 let panelSignature = '';
 let roomUiSignature = '';
 let lastNotice = '';
+const diagnosticsEnabled=new URLSearchParams(location.search).get('debug')==='1';
+let latestDiagnostic=null;
+function showDiagnostics(report) {
+  if(!diagnosticsEnabled)return;
+  latestDiagnostic=report;
+  $('debug-report').value=report?JSON.stringify({...report,mode:network.inRoom?'online':'solo',browser:navigator.userAgent},null,2):'Start a stage to collect a run report.';
+  $('debug-download').disabled=!report;
+}
 
 function maxHeartForParty(n) { return Math.min(10, n <= 1 ? 3 : 3 + Math.ceil((n - 1) / 2)); }
 function regionName(region) { return region === 'city' ? 'CITY' : region === 'forest' ? 'FOREST' : 'ROBOT FACTORY'; }
@@ -122,6 +131,7 @@ function buildWorld(levelId, remember = true) {
 }
 
 const network = new NetworkClient({
+  onDiagnostics:showDiagnostics,
   onStatus(text, online) {
     const pill = online ? 'CONNECTED' : 'OFFLINE';
     if (roomStatus.textContent === text && networkPill.textContent === pill) return;
@@ -136,6 +146,7 @@ const network = new NetworkClient({
     joinRoomButton.disabled = network.inRoom;
   },
   onState(data) {
+    if(!data||data.runId!==lastSnapshot?.runId)showDiagnostics(null);
     lastSnapshot = data;
     if (!data) {
       visualSnapshots.clear();
@@ -560,4 +571,15 @@ function sendNetworkInput() {
   }, true);
 }
 setInterval(sendNetworkInput, 100);
+if(diagnosticsEnabled) {
+  $('debug-panel').hidden=false;
+  const refresh=()=>{if(network.inRoom)network.requestDiagnostics();else showDiagnostics(diagnosticReport(soloRun));};
+  refresh();setInterval(refresh,1000);
+  $('debug-download').addEventListener('click',()=>{
+    if(!latestDiagnostic)return;
+    const url=URL.createObjectURL(new Blob([$('debug-report').value],{type:'application/json'}));
+    const link=document.createElement('a');link.href=url;link.download='tiny-teamwork-stage-'+latestDiagnostic.stage+'-report.json';link.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
+}
 

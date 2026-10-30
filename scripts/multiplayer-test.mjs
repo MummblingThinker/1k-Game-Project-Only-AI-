@@ -154,6 +154,18 @@ try {
   a.send('input', { right: true }); a.send('death', {}); b.send('death', { playerId: a.id });
   await sleep(180);
   assert.equal(a.state.hearts, afterDeath, 'death transition deducts once');
+  a.send('getDiagnostics',{roomCode:c.state.roomCode});
+  await until(()=>a.events.some(e=>e.event==='diagnostics'),'own-room diagnostic response');
+  const diagnostic=a.events.findLast(e=>e.event==='diagnostics').payload;
+  assert.equal(diagnostic.roomCode,code,'request payload cannot select another room');
+  assert.equal(diagnostic.report.hearts,afterDeath);
+  assert.equal(diagnostic.report.events.filter(e=>e.type==='death').length,1);
+  assert.equal(diagnostic.report.lastAlive,2);
+  for(let i=0;i<8;i++)a.send('getDiagnostics');
+  await sleep(120);
+  assert.equal(a.events.filter(e=>e.event==='diagnostics').length,1,'reports rate-limited separately');
+  assert.equal(b.events.filter(e=>e.event==='diagnostics').length,0,'diagnostics are private to requester');
+  assert.equal(c.events.filter(e=>e.event==='diagnostics').length,0,'no foreign-room diagnostics');
   a.close(true);
   await until(() => b.state.hostId === b.id && b.state.players.length === 1, 'host handoff');
   assert.equal(b.state.partySize, 2, 'running geometry preserves original party size');
