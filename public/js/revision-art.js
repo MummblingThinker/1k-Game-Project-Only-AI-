@@ -1,6 +1,43 @@
 const rect=(c,x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.max(1,Math.round(w)),Math.max(1,Math.round(h)));};
 const label=(c,text,x,y,color='#e9f4d8')=>{c.font='6px monospace';c.fillStyle='#101b29';c.fillText(text,Math.round(x)+1,Math.round(y)+1);c.fillStyle=color;c.fillText(text,Math.round(x),Math.round(y));};
 const COLORS={city:['#182239','#263c55','#42566a','#94b5b8','#efc17b'],forest:['#102c33','#234840','#3c6852','#a0c982','#e5d48b'],factory:['#171f2e','#293949','#4a5967','#a6b9bc','#f2a457']};
+const LEVEL_COLORS={
+  2:['#302333','#503e47','#655564','#b8a6a2','#f5b177'],
+  3:['#142b3e','#25485d','#456579','#a4cbd0','#e3cb8d'],
+  4:['#27213e','#423657','#5c5274','#b2a3ce','#f2ad99'],
+  5:['#242d39','#3a4958','#5a6d7a','#b5c3c4','#edbd81'],
+  6:['#173d35','#315e42','#4c7950','#bad08b','#f0d59a'],
+  7:['#102d3d','#224c59','#3f6a65','#9dc8b5','#d5d19b'],
+  8:['#35402f','#536845','#738452','#d2d49a','#f3d583'],
+  9:['#162c2b','#29453b','#45634b','#91b582','#bcd5a1'],
+  10:['#242d39','#364d49','#5a6950','#b4bc8d','#efc489'],
+  12:['#35262a','#523c3b','#73584d','#c4aa91','#ffb365'],
+  13:['#172a3c','#2b465d','#4b6b7e','#9ec6cc','#f2c187'],
+  14:['#1a302e','#304c48','#526d60','#abc6a6','#e5d283'],
+  15:['#30232f','#4b3647','#705660','#c4a6a0','#ffad73'],
+};
+let deathCard={key:null,started:0};
+function drawBossDeath(c,w,state){
+  const b=w.boss;if(!b?.solved){deathCard.key=null;return;}
+  const key=w.id+':'+b.deathTick,clock=state.clock||0;
+  if(deathCard.key!==key)deathCard={key,started:clock};
+  const elapsed=clock-deathCard.started;if(elapsed>3200)return;
+  const age=state.reducedMotion?1200:elapsed,progress=Math.min(1,age/1400);
+  const x=220,y=29;
+  rect(c,x-2,y-2,96,69,'#d7c6a0');rect(c,x,y,92,65,'#172c3b');
+  label(c,b.kind==='climber'?'WARDEN DOWN':b.kind==='chainsaw'?'TIMBER!':'CORE MELTDOWN',x+5,y+9,'#f6d38c');
+  // Pixel blocks separate from the chassis. This inset remains visible when
+  // the escaped players and camera are far ahead of the dying machine.
+  for(let row=0;row<7;row++)for(let col=0;col<8;col++){
+    const fly=progress*Math.max(0,(age-200)/60),dx=(col-3.5)*fly*.7,dy=fly*(row-2)*.45;
+    const sunk=b.kind==='foundry'?progress*22:0;
+    rect(c,x+30+col*4+dx,y+19+row*4+dy+sunk,3,3,(row===2&&(col===1||col===6))?'#ffb77d':(row+col)%3?'#8198a4':'#455f74');
+  }
+  if(b.kind==='chainsaw'){rect(c,x+8,y+16+progress*26,77,9,'#927247');rect(c,x+10,y+18+progress*26,72,2,'#c5a16a');}
+  if(b.kind==='foundry'){rect(c,x+1,y+58-progress*18,90,6+progress*18,'#c55536');rect(c,x+1,y+58-progress*18,90,3,'#ffcb77');}
+  if(!state.reducedMotion&&!state.reducedEffects)for(let i=0;i<14;i++){const a=i*2.4;rect(c,x+46+Math.cos(a)*progress*40,y+34+Math.sin(a)*progress*23,2,2,i%2?'#ffcd7c':'#e78358');}
+  label(c,'DESTROYED',x+23,y+60,'#e9dcb4');
+}
 function prop(c,o,t){
   const x=o.x,y=o.y,k=o.kind;
   if(o.durable){rect(c,x,y,12,12,'#bd923e');rect(c,x+2,y+2,8,8,'#f0cf74');rect(c,x+5,y+3,2,6,'#67572d');return;}
@@ -49,11 +86,17 @@ function scenery(c,o,t){
   else if(k==='pipe'||k==='tank'||k==='piston'){rect(c,x,y-o.h,o.w,o.h,'#304657');rect(c,x+3,y-o.h+3,o.w-6,4,'#71838a');rect(c,x+4,y-6,o.w-8,3,'#f0a15a');}
   else if(k==='train'){rect(c,x,y,o.w,o.h,'#344d61');for(let dx=8;dx<o.w-10;dx+=28)rect(c,x+dx,y+5,18,12,'#719491');}
   else if(k==='fern'||k==='flowers'){for(let i=0;i<5;i++){rect(c,x+i*4,y-4-i%3*3,2,6+i%3*3,'#688e65');if(k==='flowers')rect(c,x+i*4-1,y-5-i%3*3,4,2,'#d8c885');}}
+  else if(k==='vent'){rect(c,x,y-16,o.w,16,'#627782');for(let j=3;j<15;j+=4)rect(c,x+3,y-j,o.w-6,2,'#263e4e');rect(c,x-2,y-18,o.w+4,3,'#9baaa8');}
+  else if(k==='wires'||k==='cables'){for(let j=0;j<3;j++){rect(c,x+j*5,y-55,2,55,j===1?'#b18c64':'#4b6879');rect(c,x+j*5,y-55,o.w-j*4,2,'#78918f');}rect(c,x+4,y-25,13,18,'#566b77');rect(c,x+7,y-20,3,3,'#e5be7b');}
+  else if(k==='bones'){rect(c,x,y-5,22,3,'#c2b897');rect(c,x+3,y-8,3,8,'#ddd0aa');rect(c,x+16,y-8,3,8,'#ddd0aa');rect(c,x+27,y-9,8,8,'#c8bd9f');rect(c,x+28,y-7,2,2,'#35473e');}
+  else if(k==='stump'){rect(c,x,y-18,23,18,'#806644');rect(c,x-3,y-20,29,5,'#b09561');rect(c,x+4,y-18,15,2,'#65563d');rect(c,x+6,y-12,2,12,'#a28652');}
+  else if(k==='cratepile'){rect(c,x,y-19,18,19,'#687d81');rect(c,x+20,y-15,16,15,'#9b8e6a');rect(c,x+9,y-33,17,14,'#536b78');for(let j=0;j<3;j++)rect(c,x+3+j*10,y-13,2,12,'#bac0a4');}
+  else if(k==='rubble'){for(let j=0;j<6;j++)rect(c,x+j*6,y-4-j%3*4,7,4+j%3*4,j%2?'#6c7780':'#8d8a82');rect(c,x+4,y-17,23,3,'#566876');}
   else{rect(c,x,y-8,o.w,8,'#465c5a');rect(c,x+4,y-13,o.w/2,5,'#60736b');}
 }
 export function drawRevision(c,w,player,peers,cameraX,state,drawSurvivor){
   const cy=state.cameraY||0,t=state.reducedMotion?0:state.clock||0,tick=state.tick||0;
-  const biome=w.id===11?(cameraX<w.coveredWay.x?'forest':cameraX<w.coveredWay.x+w.coveredWay.w?'city':'factory'):w.region,P=COLORS[biome];
+  const biome=w.id===11?(cameraX<w.coveredWay.x?'forest':cameraX<w.coveredWay.x+w.coveredWay.w?'city':'factory'):w.region,P=LEVEL_COLORS[w.id]||COLORS[biome];
   rect(c,0,0,320,180,P[0]);
   for(let i=0;i<12;i++){
     const x=((i*41-cameraX*.14)%430+430)%430-50,y=30+((i*23+w.id*7)%65)-cy*.025;
@@ -110,5 +153,6 @@ export function drawRevision(c,w,player,peers,cameraX,state,drawSurvivor){
   const f=w.finish;rect(c,f.x,f.y,f.w,f.h,f.locked?'#705552':'#4b8c83');rect(c,f.x+4,f.y+4,f.w-8,f.h-4,'#193d48');rect(c,f.x+6,f.y+5,f.w-12,3,f.locked?'#d48b70':'#a4e6c0');label(c,f.locked?'LOCKED':'EXIT',f.x,f.y-6);
   for(const e of state.reducedEffects||state.reducedMotion?[]:w.breakEffects){const age=tick-e.tick,count=e.kind==='boss'?48:12;for(let i=0;i<count;i++){const a=i*2.4,speed=1+i%5*.35,dx=Math.cos(a)*age*speed*.45,dy=Math.sin(a)*age*.7+age*age*.012;rect(c,e.x+dx,e.y+dy,e.kind==='boss'?4:2,e.kind==='boss'?4:2,['#d6b57b','#8ba2ad','#e5845f','#f3d69d'][i%4]);}}
   c.restore();
+  drawBossDeath(c,w,state);
   if(b&&!b.solved&&b.phase!=='waiting'){rect(c,95,5,130,10,'#182637');if(b.kind==='climber'){rect(c,98,8,124*b.hp/b.maxHp,4,'#de8772');label(c,'WARDEN',139,22);}else label(c,b.kind==='chainsaw'?'CHAINSAW — RUN >':b.phase==='escape'?'< RUN LEFT':'RISING LAVA — CLIMB',103,12);}
 }

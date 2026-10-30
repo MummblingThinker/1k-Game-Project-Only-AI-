@@ -119,7 +119,7 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
         supply(w,tx+65,floorY-height+35,'stick');
       }
       b.tree={x:width-200,y:floorY-220,w:120,h:220,phase:'upright',timer:0};
-      b.bodyX=bossX-65;b.bodyW=58;
+      b.bodyX=bossX-130;b.bodyW=58;
     }
   }
   return w;

@@ -69,7 +69,24 @@ section('climbing boss takes thrown damage, death emits pixels and creates final
   assert.equal(b.hp,0);assert.equal(b.solved,true);assert.ok(w.breakEffects.some(e=>e.kind==='boss'));assert.equal(w.finish.locked,false);assert.ok(w.ladders.some(l=>l.id==='final-ladder'));
 });
 section('chainsaw finale kills players underneath, permits safe escape, and kills boss',()=>{
-  for(const under of [false,true]){const r=runAt(10),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);p.x=b.tree.x-40;p.y=w.floorY-p.h;p.invulnerability=999;tick(r);assert.equal(b.tree.phase,'warning');p.x=under?b.tree.x:b.tree.x+b.tree.w+10;tick(r,210);assert.equal(b.solved,true);assert.equal(r.deathEvents.some(e=>e.cause==='Falling tree'),under);}
+  for(const under of [false,true]){const r=runAt(10),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);b.bodyX=b.tree.x-240;p.x=b.tree.x-40;p.y=w.floorY-p.h;p.invulnerability=999;tick(r);assert.equal(b.tree.phase,'warning');p.x=under?b.tree.x+100:b.tree.x+b.tree.w+10;tick(r,210);assert.equal(b.solved,true);assert.equal(r.deathEvents.some(e=>e.cause==='Falling tree'),under);}
+});
+section('chainsaw attacks its visible body/blade, and reaches the falling tree without teleporting',()=>{
+  const r=runAt(10),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);p.x=b.x+30;tick(r);assert.equal(p.alive,true,'entry has room before the blade');
+  b.bodyX=b.x+150;p.x=b.bodyX+20;p.y=b.bodyY-50;p.vy=0;const hearts=r.hearts;tick(r);assert.equal(r.hearts,hearts,'climbing above the body is safe');
+  p.x=b.bodyX+b.bodyW+10;p.y=b.bodyY+25;p.invulnerability=0;tick(r);assert.ok(r.deathEvents.some(e=>e.cause==='Chainsaw caught you'));
+  const fresh=runAt(10),fb=fresh.world.boss,q=p0(fresh);fresh.world.switches.forEach(s=>s.active=true);q.x=fb.tree.x+fb.tree.w+12;q.invulnerability=9999;fb.bodyX=fb.tree.x-245;
+  let previous=fb.bodyX;for(let i=0;i<230&&!fb.solved;i++){tick(fresh);assert.ok(fb.bodyX-previous<=1.451,'boss must move continuously to the tree');previous=fb.bodyX;}
+  assert.ok(fb.solved);assert.ok(fb.bodyX>=fb.tree.x-35);
+});
+section('flags save when jumped past and breakable barriers produce themed throwable debris',()=>{
+  const r=runAt(2),w=r.world,p=p0(r),cp=w.checkpoints[0];w.enemies=[];p.x=cp.x-p.w-.5;p.y=cp.y-30;p.input={right:true};tick(r);assert.ok(cp.active);assert.equal(r.respawnX,cp.x);
+  const block=w.platforms.find(s=>s.kind==='breakable');p.x=block.x+2;p.y=block.y-p.h-1;p.vy=3;p.input={};const oldCount=w.crates.length;tick(r);assert.ok(!w.platforms.includes(block));assert.ok(w.crates.length>oldCount);assert.equal(w.crates.at(-1).kind,'brick');
+});
+section('every boss resets cleanly after all players die, retaining the approach flag',()=>{
+  for(const level of [5,10,15]){const r=runAt(level),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);r.hearts=5;r.respawnX=b.x-30;r.respawnY=w.floorY-p.h;p.x=b.x+30;tick(r);b.hp=1;
+    killPlayer(r,p,'retry fixture',true);tick(r);assert.equal(p.alive,true);assert.equal(w.boss.phase,'waiting');assert.equal(w.boss.hp,w.boss.maxHp);assert.equal(r.respawnX,b.x-30);assert.ok(w.switches.every(s=>s.active));assert.ok(p.x>=b.x-20&&p.x<=b.x+30);
+  }
 });
 section('foundry consoles escalate lava, retain ladder routes, switch to left escape, lava death unlocks exit',()=>{
   const r=runAt(15),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);p.x=b.x+30;tick(r);const speed=b.lavaSpeed;

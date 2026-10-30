@@ -41,6 +41,18 @@ try{
     console.log('RENDER PASS',JSON.stringify(metadata));
     if([5,11,15].includes(level))console.log(`SCENE_${level}_BASE64_BEGIN`+shot.toString('base64')+`SCENE_${level}_BASE64_END`);
   }
+  for(const level of [5,10,15]){
+    const frames=await page.evaluate(async level=>{
+      const {buildLevel}=await import('/js/world.js'),{drawGame}=await import('/js/art.js'),{createPlayer}=await import('/js/physics.js');
+      const w=buildLevel(level,1),b=w.boss,p=createPlayer('death-preview',w.finish.x,w.floorY-22);b.solved=true;b.phase='dying';b.hp=0;b.deathTick=1;
+      const canvas=document.querySelector('#revision-preview'),ctx=canvas.getContext('2d');
+      return [0,800,1600].map(clock=>{drawGame(ctx,w,p,[],w.width-320,{cameraY:w.floorY-150,clock,tick:1});return canvas.toDataURL();});
+    },level);
+    assert.equal(new Set(frames).size,3,'boss death animates even when simulation tick is frozen at victory');
+    const shot=await page.locator('#revision-preview').screenshot({path:`artifacts/revision/boss-death-${level}.png`});
+    if(level===15)console.log('DEATH_BASE64_BEGIN'+shot.toString('base64')+'DEATH_BASE64_END');
+  }
+  console.log('BOSS DEATH PASS: three distinct pixel death cards animate while victory simulation is frozen.');
   await page.evaluate(()=>document.querySelector('#revision-preview')?.remove());
   const art=await page.evaluate(async()=>{
     const {STORY_BEATS}=await import('/js/campaign.js');const scenes=Object.values(STORY_BEATS).flatMap(b=>b.panels.map(p=>p.visual));

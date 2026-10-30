@@ -119,12 +119,12 @@ function bossStep(run,api){
     // Each tier has finite throwables; recycle supplies on occupied tiers if exhausted.
     if(b.elapsed%180===0)for(const p of people){if(!w.crates.some(c=>!c.used&&Math.abs(c.y-p.y)<60&&Math.abs(c.x-p.x)<180))supply(w,Math.max(b.x+40,p.x-25),p.y+p.h,'brick');}
   }else if(b.kind==='chainsaw'){
-    b.bodyX+=.72;b.bodyY=w.floorY-62;
-    for(const p of people)if(p.x<b.bodyX+b.bodyW&&p.x>b.x)api.killPlayer(run,p,'Chainsaw caught you',true);
     const tree=b.tree;
-    if(tree.phase==='upright'&&people.some(p=>p.x>tree.x-50)){tree.phase='warning';tree.timer=180;run.notice='TREE FALLING! Leave the striped zone—players underneath are crushed too!';}
+    b.bodyX=Math.min(tree.x-20,b.bodyX+(tree.phase==='upright'?.85:1.45));b.bodyY=w.floorY-62;
+    for(const p of people)if(overlaps(p,{x:b.bodyX,y:b.bodyY,w:b.bodyW+36,h:b.bodyH}))api.killPlayer(run,p,'Chainsaw caught you',true);
+    if(tree.phase==='upright'&&b.bodyX>=tree.x-240&&people.some(p=>p.x>tree.x-50)){tree.phase='warning';tree.timer=180;run.notice='TREE FALLING! Leave the striped zone—players underneath are crushed too!';}
     if(tree.phase==='warning'&&--tree.timer<=0){tree.phase='falling';tree.timer=30;tree.fallTick=run.tick;}
-    else if(tree.phase==='falling'&&--tree.timer<=0){tree.phase='fallen';b.bodyX=tree.x-20;b.bodyY=w.floorY-60;for(const p of people)if(p.x+p.w>tree.x-35&&p.x<tree.x+tree.w)api.killPlayer(run,p,'Falling tree',true);deadBoss(run);w.platforms.push({x:tree.x-35,y:w.floorY-18,w:tree.w+35,h:18,kind:'fallen-tree'});run.notice='The tree crushed the chainsaw. Jump the trunk and reach the exit!';}
+    else if(tree.phase==='falling'&&--tree.timer<=0){tree.phase='fallen';for(const p of people)if(p.x+p.w>tree.x-35&&p.x<tree.x+tree.w)api.killPlayer(run,p,'Falling tree',true);deadBoss(run);w.platforms.push({x:tree.x-35,y:w.floorY-18,w:tree.w+35,h:18,kind:'fallen-tree'});run.notice='The tree crushed the chainsaw. Jump the trunk and reach the exit!';}
   }else{
     b.lavaY-=b.lavaSpeed;
     if(b.phase==='breach'){
