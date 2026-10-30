@@ -1,30 +1,32 @@
-﻿# Implementation status
+# Implementation status
 
-Updated October 30, 2026, 04:55 UTC.
+Updated October 30, 2026, 05:15 UTC.
 
-GitHub is MummblingThinker with repository write access. Render uses My Workspace, service srv-dbhnfcm1egvs73817n4g. Public game: https://tiny-teamwork-last-spark.onrender.com.
+GitHub: MummblingThinker, repository write access verified. Render: My Workspace (tea-dbhakd8u01pc73ap1ou0), service srv-dbhnfcm1egvs73817n4g. Public game: https://tiny-teamwork-last-spark.onrender.com.
 
-## Live and verified
+## Live build
 
-LIVE source 235b36248854655a1905da83d1c4266c52dd5a19 passed CI 41002413091: shared systems, 60 deterministic routes, seeded adversarial, delayed real TCP, actual-client finale, full Chromium tutorial/phone/audio/pause and Firefox/WebKit compatibility. Render dep-dbi1ogom7kps73bklim0 finished 04:26:31 UTC. Public HTTPS/WSS smoke 41001685781 rerun (job 123891664012) PASS.
+LIVE b8f39c88ba08f9c9768e8e62ce4f62ac2c747417, Render dep-dbi2aedg1s2s73dph3h0, finished 05:04:52 UTC. CI 41005901150 passed Chromium, Firefox and WebKit. Public smoke 41005901206 rerun passed, job 123902529902.
 
-Implemented: 15 stages, 3x normal maps, 5.5/6/6.5x milestones, normal 120-second walking speed with eight-second warning, three distinct boss escapes and roaming-giant exclusion; Level 15 background Colossus. Water, conveyors, salvage, pressure bridges, shelter roofs/steps in all stages, carry/throw/rescue/stack, shared hearts/revival. Original anime comics, procedural pixel poses/robot tells, sound, phone controls/autoscroll, pause guards, saved solo stage, visual network smoothing and lobby readiness.
+Includes 15 authored stages, 3x normal maps, 5.5/6/6.5x milestones, normal 120-second pursuer plus eight-second warning, no catch-up, boss exclusion and Level 15 background Colossus. Water, conveyors, salvage, pressure bridges, shelter roofs, carry/throw/rescue/stack, hearts/revival. Atomic crate-chain pushes/ceiling collision and spectator V/button. Lobby readiness/invites, saved solo stage, visual network smoothing, synthesized audio, phone controls and two original anime comic atlases.
 
-## Current local changes
+## Current work
 
-Main e2c7896b6ca83b3f66932e8dc272ec7bf60a2f9e passed CI 41003469869 in Chromium, Firefox and WebKit: invitation links and four-browser readiness. Not yet deployed. Local pushable/stackable solid crates and spectator camera/V/button with watched-survivor threat audio await publication/CI. Local npm/adversarial checks pass. Board has 11 verified tasks including NET-02; physical-device gates remain pending.
+Main c1879f8b19fb8ddc3685e97c6793ec1b7be923a3 adds optional ?debug=1 stage reports. Local npm passes. CI 41006497341 passed npm/adversarial/Firefox/WebKit but failed jitter release: walking away left a valid crate weight on the plate. Driver now clears all weight; three local repeats pass. No failing revision deployed.
 
-## Active handles
+Local visual options persist motion/effects preferences. Fixed reduced-motion CSS skipping straight to final blackout; story timing preserved. Fewer decorative drones/debris is visual only. Local npm passes; browser checks pending. LIFE-08, ART-08 and QA-005 active. Full Chromium campaign workflow added at 2/3/4 isolated contexts; test controller anticipates narrow-stone landings through ordinary buffered jump input.
 
-- COMPLETE 53535: 30-minute local soak PASS, 8 rooms / 32 clients, 132560 checks, 313 resets, peak RSS 133.01 MiB, all rooms cleaned. artifacts/soak-8-1800.json. Not Render capacity evidence.
-- COMPLETE 54199: full four-client campaign/default stories PASS, 847 seconds. artifacts/live-sequence-4-spaced.log. Spaced departures/one boss leader change bot strategy only.
-- Crate-version two/four runs 8146/87489 failed Level 4; complete. Three-client 40132 active beyond Level 9. Bot now settles on approach ledges before a new pit jump; focused two-client Level 4 PASS.
-- Main 1c465e54d0a8d577df9132d56f85bb2c0e1616c9 CI 41004923651 failed jitter pressure check; npm/adversarial/Firefox/WebKit passed. Local chain-push and ceiling fixes pass npm and jitter; publish next and await Chromium spectator coverage.
+## Test handles
 
-Two clients completed a full earlier campaign. Three completed all 15 stages/default stories on b2f91f in 787 seconds. Four now passed the full pre-crate campaign; older failed drivers remain logged. These bots are not human balance evidence.
+- ACTIVE 78169: one-hour local soak, eight rooms/32 clients, artifacts/soak-chain-8-3600.log, started about 05:00 UTC. No invariant failure through 12 minutes. Do not restart.
+- ACTIVE 61726: focused four-client Level 14 with anticipatory landing input, artifacts/level14-landing-buffer.log.
+- COMPLETE 34841: latest two-client chain campaign/default stories PASS, 787 seconds, artifacts/live-sequence-2-chain-settle.log.
+- COMPLETE 29013: four-client chain run passed 1-13, failed 14 after pit/blast losses. artifacts/live-sequence-4-chain-settle.log. Earlier pre-crate full four-client run passed 847 seconds.
+- COMPLETE 40132: three-client pre-chain crate campaign/default stories PASS, 831 seconds, artifacts/live-sequence-3-crates.log.
+- Earlier 30-minute local soak PASS: eight rooms/32 clients, 132560 checks, 313 resets, peak RSS 133.01 MiB, all rooms removed. artifacts/soak-8-1800.json. Not Render capacity evidence.
 
 ## Next and limits
 
-Publish/test crates and spectator flow, collect new sequence outcomes, continue collision/gameplay review and art as useful. Refresh submission cover/archive after final tested UI. Continue until 06:00 America/New_York October 30 (10:00 UTC), then save handoff and stop.
+Publish visual options/jitter correction/browser campaign harness, wait for checks, deploy passing bundle and rerun corresponding public smoke. Inspect report download/full campaigns; refresh cover/archive after final UI. Continue until 06:00 America/New_York October 30 (10:00 UTC), then save handoff and stop.
 
-MVP-03/MVP-04 remain IMPLEMENTED_UNVERIFIED: physical-device/network acceptance and human submission review were deferred. Nothing submitted. Rooms hold 1-4, join before start, one Node process. Disconnect releases ownership and returns to title/new lobby; no persistent reconnect identity/cloud saves. Physical audio/phone performance remains pending. Canonical TASK_LIST.md; evidence QA_LOG.md.
+MVP-03/MVP-04 physical-device/network acceptance and human submission review remain deferred. Nothing submitted. One Node process, rooms 1-4, join before start; disconnect clears identity/new lobby, no cloud save or persistent reconnect. Automated bots are not human difficulty or physical mobile/audio evidence. TASK_LIST.md is canonical; QA_LOG.md records evidence.

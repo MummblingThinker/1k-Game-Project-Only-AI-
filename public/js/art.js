@@ -201,12 +201,12 @@ function outlinedText(ctx, text, x, y, color = '#fff0c6') {
   ctx.strokeText(text, rnd(x), rnd(y)); ctx.fillStyle = color; ctx.fillText(text, rnd(x), rnd(y)); ctx.restore();
 }
 
-function drawEncounter(ctx, world, cameraX, clock) {
+function drawEncounter(ctx, world, cameraX, clock, reducedEffects=false) {
   const b = world.boss;
   if (world.coveredWay) {
     const roof = world.coveredWay, x = roof.x - cameraX;
     RECT(ctx, x, roof.y, roof.w, 7, '#b0bbb0');
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < (reducedEffects?25:100); i++) {
       const dx = roof.x + (i * 47 % roof.w) - cameraX, y = 17 + (i * 17 % 40) + Math.sin(clock * .002 + i) * 2;
       if (dx < -12 || dx > 330) continue;
       RECT(ctx, dx, y, 7, 3, '#668a9a'); RECT(ctx, dx + 3, y + 1, 2, 1, '#f47b70');
@@ -245,7 +245,7 @@ function drawEncounter(ctx, world, cameraX, clock) {
   }
 }
 
-export function drawSurvivor(ctx, p, x, clock = 0) {
+export function drawSurvivor(ctx, p, x, clock = 0, reducedMotion=false) {
   const colors = ['#e7aa55', '#73c5d2', '#d995a7', '#b9a2df'];
   const coat = colors[(p.slot ?? p.colorIndex ?? 0) % colors.length];
   const skin = (p.slot ?? 0) % 2 ? '#d5a77f' : '#edc39a';
@@ -254,7 +254,7 @@ export function drawSurvivor(ctx, p, x, clock = 0) {
   const bob = walking && frame % 2 ? -1 : 0;
   ctx.save(); ctx.translate(rnd(x), rnd(p.y));
   if (p.face < 0) { ctx.translate(p.w, 0); ctx.scale(-1, 1); }
-  if (p.invulnerability > 0 && Math.floor(clock / 90) % 2) ctx.globalAlpha = .45;
+  if (p.invulnerability > 0 && (reducedMotion||Math.floor(clock / 90) % 2)) ctx.globalAlpha = reducedMotion ? .7 : .45;
   if (!p.alive) {
     if (p.hitTicks > 0) {
       RECT(ctx,1,6,8,7,skin); RECT(ctx,0,4,8,3,'#35313b'); RECT(ctx,2,13,8,6,coat);
@@ -374,7 +374,7 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
     const runClock = gameState.clock || 0;
     const x=p.x-cameraX;
     if(x<-24||x>335) continue;
-    drawSurvivor(ctx, p, x, runClock);
+    drawSurvivor(ctx, p, x, runClock,gameState.reducedMotion);
     if (p.capture) outlinedText(ctx, `HELP ${Math.max(0, p.capture.remaining).toFixed(1)}`, x - 12, p.y - 8, '#ffcc8a');
     else if (all.length > 1) outlinedText(ctx, `P${(p.slot ?? 0) + 1}${p.alive ? '' : ' DOWN'}`, x - 2, Math.min(168,p.y - 8), p.id === player.id ? '#fff0c6' : '#bdd7df');
     if (!p.alive) continue;
@@ -409,13 +409,14 @@ function drawSprites(ctx, world, player, peerPlayers, cameraX, gameState) {
 
 export function drawGame(ctx, world, player, peerPlayers, cameraX, state) {
   const clock=state.clock||0;
-  drawBackground(ctx,world,cameraX,clock);
-  drawStageScenery(ctx,world,cameraX,clock);
-  drawEncounter(ctx,world,cameraX,clock);
+  const sceneryClock=state.reducedMotion?0:clock;
+  drawBackground(ctx,world,cameraX,sceneryClock);
+  drawStageScenery(ctx,world,cameraX,sceneryClock);
+  drawEncounter(ctx,world,cameraX,sceneryClock,state.reducedEffects);
   drawFloor(ctx,world,cameraX);
   // Checkpoint's interior is safe from ordinary enemies, but not from the giant pursuer.
   drawSprites(ctx,world,player,peerPlayers,cameraX,state);
-  for (const effect of world.breakEffects || []) {
+  for (const effect of state.reducedEffects?[]:world.breakEffects || []) {
     const age = (state.tick || 0) - effect.tick;
     if (age < 0 || age >= 30) continue;
     for (let i=0;i<6;i++) {

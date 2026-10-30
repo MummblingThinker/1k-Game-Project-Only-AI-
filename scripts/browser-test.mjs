@@ -55,6 +55,14 @@ try {
   await solo.reload();
   assert.equal(await solo.locator('#sound-toggle').getAttribute('aria-pressed'), 'false', 'mute survives reload');
   assert.equal(await solo.locator('#sound-volume').inputValue(), '17', 'volume survives reload');
+  await solo.locator('.visual-options summary').click();
+  await solo.locator('#motion-setting').selectOption('reduced');await solo.locator('#effects-setting').selectOption('reduced');
+  await solo.reload();
+  assert.equal(await solo.locator('body').getAttribute('data-motion'),'reduced');
+  assert.equal(await solo.locator('body').getAttribute('data-effects'),'reduced');
+  await solo.locator('.visual-options summary').click();
+  await solo.locator('#motion-setting').selectOption('system');await solo.locator('#effects-setting').selectOption('full');
+  await solo.locator('.visual-options summary').click();
   await solo.locator('#sound-toggle').click();
   await solo.waitForFunction(() => document.querySelector('#sound-toggle').dataset.audioState === 'running');
   await solo.screenshot({ path: 'artifacts/title.png' });
@@ -149,6 +157,7 @@ try {
   await fixture.close();
   // Render the real comic UI in an isolated document without the game loop.
   const comics=await pageIn(aContext);
+  await comics.emulateMedia({reducedMotion:'reduce'});
   const markup=(await(await fetch(base)).text()).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
   await comics.route('**/comic-fixture',route=>route.fulfill({contentType:'text/html',body:markup}));
   await comics.goto(base+'/comic-fixture');
@@ -160,6 +169,9 @@ try {
       const clone=document.querySelector('#story-panel').cloneNode(true);
       clone.removeAttribute('id');clone.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));review.append(clone);
     }
+    const blackout=getComputedStyle(document.querySelector('#comic-panels')).animationDuration;
+    if(blackout!=='8s')throw Error('Reduced motion must preserve eight-second ending timeline: '+blackout);
+    if(getComputedStyle(document.querySelector('.comic-cell')).opacity!=='1')throw Error('Reduced motion shows panels without sliding');
     document.body.replaceChildren(review);
     const style=document.createElement('style');style.textContent='.comic-review{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;padding:12px}.comic-review .story-panel{position:relative;inset:auto;height:520px;min-width:0}.comic-review .comic-panels{animation:none!important}';document.head.append(style);
     await Promise.all(['/assets/story/story-atlas.png','/assets/story/story-details.png'].map(src=>new Promise((resolve,reject)=>{const image=new Image();image.onload=resolve;image.onerror=reject;image.src=src;})));

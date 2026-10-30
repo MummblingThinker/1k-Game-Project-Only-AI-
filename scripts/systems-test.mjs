@@ -2,6 +2,7 @@
 import { createPlayer, stepPlayer, updateCrates, overlaps } from '../public/js/physics.js';
 import { startLevel, stepRun, interactRun, killPlayer, releaseParticipant, safeFromOrdinary } from '../public/js/simulation.js';
 import { diagnosticReport,recordRunEvent } from '../public/js/telemetry.js';
+import { readVisualOptions,saveVisualOptions } from '../public/js/visual-options.js';
 const runAt = (level = 2, count = 2) => {
   const run = { players: new Map(Array.from({ length: count }, (_, slot) => [`p${slot}`, { ...createPlayer(`p${slot}`), slot }])) };
   startLevel(run, level, true); return run;
@@ -276,6 +277,16 @@ check('stage report records death/revival timing and never contains session iden
   for(let i=0;i<100;i++)recordRunEvent(r,'bounded-fixture');
   assert.equal(diagnosticReport(r).events.length,60);
   startLevel(r,3);assert.deepEqual(diagnosticReport(r).events.map(e=>e.type),['stage-start']);
+});
+check('visual preferences validate saved values and tolerate unavailable storage',()=>{
+  let raw=null;const storage={getItem:()=>raw,setItem:(key,value)=>{raw=value;}};
+  assert.deepEqual(readVisualOptions(storage),{motion:'system',effects:'full'});
+  saveVisualOptions(storage,{motion:'reduced',effects:'reduced'});
+  assert.deepEqual(readVisualOptions(storage),{motion:'reduced',effects:'reduced'});
+  raw='broken';assert.equal(readVisualOptions(storage).motion,'system');
+  raw=JSON.stringify({version:1,motion:'invalid',effects:'invalid'});assert.deepEqual(readVisualOptions(storage),{motion:'system',effects:'full'});
+  const blocked={getItem:()=>{throw Error('blocked');},setItem:()=>{throw Error('blocked');}};
+  assert.equal(readVisualOptions(blocked).motion,'system');assert.doesNotThrow(()=>saveVisualOptions(blocked,{motion:'full',effects:'full'}));
 });
 console.log('Shared systems regression complete.');
 

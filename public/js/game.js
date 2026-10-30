@@ -9,6 +9,7 @@ import { createGameAudio } from './audio.js';
 import { readProgress, saveProgress } from './progress.js';
 import { SnapshotInterpolator } from './interpolation.js';
 import { diagnosticReport } from './telemetry.js';
+import { createVisualOptions } from './visual-options.js';
 import { startLevel, stepRun, interactRun, objectiveText } from './simulation.js';
 
 const canvas = document.getElementById('game');
@@ -37,6 +38,7 @@ const gameAudio = createGameAudio($('sound-toggle'), $('sound-volume'));
 const visualSnapshots = new SnapshotInterpolator();
 let progressStorage = null;
 try { progressStorage = window.localStorage; } catch { /* Storage can be disabled. Gameplay still works. */ }
+const visualOptions=createVisualOptions($('motion-setting'),$('effects-setting'),progressStorage);
 let savedProgress = readProgress(progressStorage);
 function updateResumeButton() {
   $('resume-solo').hidden = !savedProgress;
@@ -396,11 +398,11 @@ function draw(dtMs = 1000 / 60) {
   gameAudio.observe({ state: gameState, world, player, listener: viewPlayer(), hearts, storyVisual: gameState === 'cutscene' ? currentCutscene?.panels[cutscenePanelIndex]?.visual : null });
   syncTextUI();
   if (gameState === 'title') {
-    drawTitle(ctx, clock);
+    drawTitle(ctx, visualOptions.reducedMotion?0:clock);
   } else if (gameState === 'cutscene' && currentCutscene) {
     const panel = currentCutscene.panels[cutscenePanelIndex];
     const elapsed = performance.now() - cutscenePanelStart;
-    drawCutscenePanel(ctx, panel, elapsed, 8000, clock);
+    drawCutscenePanel(ctx, panel, elapsed, 8000, visualOptions.reducedMotion?0:clock);
 
   } else {
     const rendered = network.inRoom ? visualSnapshots.sample(performance.now()) : null;
@@ -410,7 +412,7 @@ function draw(dtMs = 1000 / 60) {
     const renderedPeers = rendered ? otherPlayers.map(p => rendered.get(p.id) || p) : otherPlayers;
     const cameraTarget = Math.max(0, Math.min(world.width - 320, renderedPlayer.x - 108));
     cameraX += (cameraTarget - cameraX) * (1 - Math.pow(.84, Math.min(100, dtMs) / (1000 / 60)));
-    drawGame(ctx, world, renderedPlayer, renderedPeers, cameraX, { clock, state: gameState, tick: network.inRoom ? lastSnapshot?.tick : soloRun?.tick });
+    drawGame(ctx, world, renderedPlayer, renderedPeers, cameraX, { clock, state: gameState, tick: network.inRoom ? lastSnapshot?.tick : soloRun?.tick, reducedMotion:visualOptions.reducedMotion,reducedEffects:visualOptions.reducedEffects });
   }
 }
 

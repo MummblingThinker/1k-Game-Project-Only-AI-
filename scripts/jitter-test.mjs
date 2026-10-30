@@ -52,9 +52,12 @@ try {
   clearInterval(driver);a.send('input',{});await sleep(500);
   assert.ok(a.state.world.platforms.some(p=>p.kind==='pressure-bridge'));
   assert.ok(b.state.world.platforms.some(p=>p.kind==='pressure-bridge'));
-  // Remove the weight, then wait for the real server's eight-second release countdown.
-  a.send('input',{left:true});await sleep(650);a.send('input',{});await sleep(600);
-  assert.equal(a.state.world.plates[0].held,false);
+  // Push any boxes completely off the plate as well as moving the survivor.
+  // Walking left alone can leave a correctly weighted crate holding the bridge.
+  driver=setInterval(()=>a.send('input',{right:a.state.you.x<plate.x+30}),80);
+  await until(()=>a.state.you.x>=plate.x+28,'clear pressure weight');
+  clearInterval(driver);a.send('input',{});
+  await until(()=>!a.state.world.plates[0].held&&!b.state.world.plates[0].held,'all weights released');
   await until(()=>!a.state.world.plates[0].remaining&&!b.state.world.plates[0].remaining,'shared expiry',10000);
   assert.ok(!b.state.world.platforms.some(p=>p.kind==='pressure-bridge'));
   assert.equal(a.state.hearts,4);assert.equal(b.state.hearts,4);
@@ -63,5 +66,5 @@ try {
   b.send('leaveRoom');
   await sleep(500);assert.equal((await(await fetch(`http://127.0.0.1:${port}/health`)).json()).rooms,0);
   console.log('Network jitter PASS: actual TCP delays 60-140ms each direction; movement/release, forged input rejection, shared weight bridge/expiry, ordered state, hearts, host handoff and cleanup.',proxy.stats());
-} catch(error) {console.error(error,log);process.exitCode=1;}
+} catch(error) {console.error(error,JSON.stringify(peers.map(p=>({you:p.state?.you,plate:p.state?.world.plates?.[0],crates:p.state?.world.crates?.filter(c=>c.x<400)}))),log);process.exitCode=1;}
 finally {clearInterval(driver);clearTimeout(guestWalk);for(const p of peers)p.ws.close();await proxy?.close();child.kill('SIGTERM');}

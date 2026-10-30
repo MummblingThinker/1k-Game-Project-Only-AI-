@@ -209,4 +209,8 @@ body[data-game-state=cutscene] .screen-frame { min-height: 450px; }
   .comic-note { bottom: 5px; left: 5px; right: 5px; padding: 5px 7px; }
   .comic-cell:first-child .comic-note { right: auto; max-width: 75%; }
 }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; } }
+.visual-options { margin:10px 0; font:12px/1.5 system-ui,sans-serif; color:#c6d4de; }
+.visual-options summary { cursor:pointer; padding:6px 0; }
+.visual-options select { margin:6px 12px 6px 4px; max-width:100%; }
+body[data-motion=reduced] .comic-cell { animation:none;opacity:1;transform:none; }
+@media (prefers-reduced-motion: reduce) { body:not([data-motion=full]) .comic-cell { animation:none;opacity:1;transform:none; } }

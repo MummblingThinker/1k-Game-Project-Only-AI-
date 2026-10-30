@@ -65,6 +65,14 @@
           <input id="sound-volume" type="range" min="0" max="100" value="25" aria-label="Sound volume" />
           <span>Warnings also appear on screen.</span>
         </div>
+        <details class="visual-options">
+          <summary>Visual options</summary>
+          <label for="motion-setting">Motion</label>
+          <select id="motion-setting"><option value="system">Follow device setting</option><option value="reduced">Reduced motion</option><option value="full">Full motion</option></select>
+          <label for="effects-setting">Decorative effects</label>
+          <select id="effects-setting"><option value="full">Full detail</option><option value="reduced">Fewer effects</option></select>
+          <p>Fewer effects reduces background drones and debris. Enemies, warnings and timing stay the same.</p>
+        </details>
         <div class="quick-controls">
           <span><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd> Move</span>
           <span><kbd>SPACE</kbd> Jump</span>

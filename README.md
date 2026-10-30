@@ -70,3 +70,5 @@ Walk against loose crates to push them together. A wall stops the whole chain. B
 Comic scenes reveal three captioned panels in sequence, with original 2D anime artwork. The companion art adds distinct rescue, covered-walkway swarm, assembly and ambush compositions. Prompts/provenance: [original atlas](docs/STORY_ART_PROMPT.md), [companion atlas](docs/STORY_DETAILS_PROMPT.md).
 
 For bug reports, open the game with ?debug=1 (or &debug=1 after an existing query). A Run report panel records the current stage's deaths, hearts, checkpoint times, route and living survivors. Download its JSON when reporting a failure. It is optional, stage-local, and not uploaded automatically; ordinary gameplay sends no diagnostic history. In co-op the report comes only from your own room.
+
+Visual options below the game save locally. Motion follows your device preference by default; Reduced motion removes sliding comic panels, moving scenery and invulnerability blinking while preserving the ending's timing. Fewer effects reduces decorative drones/debris; gameplay and warnings are unchanged.
