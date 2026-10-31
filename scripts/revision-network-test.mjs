@@ -34,7 +34,11 @@ try{
      await sleep(200);assert.ok(Math.abs(a.state.you.y-heldY)<.1,'released ladder input holds on authoritative server');
      a.send('input',{down:true});await sleep(260);a.send('input',{});await sleep(100);
      assert.ok(a.state.you.y>heldY+8,'S/down descends through actual WebSocket input');
-     const remote=b.state.players.find(p=>p.id===a.id);assert.ok(Math.abs(remote.y-a.state.you.y)<.1,'peer sees same stopped ladder position');
+     // Independent sockets can receive the stop snapshot on different turns over HTTPS.
+     // Require exact convergence within a bounded delivery window; snapshotAudit
+     // separately compares complete states for every matching authoritative tick.
+     await until(()=>Math.abs(b.state.players.find(p=>p.id===a.id).y-a.state.you.y)<.1,
+       'peer sees same stopped ladder position',2000);
      ladderVerified=true;console.log('NETWORK LADDER PASS: actual W ascent, release hold, S descent and matching peer position.');
    }
    for(const p of peers){const cmd=driveRevision(p.state,p.state.you,p.memo);p.send('input',cmd.input);if(cmd.action&&Date.now()-(p.lastUse||0)>220){p.lastUse=Date.now();p.send(cmd.action==='carry'?'carry':cmd.action==='drop'?'drop':'interact');}}

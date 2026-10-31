@@ -1,5 +1,5 @@
 name: October revision public acceptance
-# Art-only push checks opening, public controls and scenes. Manual dispatch also
+# Art/branding push checks opening, public controls and scenes. Manual dispatch also
 # runs full campaigns; completed gameplay release evidence stays in QA_LOG.md.
 on:
   workflow_dispatch:
