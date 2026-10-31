@@ -1,6 +1,6 @@
 name: October revision public acceptance
-# Public controls first, then campaigns one at a time to avoid overlapping load.
-# Prior failures remain in QA_LOG.md. Identity handles polling-to-WebSocket upgrades.
+# Art-only push checks opening, public controls and scenes. Manual dispatch also
+# runs full campaigns; completed gameplay release evidence stays in QA_LOG.md.
 on:
   workflow_dispatch:
   push:
@@ -11,6 +11,7 @@ env:
   BROWSER_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
 jobs:
   public-campaign:
+    if: github.event_name == 'workflow_dispatch'
     needs: public-browser
     runs-on: ubuntu-latest
     timeout-minutes: 35
