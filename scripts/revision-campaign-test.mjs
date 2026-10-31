@@ -83,6 +83,7 @@ try {
     const stageStarted=Date.now();let attempt=0;
     if(party>1)for(const p of peers){
       assert.ok(p.state.you?.id===p.id,'driver must identify its own survivor');
+      console.log('IDENTITY PROBE',JSON.stringify({wire:p.id,rendered:await p.page.locator('#game').getAttribute('data-players'),errors}));
       // Playwright sees the wire frame before the page handles it and paints.
       await p.page.waitForFunction(id=>JSON.parse(document.querySelector('#game').dataset.players||'[]').some(s=>s.id===id),p.id);
     }
