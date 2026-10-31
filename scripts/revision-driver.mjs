@@ -10,12 +10,13 @@ export function revisionIntent(s){
 }
 export function driveRevision(state,p,memo={}){
   const w=state.world,b=w.boss,t=state.tick;
+  const reactionLead=Math.max(0,Math.min(20,memo.reactionLead||0));
   if(!p?.alive)return {input:{}};
   if(b?.kind==='foundry'&&b.phase!=='waiting'&&!b.solved){
     const go=x=>({input:{left:p.x>x+3,right:p.x<x-3}}),near=o=>Math.abs(p.x+p.w/2-o.x-o.w/2)<26&&Math.abs(p.y+p.h/2-o.y-o.h/2)<30;
     if((b.attack==='warning'||b.attack==='strike')&&b.weapon==='low'){
       if(p.climbing)return{input:{up:true}};
-      return{input:{jump:p.onGround&&(b.attack==='strike'||b.attackTimer<=20)}};
+      return{input:{jump:p.onGround&&(b.attack==='strike'||b.attackTimer<=20+reactionLead)}};
     }
     if((b.attack==='warning'||b.attack==='strike')&&b.weapon==='high'){
       if(p.y>w.floorY-60||p.y+p.h<w.floorY-85)return{input:{}};
@@ -26,7 +27,7 @@ export function driveRevision(state,p,memo={}){
     }
     const danger=(b.attack==='warning'||b.attack==='strike')&&b.weapon==='slam'?b.attackX:b.attack==='head-warning'||b.attack==='head-slam'?b.head.x+b.head.w/2:null;
     if(danger!=null){if(Math.abs(p.x+p.w/2-danger)<85)return go(Math.max(b.x+35,Math.min(b.x+610,danger+(danger>b.x+300?-100:100))));return{input:{}};}
-    const scan=w.enemies.find(e=>e.arena&&!e.dead&&!e.stunned&&(e.phase==='attack'||e.phase==='warning'&&e.timer<40)&&Math.abs(p.x-e.targetX)<34&&p.y>e.y&&p.y<e.y+150);
+    const scan=w.enemies.find(e=>e.arena&&!e.dead&&!e.stunned&&(e.phase==='attack'||e.phase==='warning'&&e.timer<40+reactionLead)&&Math.abs(p.x-e.targetX)<34&&p.y>e.y&&p.y<e.y+150);
     if(scan){memo.finalDodgeX=Math.max(b.x+35,Math.min(b.x+600,scan.targetX+(scan.targetX>b.x+300?-65:65)));memo.finalDodgeUntil=t+scan.timer+(scan.phase==='warning'?18:0)+5;}
     if(memo.finalDodgeUntil>t)return go(memo.finalDodgeX);
     if(p.y+p.h<w.floorY-4){
@@ -64,13 +65,13 @@ export function driveRevision(state,p,memo={}){
         // Move out from under solid supplies before jumping a fixed laser.
         // One-way catwalks are safe; a prop on the next floor can shorten a jump.
         const ceiling=[...w.platforms.filter(s=>!s.oneWay),...w.crates.filter(c=>!c.used&&!c.carriedBy)]
-          .find(s=>s.x<p.x+p.w+5&&s.x+s.w>p.x-5&&s.y+s.h<p.y+2&&s.y+s.h>p.y-65);
+          .find(s=>s.x<p.x+p.w+5&&s.x+s.w>p.x-5&&s.y+s.h<p.y+2&&s.y+s.h>p.y-80);
         if(ceiling&&b.attack==='laser-warning'&&b.attackTimer>25){
           const choices=[ceiling.x-p.w-12,ceiling.x+ceiling.w+12].filter(x=>x>=b.x+35&&x+p.w<=b.x+380&&w.platforms.some(s=>s.x<=x&&s.x+s.w>=x+p.w&&s.y>=p.y+p.h-3&&s.y<=p.y+p.h+100&&s.y<b.crushY-12));
           const x=choices.sort((a,c)=>Math.abs(a-p.x)-Math.abs(c-p.x))[0];
           if(x!=null)return{input:{left:p.x>x,right:p.x<x}};
         }
-        const jump=b.attack==='laser-strike'||b.attackTimer<=20;if(jump)memo.laserJumpUntil=t+55;return{input:{jump}};
+        const jump=b.attack==='laser-strike'||b.attackTimer<=20+reactionLead;if(jump)memo.laserJumpUntil=t+55;return{input:{jump}};
       }
       if(memo.laserJumpUntil>t)return{input:{}};
       const safe=w.platforms.filter(s=>s.y<line-8&&s.y>=p.y+p.h-10&&s.x>=b.x).sort((a,c)=>Math.abs(Math.max(a.x,Math.min(a.x+a.w-p.w,p.x))-p.x)-Math.abs(Math.max(c.x,Math.min(c.x+c.w-p.w,p.x))-p.x))[0];
@@ -85,11 +86,13 @@ export function driveRevision(state,p,memo={}){
     };
     if(b.attack?.startsWith('claw')&&Math.abs(p.x+p.w/2-b.attackX)<45&&Math.abs(p.y+p.h/2-b.attackY)<48)return dodge(b.attackX,b.attackTimer+(b.attack.endsWith('warning')?18:0)+8);
     if(memo.evadeUntil>t)return{input:{left:p.x>memo.evadeX+3,right:p.x<memo.evadeX-3,jump:!!p.climbing}};
-    if(b.attack==='laser-warning'&&b.attackTimer<=20&&Math.abs(p.y+p.h/2-b.attackY)<30){
+    if(b.attack==='laser-warning'&&b.attackTimer<=20+reactionLead&&Math.abs(p.y+p.h/2-b.attackY)<30){
       if(p.climbing)return{input:{up:true}};
       if(p.onGround)return{input:{jump:true}};
     }
-    const scan=w.enemies.find(e=>e.arena&&!e.dead&&e.stunned<=0&&(e.phase==='attack'||e.phase==='warning'&&e.timer<40)&&Math.abs(p.x-e.targetX)<34&&p.y>e.y&&p.y<e.y+150);
+    // Avoid an imminent visible scan column while descending toward it too.
+    // Waiting until the feet/head cross its exact height reacts too late.
+    const scan=w.enemies.find(e=>e.arena&&!e.dead&&e.stunned<=0&&(e.phase==='attack'||e.phase==='warning'&&e.timer<40+reactionLead)&&Math.abs(p.x-e.targetX)<34&&p.y>e.y-75&&p.y<e.y+150);
     if(scan)return dodge(scan.targetX,scan.timer+(scan.phase==='warning'?18:0)+8);
   }
   if(p.climbing)return {input:{up:true}};
@@ -117,10 +120,10 @@ export function driveRevision(state,p,memo={}){
     }
   }
   if(!b||b.phase==='waiting'){
-    const target=w.enemies.find(e=>!e.dead&&e.stunned<=0&&e.x>p.x+25&&e.x<p.x+140&&Math.abs(e.y-p.y)<38);
+    const target=w.enemies.find(e=>!e.dead&&e.stunned<=0&&e.x+e.w>p.x+4&&e.x<p.x+140&&Math.abs(e.y-p.y)<38);
     const prop=w.crates.find(c=>!c.used&&!c.carriedBy&&!c.durable&&near(c));
-    if(!p.carryId&&prop){command.action='use';return command;}
-    if(p.carryId&&target&&target.x-p.x<78&&p.face>0){command.action='carry';return command;}
+    if(!p.carryId&&prop){command.action='use';command.input.jump=!!(p.onGround&&target&&target.x-p.x<55);return command;}
+    if(p.carryId&&target&&target.x-p.x<78&&p.face>0){command.input={};command.action='carry';return command;}
   }
   if(b&&b.phase!=='waiting'&&!b.solved){
     if(b.kind==='foundry'&&['escape','breach'].includes(b.phase))moveTo(w.finish.x+5);
