@@ -27,6 +27,10 @@ try {
   client.requestDiagnostics();assert.equal(sent.at(-1)[0],'getDiagnostics');
   handlers.get('diagnostics')({roomCode:'ABC234',runId:1,report:{stage:2}});
   assert.deepEqual(reports,[{stage:2}]);
+  handlers.get('roomState')({ ...state, players: [{id:'two', x:900}, {id:'one', x:12}] });
+  assert.equal(client.latestState.playerId, 'one');
+  assert.equal(client.latestState.you.x, 12, 'shared packet selects own survivor, not first player');
+  assert.equal(client.latestState.players.length, 2);
   client.leaveRoom();
   assert.equal(states.at(-1), null);
   const count = states.length;

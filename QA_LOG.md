@@ -866,3 +866,12 @@ Owner resumed until 17:00 UTC / 1 PM America/New_York. Latest requests supersede
 
 - Render metrics for the final live instance: reported CPU limit 0.15 CPU; usage samples 0.1424 at 16:36, 0.1422 at 16:40, 0.1390 at 16:47 and 0.1500 at 16:49 UTC. Memory peaked at 107589630 bytes, below reported 536870900-byte limit. CPU-limit contact during overlapping public co-op runs is confirmed; causation for specific patrol/Warden/lava losses is an inference, not established.
 - Server already broadcasts playing state every third simulation tick (20 Hz). A next investigation should profile room simulation and per-client world/snapshot serialization, distinguish server load from controller/network timing, and repeat hosted campaigns under controlled load. No late unverified runtime optimization, difficulty reduction, paid upgrade or new resource was introduced. QA-HOSTED-01 remains OPEN. Final audit-note files are repackaged and compared against GitHub before the 17:00 cutoff.
+
+
+## 2026-10-30 submission preparation baseline
+
+Owner resumed work after cutoff, asked for a submission-ready package and declined physical multiplayer testing. npm test PASS before changes (artifacts/bug-audit-baseline.log), and after compatible shared snapshot/client/toolbar changes (artifacts/submission-baseline-fix.log). Previously pending full CI 41093615650 is now ALL EIGHT PASS: all 15 stages at 1/2/3/4 players, Chrome/Firefox/WebKit and rules/network. This is automated evidence, not a physical-device claim.
+
+Rechecked official Handshake rules PDF October 30: required title, cover, description and URL; equal execution/creativity/value/polish criteria; deadline October 30 11:59 PM Pacific. Mission page could not be fetched anonymously in this check; previous recorded form requirements retained. Physical playtesting is an internal QA gate, not a listed official entry field; owner explicitly waived it. No eligibility attestation or submission performed.
+
+Socket.IO encoder microbenchmark on local Node 24: 2,000 serializations took 51.8 ms for Level 1; 182.5/183.0/190.0 ms for Levels 5/10/15. Late-game snapshot sizes 16.3-17.0 KB. Shared opt-in broadcast serializes once per group instead of once per recipient; legacy tabs keep personalized packets. This reduces duplicate serialization, not total per-client network bytes, and does not prove all hosted failures were CPU-related. New browser and public acceptance pending.

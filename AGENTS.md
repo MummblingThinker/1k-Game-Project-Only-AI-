@@ -1,3 +1,11 @@
+## Current owner authorization: submission preparation, October 30
+
+The owner resumed after the historical 1 PM cutoff and asked to make the game submittable, with automated QA in place of owner multiplayer testing. Do not ask the owner to playtest. Preserve truthful physical-device/human-review fields; these are limitations, not a veto on preparing the entry. Prioritize stable hosting, clear controls, presentation and complete entry assets. No contest submission has been requested. Acceptance for SUBMIT-01: regression/browser/public controls pass, submission files validate, official requirements reviewed, and release packaged with known limitations.
+
+## Current owner authorization: submission preparation, October 30
+
+The owner resumed after the historical 1 PM cutoff and asked to make the game submittable, with automated QA in place of owner multiplayer testing. Do not ask the owner to playtest. Preserve truthful physical-device/human-review fields; these are limitations, not a veto on preparing the entry. Prioritize stable hosting, clear controls, presentation and complete entry assets. No contest submission has been requested. Acceptance for SUBMIT-01: regression/browser/public controls pass, submission files validate, official requirements reviewed, and release packaged with known limitations.
+
 # Codex Instructions — Tiny Teamwork: The Last Spark
 
 ## Latest owner fixes, October 30 11:19 AM

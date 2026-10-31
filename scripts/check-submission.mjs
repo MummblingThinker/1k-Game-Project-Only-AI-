@@ -39,13 +39,15 @@ else {
   }
 }
 if (!entry.verification?.publicHealthAndAssets) missing.push('public health/assets verification');
-if (!entry.verification?.twoSeparateDevicesAndNetworks) missing.push('two-device/network multiplayer playtest');
-const evidence = entry.verification?.externalPlaytestQaEntry;
-if (!evidence || !fs.readFileSync(path.join(root, 'QA_LOG.md'), 'utf8').includes(evidence)) missing.push('external playtest evidence recorded in QA_LOG.md');
-if (!entry.verification?.humanReviewed) missing.push('human review of entry, link, image, eligibility and deadline discrepancy');
+// Preparation is distinct from the owner's eligibility attestations and submission.
+// The owner explicitly waived a physical playtest; never turn that into a test pass.
+if (!entry.verification?.automatedQaEntry || !fs.readFileSync(path.join(root, 'QA_LOG.md'), 'utf8').includes(entry.verification.automatedQaEntry)) missing.push('recorded automated QA evidence');
+if (!entry.verification?.twoSeparateDevicesAndNetworks && entry.verification?.ownerWaivedPhysicalPlaytest !== true) missing.push('physical playtest or explicit owner waiver');
+if (!entry.verification?.twoSeparateDevicesAndNetworks) console.log('LIMITATION: separate physical-device/network playtest not performed; owner waived this preparation gate.');
+if (!entry.verification?.humanReviewed) console.log('PERSONAL STEP: owner reviews eligibility, entry and deadline when submitting.');
 console.log(`Description: ${entry.description?.length || 0}/500 characters.`);
 if (missing.length) {
-  console.log('DRAFT / NOT SUBMISSION-READY. Still required:');
+  console.log('PREPARATION INCOMPLETE. Still required:');
   for (const item of missing) console.log(`- ${item}`);
   process.exitCode = 1;
-} else console.log('Required preparation fields/evidence present. Human must review and submit; no entry was submitted by this command.');
+} else console.log('SUBMISSION PACKAGE READY. Required assets and automated evidence present. No entry submitted; personal eligibility/review remains with owner.');

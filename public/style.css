@@ -268,3 +268,8 @@ body[data-menu-open="true"] .quick-controls,body[data-menu-open="true"] .mobile-
 }
 
 #title-menu .co-op-card .panel-heading { display:flex; }
+
+/* Deliberately separate in-game actions, including narrow touch layouts. */
+.play-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:10px 0; }
+.play-toolbar .text-button { min-height:40px; padding:8px 14px; border:1px solid #557084; border-radius:6px; background:#122635; text-decoration:none; }
+.play-toolbar .text-button:hover { background:#203e4e; border-color:#b9e5df; }

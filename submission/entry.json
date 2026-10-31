@@ -1,7 +1,7 @@
 {
-  "status": "DRAFT_NOT_READY",
+  "status": "PREPARED_PENDING_FINAL_VALIDATION",
   "title": "Tiny Teamwork: The Last Spark",
-  "description": "Escape a robot-ruled world in a solo or 2-4-player cooperative platformer. Share a room code, carry teammates, throw debris at patrol robots and save at flags across 15 city, forest and factory stages. Climb a giant Warden, flee a chainsaw through a tree maze, and break a factory above rising lava. Original anime comic panels tell the story. The hardest challenge was synchronizing shared physics, lives and boss progression across independent clients.",
+  "description": "Tiny survivors. Giant machines. Escape together. A solo or 2-4-player browser adventure through 15 city, forest and factory stages. Share a room code, carry friends over danger, throw debris at robots and race a relentless giant. Three distinct bosses and 33 original anime comic panels tell a story of freedom versus control. Built with OpenAI; the hardest challenge was keeping shared physics, hearts and boss encounters synchronized across independent players.",
   "projectUrl": "https://tiny-teamwork-last-spark.onrender.com",
   "coverImage": "submission/cover.jpg",
   "shareToShowcase": true,
@@ -21,7 +21,9 @@
     "twoSeparateDevicesAndNetworks": false,
     "externalPlaytestQaEntry": null,
     "humanReviewed": false,
-    "humanSubmitted": false
+    "humanSubmitted": false,
+    "ownerWaivedPhysicalPlaytest": true,
+    "automatedQaEntry": "2026-10-30 submission preparation baseline"
   },
   "sources": {
     "mission": "https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/mission_step_cmssgy0di000y1ztkbjrpbt5r",
@@ -40,7 +42,7 @@
   },
   "limitations": [
     "15-stage solo/co-op campaign implemented; full human playthrough and difficulty balance remain unverified.",
-    "Physical-device and separate-network acceptance remains pending.",
+    "Owner waived separate physical-device/network playtest; automated multi-client evidence is recorded instead.",
     "Optional synthesized sound and saved settings implemented; physical headphone, touch and performance review remains pending.",
     "Rooms live in one server process and are lost on restart; disconnect requires a new lobby.",
     "Final entry, eligibility, disclosures and publication require human review."

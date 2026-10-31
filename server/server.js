@@ -83,7 +83,14 @@ function roomPayload(room, forSocketId) {
 }
 
 function broadcastRoom(room) {
-  for (const socketId of room.players.keys()) io.to(socketId).emit('roomState', roomPayload(room, socketId));
+  // Serialize a complete authoritative snapshot once for current clients. Older
+  // open tabs retain the personalized protocol until they reload.
+  const shared = [];
+  for (const socketId of room.players.keys()) {
+    if (io.sockets.sockets.get(socketId)?.handshake.auth?.sharedSnapshots === true) shared.push(socketId);
+    else io.to(socketId).emit('roomState', roomPayload(room, socketId));
+  }
+  if (shared.length) io.to(shared).emit('roomState', roomPayload(room));
 }
 
 function makePlayer(socketId, index, world) {

@@ -17,8 +17,8 @@ child.on('message',m=>{if(m.kind==='qaMetrics')metrics.push(m);});
 class Peer {
   constructor(){this.errors=[];this.ws=new WebSocket(`ws://127.0.0.1:${port}/socket.io/?EIO=4&transport=websocket`);
     this.ws.addEventListener('error',()=>{});this.ws.addEventListener('message',({data})=>{const s=String(data);bytes+=s.length;messages++;
-      if(s[0]==='0')this.ws.send('40');else if(s==='2')this.ws.send('3');else if(s.startsWith('42')){const[e,v]=JSON.parse(s.slice(2));
-        if(e==='serverHello')this.connected=true;if(e==='roomJoined'){this.state=v.state;this.id=v.playerId;}if(e==='roomState')this.state=v;if(e==='roomError')this.errors.push(v);
+      if(s[0]==='0')this.ws.send('40'+JSON.stringify({sharedSnapshots:true}));else if(s==='2')this.ws.send('3');else if(s.startsWith('42')){const[e,v]=JSON.parse(s.slice(2));
+        if(e==='serverHello')this.connected=true;if(e==='roomJoined'){this.state=v.state;this.id=v.playerId;}if(e==='roomState')this.state={...v,playerId:this.id,you:v.players.find(p=>p.id===this.id)};if(e==='roomError')this.errors.push(v);
       }});peers.push(this);}
   send(e,v){if(this.ws.readyState===1)this.ws.send('42'+JSON.stringify(v===undefined?[e]:[e,v]));}
   close(){this.send('leaveRoom');this.ws.close();}

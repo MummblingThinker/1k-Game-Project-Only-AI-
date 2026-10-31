@@ -10,7 +10,7 @@ const base=process.env.TEST_BASE_URL||`http://127.0.0.1:${port}`;
 const server=process.env.TEST_BASE_URL?null:spawn(process.execPath,['server/server.js'],{env:{...process.env,PORT:String(port)},stdio:'inherit'});
 const peers=[],errors=[],audit=snapshotAudit(2,e=>errors.push(e));
 class Peer{
- constructor(index){this.memo={};this.errors=[];this.ws=new WebSocket(base.replace(/^http/,'ws')+'/socket.io/?EIO=4&transport=websocket');this.ws.addEventListener('message',({data})=>{const f=String(data);if(f[0]==='0')this.ws.send('40');else if(f==='2')this.ws.send('3');else if(f.startsWith('42')){const[e,v]=JSON.parse(f.slice(2));if(e==='serverHello')this.connected=true;if(e==='roomState'){this.state=v;audit.observe(index,v);}if(e==='roomJoined'){this.state=v.state;this.id=v.playerId;}if(e==='roomError')this.errors.push(v);}});peers.push(this);}
+ constructor(index){this.memo={};this.errors=[];this.ws=new WebSocket(base.replace(/^http/,'ws')+'/socket.io/?EIO=4&transport=websocket');this.ws.addEventListener('message',({data})=>{const f=String(data);if(f[0]==='0')this.ws.send('40'+JSON.stringify({sharedSnapshots:index===0}));else if(f==='2')this.ws.send('3');else if(f.startsWith('42')){const[e,v]=JSON.parse(f.slice(2));if(e==='serverHello')this.connected=true;if(e==='roomState'){this.state={...v,playerId:this.id,you:v.players.find(p=>p.id===this.id)};audit.observe(index,this.state);}if(e==='roomJoined'){this.state=v.state;this.id=v.playerId;}if(e==='roomError')this.errors.push(v);}});peers.push(this);}
  send(e,v){this.ws.send('42'+JSON.stringify(v===undefined?[e]:[e,v]));}
  close(){if(this.ws.readyState===1)this.ws.send('41');this.ws.close();}
 }

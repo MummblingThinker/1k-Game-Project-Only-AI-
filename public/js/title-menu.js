@@ -14,7 +14,8 @@ export function createTitleMenu({pause, resume, release, readState, quit}) {
   solo.append(story,resumeButton,resumeNote,levelRow,practice);
   multi.append(document.querySelector('.co-op-card'));
   const audio=document.querySelector('.audio-controls');
-  for(const id of ['pause-game','watch-player'])audio.before($(id));
+  const toolbar=document.createElement('nav');toolbar.className='play-toolbar';toolbar.setAttribute('aria-label','Game controls');audio.before(toolbar);
+  for(const id of ['pause-game','watch-player'])toolbar.append($(id));
   settings.append(audio,document.querySelector('.visual-options'));
   document.querySelector('.visual-options').open=true;
   const gear=document.createElement('button');gear.id='open-settings';gear.className='text-button';gear.textContent='Settings';$('pause-game').after(gear);

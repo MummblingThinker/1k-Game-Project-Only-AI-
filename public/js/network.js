@@ -20,7 +20,7 @@ export class NetworkClient {
       return false;
     }
     this.connectPromise = new Promise((resolve) => {
-      const socket = window.io({ reconnection: false, timeout: 2500 });
+      const socket = window.io({ reconnection: false, timeout: 10000, auth: { sharedSnapshots: true } });
       this.socket = socket;
       let finished = false;
       const settle = (ok) => {
@@ -56,8 +56,9 @@ export class NetworkClient {
       });
       socket.on('roomState', (data) => {
         if (!this.inRoom || data.roomCode !== this.roomCode) return;
-        this.latestState = data;
-        this.onState(data);
+        // Identity comes from roomJoined, never from another recipient's packet.
+        this.latestState = { ...data, playerId: this.playerId, you: data.players.find(p => p.id === this.playerId) || null };
+        this.onState(this.latestState);
         this.onStatus(`Room ${data.roomCode} / ${data.players.length} players / ${data.phase}`, true);
       });
       socket.on('roomError', (message) => this.onStatus(String(message || 'Room error.'), this.connected));
