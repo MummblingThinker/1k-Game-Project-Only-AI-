@@ -43,3 +43,7 @@ Free hosting can take time to wake. Rooms are in one process and vanish on resta
 Owner requested a fresh concept chase illustration and separate short opening, then renamed the game AI Take Over. Runtime 84dd904b is live via deploy dep-dbiktb4s728c73fjmrqg. New concept cover is submission/cover-concept.png; opening uses public/assets/key-art.jpg, captions, slow camera drift, keyboard/button skip and reduced-motion support. Three browser engines passed. Existing game URL and storage keys remain intact. Source/submission archives use AI-Take-Over filenames. See QA_LOG.md for public validation and network-test timing correction.
 
 Final public art/branding acceptance: 41159249101 / 124412880251 PASS. Entry validated; renamed source/submission archives regenerated. No contest entry submitted.
+
+Title-background update: dedicated original city/giant robot environment and readable menu styling. Current runtime 61c74bd1 LIVE via dep-dbil61flk1mc73f1koe0. Public acceptance 41160227831 / 124415960089 PASS; final cross-browser rerun 41160397782 follows the hover-stability correction. The prior campaign physics/network evidence remains unchanged.
+
+Final title UI verification: all three browser engines PASS in 41160397782. TITLE-ART-01 complete.

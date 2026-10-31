@@ -68,3 +68,5 @@ Sources checked October 28, 2026:
 - https://render.com/docs/blueprint-spec
 
 AI Take Over art/branding runtime: 84dd904baafa999e90b19ba5c57cf4c6972d2a87, deploy dep-dbiktb4s728c73fjmrqg, LIVE October 31 at 02:13:35 UTC. Existing URL and save/settings identifiers preserved.
+
+Dedicated title environment runtime: 61c74bd1f29f79df546e05a6a8a91e393546702c, deploy dep-dbil61flk1mc73f1koe0 LIVE October 31 at 02:32:07 UTC. Same service and public URL.
