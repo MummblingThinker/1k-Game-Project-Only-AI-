@@ -73,6 +73,13 @@ try {
   }
   await host.page.locator('#level-select').selectOption(String(first));
   await Promise.all(peers.map(p=>p.page.waitForFunction(n=>JSON.parse(document.querySelector('#game').dataset.players).length===n,party)));
+  // roomJoined can arrive over initial HTTP polling, before WebSocket upgrade.
+  // Read the browser's already-established identity (own player is first),
+  // rather than assuming the wire observer saw that initial event.
+  for(const peer of peers){
+    peer.id=JSON.parse(await peer.page.locator('#game').getAttribute('data-players'))[0].id;
+    assert.ok(typeof peer.id==='string'&&peer.id!=='local','online browser has a server identity');
+  }
   for(const peer of peers.slice(1).reverse())await peer.page.locator('#room-ready').click();
   await host.page.locator('#start-story').click();
   }
@@ -82,8 +89,7 @@ try {
     await Promise.all(peers.map(async p=>{p.held={};await p.page.locator('#title-menu').waitFor({state:'hidden'});await p.page.locator('#game').focus();}));
     const stageStarted=Date.now();let attempt=0;
     if(party>1)for(const p of peers){
-      assert.ok(p.state.you?.id===p.id,'driver must identify its own survivor');
-      console.log('IDENTITY PROBE',JSON.stringify({wire:p.id,rendered:await p.page.locator('#game').getAttribute('data-players'),errors}));
+      assert.ok(typeof p.id==='string'&&p.state.you?.id===p.id,'driver must identify its own survivor');
       // Playwright sees the wire frame before the page handles it and paints.
       await p.page.waitForFunction(id=>JSON.parse(document.querySelector('#game').dataset.players||'[]').some(s=>s.id===id),p.id);
     }

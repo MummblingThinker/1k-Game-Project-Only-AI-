@@ -1,6 +1,6 @@
 name: October revision public acceptance
 # Public controls first, then campaigns one at a time to avoid overlapping load.
-# Prior failures remain in QA_LOG.md. Solo Level 5 captures an actual cover.
+# Prior failures remain in QA_LOG.md. Identity handles polling-to-WebSocket upgrades.
 on:
   workflow_dispatch:
   push:
