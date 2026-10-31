@@ -10,7 +10,9 @@ Play: https://tiny-teamwork-last-spark.onrender.com
 
 The source and game now include all 15 stages, solo and up to four-player co-op, shared hearts/rescue, three milestone encounters and original anime comic chapters. Final automated full browser campaigns passed at 1/2/3/4 players (CI 41152714415), plus complete hosted two/four campaigns (41152714553). The public four-player run needed one Level 10 replay; the other final full runs completed first attempts. See QA_LOG.md for exact evidence. Physical-device/network testing and human difficulty review are unperformed; the owner waived the physical-test preparation gate.
 
-An actual public solo Warden fight (source 4c032443, run 41152105724/job 124391143773) is saved at submission/cover.jpg (1440 by 960, 3:2). The source archive is generated at release/TinyTeamwork-source.zip with a SHA256 manifest. No contest entry has been submitted.
+The requested concept cover is submission/cover-concept.png (1536 by 1024, 3:2), an original anime/comic chase illustration also used in the short game opening. It is concept art, not a gameplay screenshot.
+
+An alternative actual public solo Warden fight (source 4c032443, run 41152105724/job 124391143773) is saved at submission/cover.jpg (1440 by 960, 3:2). The source archive is generated at release/TinyTeamwork-source.zip with a SHA256 manifest. No contest entry has been submitted.
 
 The owner explicitly waived physical multiplayer testing as a preparation requirement. It remains unperformed, not a required task for the owner. Run npm run check:submission to validate preparation assets and automated evidence. Review the description/link/cover and your personal eligibility, then submit through your own Handshake account. Do not set humanReviewed, humanSubmitted or physical-playtest fields based on automated tests.
 

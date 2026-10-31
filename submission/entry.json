@@ -3,7 +3,7 @@
   "title": "Tiny Teamwork: The Last Spark",
   "description": "Tiny survivors. Giant machines. Escape together. A solo or 2-4-player browser adventure through 15 city, forest and factory stages. Share a room code, carry friends over danger, throw debris at robots and race a relentless giant. Three distinct bosses and 33 original anime comic panels tell a story of freedom versus control. Built with OpenAI; the hardest challenge was keeping shared physics, hearts and boss encounters synchronized across independent players.",
   "projectUrl": "https://tiny-teamwork-last-spark.onrender.com",
-  "coverImage": "submission/cover.jpg",
+  "coverImage": "submission/cover-concept.png",
   "shareToShowcase": true,
   "controls": {
     "move": "A/D or Left/Right",
@@ -52,7 +52,7 @@
     "planningTarget": "Use earlier official-rules date unless organizer confirms otherwise."
   },
   "coverRequirements": {
-    "kind": "Screenshot of a key game screen",
+    "kind": "Original concept art also shown in the game opening",
     "minimumWidth": 1200,
     "recommendedAspect": "3:2"
   },
