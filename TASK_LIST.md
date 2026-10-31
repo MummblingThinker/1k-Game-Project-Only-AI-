@@ -2,8 +2,8 @@
 
 This is the single source of truth for the remaining build. Codex must update this file whenever it starts, changes, verifies, blocks, or defers a task. The goal is a shippable game, not merely code that compiles.
 
-**Last updated:** 2026-10-30  
-**Current maturity:** Expanded 15-stage campaign implemented; broader acceptance and human balance checks pending.  
+**Last updated:** 2026-10-31  
+**Current maturity:** Full 15-stage automated solo/co-op acceptance completed; human balance/device review unperformed.  
 **Release status:** Public campaign build deployed; physical-device acceptance and human submission review remain incomplete.
 
 > Current owner revision: FIX-01/02/03 govern the 1 PM follow-up; REV-01/02/03 record the earlier October 30 replacement. Older checked entries retain their dated baseline evidence; they do not certify changed shelter, enemy, bridge or boss rules. Explicitly replaced requirements are SUPERSEDED and unchecked. Physical/human acceptance remains separate.
@@ -188,6 +188,7 @@ Never mark a gate `VERIFIED` while any acceptance criterion remains untested. Ke
 - [x] `ENCOUNTER-03` - Status: VERIFIED. Live encounter release; focused rules, three browser engines, full 1/2/3/4 campaigns and public run 41163860155 pass. See QA_LOG.md encounter release acceptance.
 - [x] `ENCOUNTER-04` - Status: VERIFIED. Live encounter release; focused rules, three browser engines, full 1/2/3/4 campaigns and public run 41163860155 pass. See QA_LOG.md encounter release acceptance.
 
-- [ ] `COMBAT-05` - Boss audio cues and readable authoritative timing meter. Local/unit, three browser engines and full campaigns passed; final combined public release pending.
-- [ ] `POWER-01` - Factory power-cell short-circuit bursts and full-width Colossus sweep. Local integration and three-engine feature checks passed; final combined campaign/public release pending.
-- [ ] `CARRY-01` - Prevent teammate/object release inside solid trunks or exposed boss head. Local 72 cases and seeded mixed-input geometry stress passed; network/browser acceptance pending.
+- [x] `COMBAT-05` - Boss audio cues and authoritative timing meter. **Status: VERIFIED** - Unit checks, three-engine audio/layout and live solo/four-player boss checks pass; runtime full campaigns pass. See QA_LOG.md overnight acceptance. No physical listening claim.
+- [x] `POWER-01` - Factory power-cell stun bursts and full-width Colossus sweep. **Status: VERIFIED** - Direct/area effects, heavy armor, safe drop, puzzle weights and boss hit limits pass local integration, three-engine/public renders and full campaigns. See QA_LOG.md overnight acceptance.
+- [x] `CARRY-01` - Safe teammate/object release beside solid trunks and exposed head. **Status: VERIFIED** - 72 boundary cases, seeded mixed-input geometry, real-socket departure and full co-op campaigns pass. Public Level 10 passes; intermittent controller combat losses retained in QA_LOG.md.
+- [x] `ART-09` - Detailed Colossus armor, piston arms and readable exposed core. **Status: VERIFIED** - Three-engine render stability/reduced-options checks and inspected live four-player boss image pass. See QA_LOG.md overnight acceptance.

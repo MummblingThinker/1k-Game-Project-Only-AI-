@@ -1,10 +1,18 @@
-## Current encounter release - October 31, 2026 UTC
+## Overnight release - October 31, 2026
 
-Live runtime: df597d35cbdefd7d94c71c752e48e0653258caa8. Render My Workspace deploy dep-dbils0ijnfac73b071u0 became LIVE at 03:18:58 UTC. This supersedes older live-runtime notes below.
+Play: https://tiny-teamwork-last-spark.onrender.com
 
-Level 5 now has seeded climbing layouts, varied ammunition, active laser/claw attacks, pursuit drones and native health. Level 10 fixes tree-pillar clipping and remaining-heart solo respawn atop the fallen tree. Level 11 has a gradual exterior transition visible through a windowed building corridor. Animals use ordinary pickup/throw physics and survive landing. Level 15 replaces the lava/console escape with a background Colossus: three arm attacks, a lethal head drop, an eight-second throw/stomp opening, and three hits to win. Page controls remain visible; promotional details below them are removed.
+Live runtime: 9f2e2f60e6dd39f8e41ebcc6c4d078a2d65c5f32. Render **My Workspace**, deploy dep-dbisn2utlv9c73bkbt6g, LIVE at 11:06:21 UTC. Later commits update tests/docs only; no later production deployment is required.
 
-Acceptance: targeted browser run 41163294839 passed all seven encounter configurations plus rules. Run 41163559303 passed rules/network/all four simulated campaign routes and Chromium/Firefox/WebKit UI checks; full browser campaigns subsequently passed all 15 at 1/2/3/4 players (solo Level 11 needed one replay). Local last-survivor tests passed all 45 unchanged co-op maps. Public encounter run 41163860155 passed all four configurations. Overnight polish remains separate and unpublished until verified. No physical-device or human balance test is claimed.
+The requested encounter redesigns remain in place. Overnight additions: distinct boss warning/hit/opening sounds, authoritative attack/opening timing bars, a compact narrow-screen boss HUD, factory power-cell stun bursts, richer Colossus armor and exposed core, full-width arm sweeps, and safe teammate/object release beside solid tree pillars or the boss head. Power cells do not hurt teammates or bypass boss hit limits.
+
+Runtime acceptance: 41195415210 passed rules/network/departure, all party-size routes, Chromium/Firefox/WebKit UI and complete 15-stage browser campaigns for 1/2/3/4 players. Solo used one Level 11 replay; multiplayer stages were first-attempt clears. Focused audio/power-cell/HUD checks passed all three engines (41167565271); detailed boss art passed all three (41195415240).
+
+Public acceptance: 41195488509 verified exact deployed source, menus/manual ladders/rooms, effects/audio/layout and all three bosses. Its Level 11 follow-on FAILED, then the ordinary-input controller's throw-cooldown mistake was reproduced and fixed. Retest 41196912000 passed Level 10 (two replays) and Level 11 (first attempt), including the swarm/factory comic. Solo/four-player Colossus and solo Warden were first-attempt clears; four-player Colossus had 2506 matching snapshots and clean room removal. Do not call the initial public workflow green.
+
+Reliability: the 20-minute three-room/four-player boss soak passed with 34 wins, no gameovers and no state disagreement. Two 512-seed Warden sweeps recorded 509 and 511 wins; their combined evidence includes a successful ordinary-input route for all 512 layouts, not universal first-attempt success. High-latency stress has controller combat losses, including one run with no chainsaw clear. Physical-device, speaker/headphone and human difficulty reviews remain unperformed. No contest entry was submitted.
+
+Final 40-minute soak PASS: three concurrent four-player boss rooms, 68 clears, 2 recorded gameovers, 149553 matching snapshot checks, no state disagreement, peak server RSS 147.64 MiB, and all rooms cleaned up. Final CI 41196911990 passed all rules/network/three-engine checks and all 15 stages plus default ending at 1/2/3/4 players, every stage on the first attempt. All intended new production features are tested and live. Source/submission archives and external SHA256 manifests are refreshed in release/. Earlier notes below are historical where they conflict with this release.
 
 # Start here in Codex
 

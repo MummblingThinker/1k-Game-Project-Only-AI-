@@ -8,7 +8,7 @@ Tiny survivors. Giant machines. Escape together. A solo or 2-4-player browser ad
 
 Play: https://tiny-teamwork-last-spark.onrender.com
 
-The source and game now include all 15 stages, solo and up to four-player co-op, shared hearts/rescue, three milestone encounters and original anime comic chapters. Final automated full browser campaigns passed at 1/2/3/4 players (CI 41152714415), plus complete hosted two/four campaigns (41152714553). The public four-player run needed one Level 10 replay; the other final full runs completed first attempts. See QA_LOG.md for exact evidence. Physical-device/network testing and human difficulty review are unperformed; the owner waived the physical-test preparation gate.
+The game includes all 15 stages, solo/up to four-player co-op, shared hearts and flags, three redesigned bosses, throwable debris/animals, power-cell stun bursts and original anime comic chapters. Runtime 9f2e2f60 passed complete automated browser campaigns at 1/2/3/4 players (41195415210); solo needed one Level 11 replay. Public bosses/features passed in 41195488509, whose Level 11 follow-on failed; the focused retest 41196912000 passed Level 10 with two replays and Level 11 first attempt. Boss audio, timing HUD and detailed Colossus art passed all three browser engines. See QA_LOG.md for exact failures and successes. Physical-device/network testing and human difficulty review remain unperformed; high-latency stress still has combat-controller losses.
 
 The requested concept cover is submission/cover-concept.png (1536 by 1024, 3:2), an original anime/comic chase illustration also used in the short game opening. It is concept art, not a gameplay screenshot.
 
@@ -25,3 +25,5 @@ The free host may need time to wake. Rooms are lost on server restart; a disconn
 The official rules rechecked October 30 specify October 30, 2026 at 11:59 PM Pacific (October 31 at 2:59 AM Eastern). The earlier mission page showed October 31; use the earlier official deadline. Source links remain in entry.json. Required entry fields are title, cover, description and URL; judges give equal weight to execution, creativity, value and polish.
 
 Continue from docs/PROJECT_STATUS.md and AGENTS.md. The owner authorized campaign/art/testing expansion while waiving owner physical testing; the older single-level-only scope is superseded for this session.
+
+Final overnight test-controller CI 41196911990 cleared all 15 stages and the default ending first attempt at every party size. Final 40-minute soak PASS: three concurrent four-player boss rooms, 68 clears, 2 recorded gameovers, 149553 matching snapshot checks, no state disagreement, peak server RSS 147.64 MiB, and all rooms cleaned up. The deployed source remains 9f2e2f60; later commits contain testing/documentation only.

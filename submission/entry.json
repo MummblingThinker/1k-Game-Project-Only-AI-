@@ -57,6 +57,42 @@
         "solo Level 15",
         "four-player Level 15"
       ]
+    },
+    "overnightRelease": {
+      "source": "9f2e2f60e6dd39f8e41ebcc6c4d078a2d65c5f32",
+      "ciRun": 41195415210,
+      "partySizes": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "soloLevel11Replays": 1,
+      "publicRun": 41195488509,
+      "publicRunHadLevel11Failure": true,
+      "publicRetest": 41196912000,
+      "publicRetestLevel10Attempts": 3,
+      "publicRetestLevel11Attempts": 1,
+      "audioPowerHudRun": 41167565271,
+      "bossArtRun": 41195415240,
+      "stressSeedCount": 512,
+      "stressSweepWins": [
+        509,
+        511
+      ],
+      "humanPlaytest": false,
+      "testControllerCiRun": 41196911990,
+      "testControllerAllStagesFirstAttempt": true,
+      "finalSoak": {
+        "seconds": 2400,
+        "rooms": 3,
+        "playersPerRoom": 4,
+        "clears": 68,
+        "gameovers": 2,
+        "matchingSnapshots": 149553,
+        "maxRssMiB": 147.640625,
+        "cleanup": true
+      }
     }
   },
   "sources": {
