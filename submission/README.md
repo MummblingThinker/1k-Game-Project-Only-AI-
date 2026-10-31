@@ -18,7 +18,7 @@ The owner explicitly waived physical multiplayer testing as a preparation requir
 
 Submission form: https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/submit
 
-Start Story introduces the city escape. Multiplayer creates a six-character room or invite link; guests select Ready, then the host starts. Stage select offers direct access to the climbing Warden (5), chainsaw forest chase (10) and factory lava finale (15). Move A/D or arrows; Space jumps; W/S climbs; E interacts or picks up debris; F carries/throws; Q drops. Settings includes saved volume, reduced motion and fewer effects. No install or game account is required.
+Start Story introduces the city escape. Multiplayer creates a six-character room or invite link; guests select Ready, then the host starts. Stage select offers direct access to the climbing Warden (5), chainsaw forest chase (10) and background Colossus showdown (15). Move A/D or arrows; Space jumps; W/S climbs; E interacts or picks up debris; F carries/throws; Q drops. Settings includes saved volume, reduced motion and fewer effects. No install or game account is required.
 
 The free host may need time to wake. Rooms are lost on server restart; a disconnected player needs a new lobby. Solo progress resumes at the stage, while flags apply within the current run. Automated testing does not prove human difficulty balance or every physical device.
 

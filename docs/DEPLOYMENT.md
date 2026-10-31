@@ -1,3 +1,11 @@
+## Current encounter release - October 31, 2026 UTC
+
+Live runtime: df597d35cbdefd7d94c71c752e48e0653258caa8. Render My Workspace deploy dep-dbils0ijnfac73b071u0 became LIVE at 03:18:58 UTC. This supersedes older live-runtime notes below.
+
+Level 5 now has seeded climbing layouts, varied ammunition, active laser/claw attacks, pursuit drones and native health. Level 10 fixes tree-pillar clipping and remaining-heart solo respawn atop the fallen tree. Level 11 has a gradual exterior transition visible through a windowed building corridor. Animals use ordinary pickup/throw physics and survive landing. Level 15 replaces the lava/console escape with a background Colossus: three arm attacks, a lethal head drop, an eight-second throw/stomp opening, and three hits to win. Page controls remain visible; promotional details below them are removed.
+
+Acceptance: targeted browser run 41163294839 passed all seven encounter configurations plus rules. Run 41163559303 passed rules/network/all four simulated campaign routes and Chromium/Firefox/WebKit UI checks; full browser campaigns subsequently passed all 15 at 1/2/3/4 players (solo Level 11 needed one replay). Local last-survivor tests passed all 45 unchanged co-op maps. Public encounter run 41163860155 passed all four configurations. Overnight polish remains separate and unpublished until verified. No physical-device or human balance test is claimed.
+
 # Deployment and multiplayer acceptance
 
 Status: campaign release 0.3.0 deployed on Render; physical-device/network acceptance remains unverified. Exact subsequent source/test/archive status is maintained in PROJECT_STATUS.md.

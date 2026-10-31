@@ -57,8 +57,18 @@ export function driveRevision(state,p,memo={}){
       if(!p.onGround&&w.ladders.some(l=>Math.abs(p.x-l.x)<13&&p.y+p.h>=l.y&&p.y<l.y+l.h))return{input:{up:true}};
       if(p.onGround){
         if(p.y>line+8||p.y+p.h<line-8)return{input:{}};
-        return{input:{jump:b.attack==='laser-strike'||b.attackTimer<=20}};
+        // Move out from under solid supplies before jumping a fixed laser.
+        // One-way catwalks are safe; a prop on the next floor can shorten a jump.
+        const ceiling=[...w.platforms.filter(s=>!s.oneWay),...w.crates.filter(c=>!c.used&&!c.carriedBy)]
+          .find(s=>s.x<p.x+p.w+5&&s.x+s.w>p.x-5&&s.y+s.h<p.y+2&&s.y+s.h>p.y-65);
+        if(ceiling&&b.attack==='laser-warning'&&b.attackTimer>25){
+          const choices=[ceiling.x-p.w-12,ceiling.x+ceiling.w+12].filter(x=>x>=b.x+35&&x+p.w<=b.x+380&&w.platforms.some(s=>s.x<=x&&s.x+s.w>=x+p.w&&Math.abs(s.y-p.y-p.h)<3));
+          const x=choices.sort((a,c)=>Math.abs(a-p.x)-Math.abs(c-p.x))[0];
+          if(x!=null)return{input:{left:p.x>x,right:p.x<x}};
+        }
+        const jump=b.attack==='laser-strike'||b.attackTimer<=20;if(jump)memo.laserJumpUntil=t+55;return{input:{jump}};
       }
+      if(memo.laserJumpUntil>t)return{input:{}};
       const safe=w.platforms.filter(s=>s.y<line-8&&s.y>=p.y+p.h-10&&s.x>=b.x).sort((a,c)=>Math.abs(Math.max(a.x,Math.min(a.x+a.w-p.w,p.x))-p.x)-Math.abs(Math.max(c.x,Math.min(c.x+c.w-p.w,p.x))-p.x))[0];
       if(safe)return{input:{left:p.x>safe.x+safe.w-p.w-2,right:p.x+p.w<safe.x+2}};
       return{input:{}};

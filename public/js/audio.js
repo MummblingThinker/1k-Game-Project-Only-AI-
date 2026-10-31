@@ -80,6 +80,12 @@ export function createGameAudio(button, slider) {
     if (kind === 'jump') tone(260, 580, .1);
     else if (kind === 'death') { tone(170, 38, .35, 'sawtooth'); tone(90, 30, .3, 'triangle', .05); }
     else if (kind === 'warning') { tone(620, 430, .1, 'square'); tone(620, 430, .1, 'square', .17); }
+    else if (kind === 'boss-low') { tone(180, 360, .18, 'triangle', 0, .55); tone(270, 540, .18, 'triangle', .24, .45); }
+    else if (kind === 'boss-high') { tone(540, 270, .18, 'triangle', 0, .55); tone(360, 180, .18, 'triangle', .24, .45); }
+    else if (kind === 'boss-slam') { tone(840, 210, .15, 'square', 0, .35); tone(840, 210, .15, 'square', .23, .35); }
+    else if (kind === 'boss-head') { tone(110, 55, .5, 'sawtooth', 0, .35); tone(880, 440, .16, 'triangle', 0, .5); tone(880, 440, .16, 'triangle', .26, .5); }
+    else if (kind === 'core-open') [330, 495, 660].forEach((f, i) => tone(f, f, .18, 'sine', i * .1, .45));
+    else if (kind === 'core-hit') { tone(140, 45, .18, 'sawtooth', 0, .35); tone(660, 990, .22, 'triangle', .04, .45); }
     else if (kind === 'capture') { tone(400, 160, .16, 'square'); tone(240, 100, .2, 'triangle', .14); }
     else if (kind === 'countdown') tone(740, 740, .06, 'square');
     else if (kind === 'blast') { tone(100, 25, .4, 'sawtooth'); tone(55, 30, .3, 'triangle'); }
@@ -103,7 +109,9 @@ export function createGameAudio(button, slider) {
       score(world,state,listener);
       const warnings = world.enemies.filter(e => e.phase === 'warning' && Math.abs(e.x - listener.x) < 260).map(e => e.id);
       if (world.boss?.phase === 'warning' && listener.x >= world.boss.x) warnings.push('boss');
-      const now = { state, level: world.id, hearts, vy: player.vy, capture: !!player.capture, captureSeconds: Math.ceil(player.capture?.remaining || 0),
+      const boss=world.boss, inArena=boss&&boss.phase!=='waiting'&&listener.x>=boss.x;
+      const bossAttack=inArena&&!boss.solved?(boss.kind==='chainsaw'?boss.tree?.phase:boss.attack||boss.phase):null;
+      const now = { bossAttack, bossHp: boss?.hp ?? null, bossSolved: !!boss?.solved, bossKind: boss?.kind, bossWeapon: boss?.weapon, state, level: world.id, hearts, vy: player.vy, capture: !!player.capture, captureSeconds: Math.ceil(player.capture?.remaining || 0),
         checkpoints: world.checkpoints.filter(c => c.active).length, storyVisual, breakTick: world.breakEffects?.at(-1)?.tick ?? -1,
         blasts: world.enemies.filter(e => e.kind === 'creeper' && e.phase === 'attack' && Math.abs(e.x - listener.x) < 260).map(e => e.id),
         relays: world.switches.filter(s => s.active).length + (world.boss?.activeRelay || 0), warnings };
@@ -112,6 +120,17 @@ export function createGameAudio(button, slider) {
         if (now.state === 'victory' && previous.state !== 'victory') cue('victory');
         if (state === 'gameover' && previous.state === 'playing') cue('death');
         if (state === 'playing' && previous.state === 'playing') {
+          if (inArena && now.bossKind === previous.bossKind) {
+            if (now.bossSolved && !previous.bossSolved) cue('victory');
+            else if (now.bossHp < previous.bossHp) cue('core-hit');
+            if (bossAttack && bossAttack !== previous.bossAttack) {
+              if (bossAttack === 'head-warning') cue('boss-head');
+              else if (bossAttack === 'exposed') cue('core-open');
+              else if (bossAttack === 'warning') cue(now.bossKind==='foundry'?(now.bossWeapon==='low'?'boss-low':now.bossWeapon==='high'?'boss-high':'boss-slam'):'boss-head');
+              else if (bossAttack === 'laser-warning') cue('warning');
+              else if (bossAttack === 'claw-warning') cue('boss-slam');
+            }
+          }
           if (hearts < previous.hearts) cue('death');
           else if (now.capture && !previous.capture) cue('capture');
           else if (!now.capture && previous.capture && player.alive) cue('rescue');

@@ -39,6 +39,24 @@
         4
       ],
       "publicFourPlayerReplays": 1
+    },
+    "encounterRelease": {
+      "source": "df597d35cbdefd7d94c71c752e48e0653258caa8",
+      "ciRun": 41163559303,
+      "partySizes": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "soloLevel11Replays": 1,
+      "publicRun": 41163860155,
+      "publicChecks": [
+        "solo Level 5",
+        "solo Levels 10-11",
+        "solo Level 15",
+        "four-player Level 15"
+      ]
     }
   },
   "sources": {

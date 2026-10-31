@@ -184,6 +184,6 @@ Never mark a gate `VERIFIED` while any acceptance criterion remains untested. Ke
 
 - [x] `PAGE-CLEANUP-01` - Remove details/cards/footer beneath controls; keep keyboard and touch controls. Implemented; local regression and HTTP/module smoke PASS.
 
-- [ ] `ENCOUNTER-02` - Active randomized Warden, native boss health bars, pursuing vulnerable drones. Implemented; randomized/real-input and browser verification in progress.
-- [ ] `ENCOUNTER-03` - Solid tree jump collision, remaining-heart respawn on fallen log, windowed gradual Level 11 transition, throwable animals. Implemented; focused collision/respawn/throw tests PASS; browser verification pending.
-- [ ] `ENCOUNTER-04` - Background Colossus: three arm attacks, lethal head drop, exhausted head throw/stomp opening, three successful hits. Supersedes lava/console/bulldozer sequence. Rules and ordinary-input 1/2/4-player routes PASS; browser/public verification pending.
+- [x] `ENCOUNTER-02` - Status: VERIFIED. Live encounter release; focused rules, three browser engines, full 1/2/3/4 campaigns and public run 41163860155 pass. See QA_LOG.md encounter release acceptance.
+- [x] `ENCOUNTER-03` - Status: VERIFIED. Live encounter release; focused rules, three browser engines, full 1/2/3/4 campaigns and public run 41163860155 pass. See QA_LOG.md encounter release acceptance.
+- [x] `ENCOUNTER-04` - Status: VERIFIED. Live encounter release; focused rules, three browser engines, full 1/2/3/4 campaigns and public run 41163860155 pass. See QA_LOG.md encounter release acceptance.

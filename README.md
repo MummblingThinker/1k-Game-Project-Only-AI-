@@ -34,12 +34,12 @@ Choose Multiplayer on the title screen, create a room and share its invite link 
 
 - Flags replace save rooms. Passing a new flag restores one shared heart up to the original party maximum and records the respawn point. A solo death with hearts left returns there. A flag also brings back one downed co-op survivor. Each flag awards once.
 - Relay bridges and pressure bridges span gaps too long for an ordinary jump. E activates relays. Leave an object on a pressure plate with Q; its short release grace period is insufficient for the full crossing. Yellow puzzle weights survive throws and return if lost in a pit.
-- Street-to-rooftop climbs, subway passages, canopies, cabins, water, conveyors and towers form fifteen different routes. Each biome has themed throwable debris, breakable barriers, scenery and enemies. Forest animals are decorative.
+- Street-to-rooftop climbs, subway passages, canopies, cabins, water, conveyors and towers form fifteen different routes. Each biome has themed throwable debris, breakable barriers, scenery and enemies. Forest animals can be picked up and thrown like debris, then resume wandering after landing.
 - Ground robots patrol, turn and charge when they see a survivor. Headlights show their facing direction. Flying robots retain their warned scan attack. Throws destroy small robots and damage medium ones; big armored robots can only be stunned. Ordinary debris breaks after impacts; yellow weights remain reusable.
-- Level 5: climb above rising Warden claws, collect debris and throw it at the boss. Defeating it stops the endless climb and creates the final exit floor.
+- Level 5: climb the randomized tower, dodge marked laser/claw attacks and pursuing scanner drones, and throw varied debris at the Warden. Its visible health bar takes eight hits; victory stops the climb and opens the final exit floor.
 - Level 10: weave over trunks and branches through the chainsaw maze. Climb or wall-jump away from the blade. At the end, clear the striped falling-tree area: it kills the robot and any players underneath.
 - Level 11: forest leads into a roofed human passage with a protected overhead swarm, then the robot factory.
-- Level 15: climb above lava and break three consoles. Each accelerates lava; attacks escalate through lasers and platform destruction while essential ladders remain. The robot breaches from the left, leaps behind the survivors, and chases them LEFT through machinery to the emergency exit. Lava destroys it.
+- Level 15: dodge three background Colossus arm attacks: jump above the low sweep, stay below the high sweep, then leave the marked fist column. Move away from the lethal falling head. During its eight-second exhausted opening, throw an object at the head or jump onto it. One hit closes each opening; three hits defeat it. Watch for scanner drones and follow the health bar.
 
 Level 1 is the 960-unit reference; normal maps are 2880 units, and Levels 5/10/15 are 5280/5760/6240 units. The pursuer takes about two minutes to cross a normal map after waking and cannot enter boss zones. Boss defeats have pixel death animations.
 

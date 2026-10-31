@@ -1,3 +1,6 @@
+## Active overnight authorization - October 30/31
+The owner requested continued updates, bug fixes and tested fun improvements until 8 AM America/New_York on October 31, 2026 (12:00 UTC). Prioritize boss fights. Do not publish a new feature without focused tests and relevant browser/gameplay verification. This supersedes older cutoffs. Continue existing release verification first; preserve evidence and avoid restarting the live service during public acceptance rooms.
+
 ## Current owner encounter corrections, October 30 evening
 
 The owner requested an active Level 5 Warden with visible health, varied/random climbing and debris, and pursuing scanner drones; solid Level 10 tree pillars and solo respawn atop the fallen tree when hearts remain; gradual Level 11 forest/city/factory scenery through an enclosed windowed corridor; and throwable animals. The Level 15 lava/console/bulldozer design is explicitly superseded: keep a robot in the background, three telegraphed arm attacks per round, a lethal falling head, then a tired exposed head damaged once by a throw or stomp. Three successful openings defeat it. Test real-input solo/co-op and publish working changes. Keep the cleaned page below controls. No contest submission or physical-device claim is authorized.

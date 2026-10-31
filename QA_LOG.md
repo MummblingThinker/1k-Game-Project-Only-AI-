@@ -969,3 +969,21 @@ Warden: seeded per-run tower choices, varied heights/ladder positions/debris, vi
 Tree pillars now resolve diagonal corner penetration after ladder jumps (144 timings pass). Solo falling-tree death with remaining hearts respawns on the defeated boss's log; zero hearts ends run. Animals are physical carry/throw objects that land intact and resume wandering. Level 11 uses blended forest/city/factory landscape layers and a windowed industrial corridor with increasing outside robot detail.
 
 Final boss fully replaced at owner's request: background-only chassis; low sweep, high sweep, aimed fist; after three attacks a lethal marked head drop and vulnerable recovery. Throw or stomp removes one of three health points; one hit per recovery window. Normal-input level/encounter routes pass at 1/2/4 players. Specific tests cover warning safety, arm damage, head crush, stomp bounce, thrown damage, hit lockout, exit unlock and shield/heart behavior. The YouTube reference could not be fetched; implementation follows the owner's detailed mechanics description. Old lava/console assertions were replaced because their behavior was explicitly superseded.
+
+## Current encounter release - October 31, 2026 UTC
+
+Live runtime: df597d35cbdefd7d94c71c752e48e0653258caa8. Render My Workspace deploy dep-dbils0ijnfac73b071u0 became LIVE at 03:18:58 UTC. This supersedes older live-runtime notes below.
+
+Level 5 now has seeded climbing layouts, varied ammunition, active laser/claw attacks, pursuit drones and native health. Level 10 fixes tree-pillar clipping and remaining-heart solo respawn atop the fallen tree. Level 11 has a gradual exterior transition visible through a windowed building corridor. Animals use ordinary pickup/throw physics and survive landing. Level 15 replaces the lava/console escape with a background Colossus: three arm attacks, a lethal head drop, an eight-second throw/stomp opening, and three hits to win. Page controls remain visible; promotional details below them are removed.
+
+Acceptance: targeted browser run 41163294839 passed all seven encounter configurations plus rules. Run 41163559303 passed rules/network/all four simulated campaign routes and Chromium/Firefox/WebKit UI checks; full browser campaigns still running at this checkpoint. Local last-survivor tests passed all 45 unchanged co-op maps. Public encounter run 41163860155 is pending. No physical-device or human balance test is claimed.
+
+
+## Encounter release acceptance - October 31, 03:35 UTC
+ENCOUNTER-02 / ENCOUNTER-03 / ENCOUNTER-04 are VERIFIED for live runtime df597d35cbdefd7d94c71c752e48e0653258caa8, Render deploy dep-dbils0ijnfac73b071u0.
+- Full browser run 41163559303 passed all 15 levels/default story ending at 1/2/3/4 players; solo needed one Level 11 replay. Other party sizes cleared every stage first attempt.
+- Chromium, Firefox and WebKit UI checks passed. Warden/native health and Colossus/native health screenshots, plus all four Level 11 transition views, were visually inspected.
+- Public run 41163860155 passed solo Warden, solo and four-player Colossus, and solo Level 10 through 11. Boss passes used actual keyboard/UI, no gameplay mutation. Solo bosses retained 3 hearts; four-player Colossus retained 3 and matched 2526 snapshots. Public rooms were cleaned up.
+- Focused collision, fallen-tree respawn, animals, arm damage/head crush/throw/stomp tests passed. All 45 last-survivor routes passed. Source extraction regression passed.
+- Overnight work authorized until October 31 8 AM Eastern. New audio polish and broader stress tests are local and not part of this deployed release. A 64-seed stress sweep identified two solo Warden controller failures caused by jumping under solid supplies; investigation/retest is recorded separately. Do not misrepresent this as all random layouts universally tested.
+

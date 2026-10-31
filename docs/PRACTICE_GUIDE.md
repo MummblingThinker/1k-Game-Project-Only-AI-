@@ -30,11 +30,11 @@ Recessed building fronts and dark distant trees are background scenery: walk in 
 
 ## The three bosses
 
-- Level 5: keep climbing above the Warden claws. E picks up debris, F throws toward the robot. Climb beyond the first floors to expose its body, then land eight hits. The endless tower stops growing after victory; take the final ladder to the door.
-- Level 10: flee right through the tree maze. W/S climbs the ladders beside solid trunks; Space against a wall wall-jumps. Stay above or ahead of the chainsaw. Crossing beyond the final tree immediately triggers the finale: the boss rushes into the falling trunk. Clear its striped shadow; anyone still underneath is crushed. The falling trunk kills players as well as the boss; jump the fallen trunk to exit.
-- Level 15: climb above rising lava and use the consoles in order. Lava speeds up each time. Dodge marked lasers; essential ladders remain when other platforms break. The third console raises the emergency lift as the robot leaps in. Run LEFT through the machinery maze to the door; the boss dies in the lava.
+- Level 5: climb the randomized tower, dodge marked laser/claw attacks and pursuing scanner drones, and throw varied debris at the Warden. Its visible health bar takes eight hits; victory stops the climb and opens the final exit floor.
+- Level 10: flee right through the tree maze. W/S climbs the ladders beside solid trunks; Space against a wall wall-jumps. Stay above or ahead of the chainsaw. Crossing beyond the final tree immediately triggers the finale: the boss rushes into the falling trunk. Clear its striped shadow; anyone still underneath is crushed. The falling trunk kills players as well as the boss; jump the fallen trunk to exit. In solo, a crushing death with hearts remaining respawns you atop the fallen trunk; zero hearts ends the run.
+- Level 15: dodge three background Colossus arm attacks: jump above the low sweep, stay below the high sweep, then leave the marked fist column. Move away from the lethal falling head. During its eight-second exhausted opening, throw an object at the head or jump onto it. One hit closes each opening; three hits defeat it. Watch for scanner drones and follow the health bar.
 
-The roaming giant cannot enter any boss arena, including the factory's leftward escape. A wiped party with hearts remaining restarts the encounter with its approach relays preserved.
+The roaming giant cannot enter any boss arena. A wiped party with hearts remaining restarts the encounter with its approach relays preserved.
 
 The protected overhead drone swarm is in Level 11: forest, covered human passage, then factory. Story chapters use different illustrations for every panel.
 
