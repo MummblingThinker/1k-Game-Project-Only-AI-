@@ -287,3 +287,26 @@ body[data-menu-open="true"] .quick-controls,body[data-menu-open="true"] .mobile-
 body[data-motion="reduced"] .opening-art { animation:none; }
 @media(prefers-reduced-motion:reduce) { .opening-ready .opening-art { animation:none; } }
 @media(max-width:700px) { .opening-art { object-fit:contain; background:#08131e; } .opening-shade { background:linear-gradient(transparent 65%,#07131d 100%); } .opening-caption { font-size:19px; } }
+
+/* Dedicated environmental title art, with a readable menu-side scrim. */
+#title-menu {
+ background-color:#081721;
+ background-image:linear-gradient(90deg,rgba(5,16,25,.76),rgba(5,16,25,.32) 47%,rgba(5,16,25,.02) 78%),url('/assets/title-city.jpg');
+ background-size:cover; background-position:center; background-repeat:no-repeat;
+ box-shadow:inset 0 0 85px #020a1466;
+}
+#title-menu .menu-brand { padding-bottom:18px; border-bottom:1px solid #d8b57566; }
+#title-menu .menu-brand h2 { color:#fff0cf; text-shadow:0 3px 18px #020a14,2px 3px #06131e; }
+#title-menu .menu-home { width:min(100%,350px); gap:12px; }
+#title-menu .menu-home button { padding:13px 20px; box-shadow:0 4px 16px #0005; border-left-width:3px; }
+#title-menu .menu-home .secondary-button { background:#0b2433df; }
+#title-menu .menu-home button:hover { border-color:#ffe1a3; background:#244452; color:#fff2d7; }
+#title-menu .menu-home .primary-button:hover { background:#f1d09a; color:#152b34; }
+#title-menu .menu-home button:focus-visible { outline:2px solid #fff0c9; outline-offset:4px; }
+#title-menu .menu-home p { color:#d0dcd9; text-shadow:0 2px 6px #000; }
+#title-menu .menu-page { padding:16px; background:#081b29ed; border:1px solid #64878970; border-radius:5px; box-sizing:border-box; }
+@media(max-width:700px) {
+ #title-menu { background-position:65% center; background-image:linear-gradient(90deg,#051019e8,#05101970),url('/assets/title-city.jpg'); }
+ #title-menu .menu-brand { padding-bottom:12px; }
+ #title-menu .menu-page { padding:12px; }
+}

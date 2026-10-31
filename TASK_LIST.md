@@ -179,3 +179,5 @@ Never mark a gate `VERIFIED` while any acceptance criterion remains untested. Ke
 - [x] `SUBMIT-01` - `P0` - Submission preparation and full campaign results. **Status: VERIFIED** - CI all 15/default ending at 1/2/3/4 players, three engines, public full two/four campaigns, source/assets and entry validation pass. Public four-player required one Level 10 replay. Owner physical test waived; no eligibility attestation or entry submitted. See QA_LOG.md 2026-10-31 submission acceptance.
 
 - [x] `ART-COVER-01` - AI Take Over original chase concept cover and separate illustrated opening. **Status: VERIFIED** - Three browser engines and public run 41159249101 pass image framing, caption timing, skip/focus, reduced motion, missing-image fallback, desktop/mobile layout and live deployment. Existing story panels and gameplay remain intact.
+
+- [ ] `TITLE-ART-01` - Dedicated detailed city/giant-robot title background, readable menu contrast, polished buttons and narrow-screen settings. Status: IMPLEMENTED; browser/public validation pending.
