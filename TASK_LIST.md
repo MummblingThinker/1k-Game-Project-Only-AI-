@@ -187,3 +187,7 @@ Never mark a gate `VERIFIED` while any acceptance criterion remains untested. Ke
 - [x] `ENCOUNTER-02` - Status: VERIFIED. Live encounter release; focused rules, three browser engines, full 1/2/3/4 campaigns and public run 41163860155 pass. See QA_LOG.md encounter release acceptance.
 - [x] `ENCOUNTER-03` - Status: VERIFIED. Live encounter release; focused rules, three browser engines, full 1/2/3/4 campaigns and public run 41163860155 pass. See QA_LOG.md encounter release acceptance.
 - [x] `ENCOUNTER-04` - Status: VERIFIED. Live encounter release; focused rules, three browser engines, full 1/2/3/4 campaigns and public run 41163860155 pass. See QA_LOG.md encounter release acceptance.
+
+- [ ] `COMBAT-05` - Boss audio cues and readable authoritative timing meter. Local/unit, three browser engines and full campaigns passed; final combined public release pending.
+- [ ] `POWER-01` - Factory power-cell short-circuit bursts and full-width Colossus sweep. Local integration and three-engine feature checks passed; final combined campaign/public release pending.
+- [ ] `CARRY-01` - Prevent teammate/object release inside solid trunks or exposed boss head. Local 72 cases and seeded mixed-input geometry stress passed; network/browser acceptance pending.

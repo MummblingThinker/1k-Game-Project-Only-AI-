@@ -39,6 +39,13 @@ function detach(run, player, throwing = false) {
     object.vx = throwing ? player.face * (run.world.revision?3.8:2.6) : 0;
     object.vy = throwing ? -4.3 : 0;
     if(run.world.revision&&!run.players.has(object.id)){object.flightTicks=throwing?100:0;object.thrownBy=throwing?player.id:null;if(throwing){object.y=player.y+2;object.vy=-2.2;}}
+    if(run.world.revision){
+      const head=run.world.boss?.kind==='foundry'&&run.world.boss.attack==='exposed'&&!run.world.boss.solved?run.world.boss.head:null;
+      const solid=[...run.world.floors,...run.world.platforms.filter(s=>!s.oneWay),...(head?[head]:[])];
+      // Release offsets must not spawn a passenger inside a wall and let collision
+      // recovery move them through it. The carrier's occupied space is already clear.
+      if(solid.some(s=>overlaps(object,s))){object.x=player.x;object.y=player.y+(run.players.has(object.id)?0:2);}
+    }
     if (run.players.has(object.id)) {
       object.throwTicks = throwing ? 32 : 0; object.throwVx = object.vx;
       object.onGround = false; object.coyoteTicks = 0; object.jumpBufferTicks = 0;

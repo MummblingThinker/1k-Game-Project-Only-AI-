@@ -324,7 +324,7 @@ body[data-motion="reduced"] .opening-art { animation:none; }
 @media(max-width:700px) { #boss-hud { bottom:8px; padding:6px 9px; font-size:10px; } #boss-attack-hint { font-size:9px; } }
 
 /* Attack timing complements the world-space markers, including muted play. */
-#boss-hud #boss-timing { height:4px; margin:4px 0 6px; accent-color:#ffcf6f; }
+#boss-hud #boss-timing { appearance:none; -webkit-appearance:none; border:0; border-radius:0; height:6px; margin:4px 0 6px; background:#342e3b; accent-color:#ffcf6f; }
 #boss-hud #boss-timing[hidden] { display:none; }
 #boss-hud #boss-timing::-webkit-progress-value { background:#ffcf6f; }
 #boss-hud #boss-timing::-moz-progress-bar { background:#ffcf6f; }
