@@ -83,8 +83,8 @@ try {
     const stageStarted=Date.now();let attempt=0;
     if(party>1)for(const p of peers){
       assert.ok(p.state.you?.id===p.id,'driver must identify its own survivor');
-      const shown=JSON.parse(await p.page.locator('#game').getAttribute('data-players'));
-      assert.ok(shown.some(s=>s.id===p.id),'actual game also knows this survivor');
+      // Playwright sees the wire frame before the page handles it and paints.
+      await p.page.waitForFunction(id=>JSON.parse(document.querySelector('#game').dataset.players||'[]').some(s=>s.id===id),p.id);
     }
     assert.ok(peers.every(p=>p.state.hearts===(party===1?3:party===4?5:4)),'fresh stage heart pool');
     while(true){
