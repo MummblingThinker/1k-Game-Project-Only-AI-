@@ -8,7 +8,41 @@ permissions:
 env:
   BROWSER_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
 jobs:
+  public-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 24, cache: npm}
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Verify deployed production source
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {readFile} from 'node:fs/promises';
+          for(const path of ['index.html','style.css',...['simulation','physics','revision-simulation','revision-world','revision-art','colossus','colossus-art','power-cells','boss-timing','audio','game'].map(x=>'js/'+x+'.js')]){
+            const response=await fetch(process.env.BROWSER_BASE_URL+'/'+path);
+            assert.equal(response.status,200,path);
+            assert.equal((await response.text()).replaceAll('\r\n','\n'),(await readFile('public/'+path,'utf8')).replaceAll('\r\n','\n'),'deployed source: '+path);
+          }
+          console.log('PUBLIC SOURCE PASS: deployed combat, collision, sound and HUD modules match checked-out source.');
+          JS
+      - run: node scripts/smoke-test.mjs
+        env:
+          TEST_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
+      - run: node scripts/revision-network-test.mjs
+        env:
+          TEST_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
+      - run: node scripts/revision-browser-test.mjs
+      - run: node scripts/combat-audio-browser-test.mjs
+      - run: node scripts/power-cell-browser-test.mjs
+      - run: node scripts/boss-hud-layout-test.mjs
+      - run: node scripts/boss-art-browser-test.mjs
   encounters:
+    needs: public-assets
     runs-on: ubuntu-latest
     timeout-minutes: 12
     strategy:
