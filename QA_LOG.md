@@ -955,3 +955,7 @@ Owner requested a better title-screen background. Generated original wide city/g
 Initial browser run 41160125384: Chromium/WebKit PASS, Firefox timed out clicking Single Player during a repeat visit while the intro intercepted input and then the button remained unstable. Removed inherited one-pixel hover translation from home buttons; repeat-visit tests now explicitly await intro detachment before clicking (normal click checks retained). Desktop and 430px phone screenshots visually reviewed: full title, clearly separated controls, giant robot visible, no horizontal overflow. Final runtime 61c74bd1; verification follows.
 
 TITLE-ART-01 final PASS: browser run 41160397782 Chromium 124416466524, Firefox 124416466458, WebKit 124416466500 all pass. Public run 41160227831 job 124415960089 passes HTTPS/assets, actual network gameplay and browser/menu/bridge checks. Runtime 61c74bd1 LIVE at 02:32:07 UTC. Dedicated background and menu screenshots inspected at desktop and phone widths. Source archive refreshed; no gameplay changes or new human-test claims.
+
+## PAGE-CLEANUP-01
+
+Owner requested keeping controls below the game while removing unnecessary details underneath. Removed the three promotional/detail cards and footer. Hid the below-controls memory archive while retaining its storage/render target so collected progress and game initialization continue working. Keyboard and touch controls are unchanged; diagnostics remain opt-in with debug=1. Local npm test and HTTP/module smoke PASS. Live deployment verification follows.

@@ -156,25 +156,7 @@
       </aside>
     </section>
 
-    <section class="lower-grid">
-      <article class="lower-card">
-        <p class="panel-kicker">WHAT'S PLAYABLE</p>
-        <h3>Fifteen stages. One shared escape.</h3>
-        <p>Cross ruined streets, river trails and assembly floors. Use crates and teammates to cross gaps. Pass flags to heal and save, then confront three larger escape encounters.</p>
-      </article>
-      <article class="lower-card">
-        <p class="panel-kicker">ART DIRECTION</p>
-        <h3>Pixel worlds. Anime comic chapters.</h3>
-        <p>Original illustrated panels reveal the invasion, forest chase and robot factory. Clear captions tell the story while bright survivors stay readable against the dark world.</p>
-      </article>
-      <article class="lower-card">
-        <p class="panel-kicker">STAY TOGETHER</p>
-        <h3>Rescue. Carry. Outrun.</h3>
-        <p>Throw debris to destroy small robots and stun heavy armor. W/S climbs ladders; E uses consoles. F carries or throws; Q sets down. Flags save your place and restore a heart.</p>
-      </article>
-    </section>
-
-    <details id="memory-archive" class="lower-card memory-archive">
+<details id="memory-archive" class="lower-card memory-archive" hidden>
       <summary>Memory archive</summary>
       <p class="microcopy">Optional fragments found by your team at MEMORY / E terminals. Reread them here after a replay. They do not change the ending.</p>
       <p class="microcopy" data-memory-storage>Saved in this browser when storage is available.</p>
@@ -187,8 +169,7 @@
       <textarea id="debug-report" rows="12" readonly aria-label="Run diagnostic report"></textarea>
       <button id="debug-download" class="secondary-button" disabled>Download run report</button>
     </section>
-    <footer class="footer-line"><span>Original artwork and synthesized sound</span><span>Fifteen stages. One shared escape.</span></footer>
-  </main>
+</main>
   <script src="/socket.io/socket.io.js"></script>
   <script type="module" src="/js/game.js"></script>
   <script type="module" src="/js/opening.js"></script>

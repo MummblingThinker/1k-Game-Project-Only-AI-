@@ -181,3 +181,5 @@ Never mark a gate `VERIFIED` while any acceptance criterion remains untested. Ke
 - [x] `ART-COVER-01` - AI Take Over original chase concept cover and separate illustrated opening. **Status: VERIFIED** - Three browser engines and public run 41159249101 pass image framing, caption timing, skip/focus, reduced motion, missing-image fallback, desktop/mobile layout and live deployment. Existing story panels and gameplay remain intact.
 
 - [x] `TITLE-ART-01` - Dedicated detailed city/giant-robot title background, readable menu contrast, polished buttons and narrow-screen settings. Status: VERIFIED; Chromium, Firefox and WebKit run 41160397782 and public run 41160227831 pass.
+
+- [x] `PAGE-CLEANUP-01` - Remove details/cards/footer beneath controls; keep keyboard and touch controls. Implemented; local regression and HTTP/module smoke PASS.
