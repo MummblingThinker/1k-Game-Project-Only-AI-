@@ -95,9 +95,9 @@ export function driveRevision(state,p,memo={}){
     const placed=w.crates.some(c=>!c.used&&!c.carriedBy&&c.x+c.w>plate.x&&c.x<plate.x+plate.w&&Math.abs(c.y+c.h-plate.y)<2);
     if(!placed&&weight){
       if(memo.placementUntil>t)return{input:{}};
-      if(weight.carriedBy&&weight.carriedBy!==p.id)return{input:{}};
+      if(weight.carriedBy&&weight.carriedBy!==p.id)return{input:{left:p.x>plate.x-85-(p.slot||0)*18}};
       if(!weight.carriedBy&&(weight.vy>0||weight.y+weight.h<plate.y-16)&&weight.x+weight.w>plate.x&&weight.x<plate.x+plate.w&&weight.y+weight.h<plate.y)return{input:{}};
-      if(p.carryId===weight.id){moveTo(plate.x-15);if(p.x>plate.x-18&&p.x<plate.x+3){if(p.face<0)command.input={right:true};else{command.input={};command.action='drop';memo.placementUntil=t+25;}}else if(p.onGround)command.input.jump=true;return command;}
+      if(p.carryId===weight.id){moveTo(plate.x-15);if(p.face>0&&p.x>plate.x-22&&p.x<plate.x-6){command.input={};command.action='drop';memo.placementUntil=t+25;}else if(p.face<0&&p.x>plate.x-18&&p.x<plate.x-12)command.input={right:true};return command;}
       if(p.carryId){command.input={};command.action='carry';return command;}
       moveTo(weight.x-12);if(near(weight,25)){command.input={};command.action='use';}return command;
     }

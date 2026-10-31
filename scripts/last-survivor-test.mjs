@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { startLevel, stepRun, interactRun, releaseParticipant } from '../public/js/simulation.js';
-import { routeIntent } from './route-driver.mjs';
+import { driveRevision } from './revision-driver.mjs';
 
 // Construct the original co-op geometry, then disconnect everyone except the
 // last slot. Never shrink gaps, remove hazards, teleport, or refill hearts.
@@ -10,10 +10,11 @@ for(const count of [2,3,4])for(let level=1;level<=15;level++){
   const originalGaps=run.world.pits.map(p=>[p.x,p.w]);
   const survivor=run.players.get('p'+(count-1));
   for(const p of [...run.players.values()])if(p!==survivor){releaseParticipant(run,p);run.players.delete(p.id);}
+  const memo={};
   for(let tick=0;tick<24000&&run.phase==='playing';tick++){
-    const command=routeIntent({...run,you:survivor,players:[...run.players.values()]});
+    const command=driveRevision(run,survivor,memo);
     survivor.input=command.input;
-    if(command.interact&&tick%13===0)interactRun(run,survivor.id);
+    if(command.action)interactRun(run,survivor.id,command.action);
     stepRun(run);
   }
   assert.equal(run.partySize,count);
