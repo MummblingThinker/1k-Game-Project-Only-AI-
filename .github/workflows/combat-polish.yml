@@ -2,7 +2,7 @@ name: Combat polish acceptance
 on:
   workflow_dispatch:
   push:
-    paths: ['public/js/power-cells.js', 'scripts/power-cells-test.mjs', 'scripts/power-cell-browser-test.mjs', 'public/js/boss-timing.js', 'public/js/audio.js', 'scripts/audio-test.mjs', 'scripts/combat-audio-browser-test.mjs', 'scripts/boss-stress-test.mjs', '.github/workflows/combat-polish.yml']
+    paths: ['scripts/boss-hud-layout-test.mjs', 'public/js/power-cells.js', 'scripts/power-cells-test.mjs', 'scripts/power-cell-browser-test.mjs', 'public/js/boss-timing.js', 'public/js/audio.js', 'scripts/audio-test.mjs', 'scripts/combat-audio-browser-test.mjs', 'scripts/boss-stress-test.mjs', '.github/workflows/combat-polish.yml']
 permissions:
   contents: read
 jobs:
@@ -53,3 +53,11 @@ jobs:
         with:
           name: power-cell-${{ matrix.browser }}
           path: artifacts/power-cell/
+      - run: node scripts/boss-hud-layout-test.mjs
+        env:
+          TEST_BROWSER: ${{ matrix.browser }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: boss-layout-${{ matrix.browser }}
+          path: artifacts/boss-layout/
