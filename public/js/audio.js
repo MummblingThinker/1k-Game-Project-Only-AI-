@@ -85,6 +85,7 @@ export function createGameAudio(button, slider) {
     else if (kind === 'boss-slam') { tone(840, 210, .15, 'square', 0, .35); tone(840, 210, .15, 'square', .23, .35); }
     else if (kind === 'boss-head') { tone(110, 55, .5, 'sawtooth', 0, .35); tone(880, 440, .16, 'triangle', 0, .5); tone(880, 440, .16, 'triangle', .26, .5); }
     else if (kind === 'core-open') [330, 495, 660].forEach((f, i) => tone(f, f, .18, 'sine', i * .1, .45));
+    else if (kind === 'power-cell') { tone(900, 100, .15, 'sawtooth', 0, .28); tone(500, 1200, .09, 'triangle', .05, .35); }
     else if (kind === 'core-hit') { tone(140, 45, .18, 'sawtooth', 0, .35); tone(660, 990, .22, 'triangle', .04, .45); }
     else if (kind === 'capture') { tone(400, 160, .16, 'square'); tone(240, 100, .2, 'triangle', .14); }
     else if (kind === 'countdown') tone(740, 740, .06, 'square');
@@ -112,6 +113,7 @@ export function createGameAudio(button, slider) {
       const boss=world.boss, inArena=boss&&boss.phase!=='waiting'&&listener.x>=boss.x;
       const bossAttack=inArena&&!boss.solved?(boss.kind==='chainsaw'?boss.tree?.phase:boss.attack||boss.phase):null;
       const now = { bossAttack, bossHp: boss?.hp ?? null, bossSolved: !!boss?.solved, bossKind: boss?.kind, bossWeapon: boss?.weapon, state, level: world.id, hearts, vy: player.vy, capture: !!player.capture, captureSeconds: Math.ceil(player.capture?.remaining || 0),
+        empTick: world.breakEffects?.filter(e=>e.kind==='emp').at(-1)?.tick ?? -1,
         checkpoints: world.checkpoints.filter(c => c.active).length, storyVisual, breakTick: world.breakEffects?.at(-1)?.tick ?? -1,
         blasts: world.enemies.filter(e => e.kind === 'creeper' && e.phase === 'attack' && Math.abs(e.x - listener.x) < 260).map(e => e.id),
         relays: world.switches.filter(s => s.active).length + (world.boss?.activeRelay || 0), warnings };
@@ -136,7 +138,8 @@ export function createGameAudio(button, slider) {
           else if (!now.capture && previous.capture && player.alive) cue('rescue');
           else if (now.relays > previous.relays) cue('relay');
           else if (now.checkpoints > previous.checkpoints) cue('relay');
-          if (now.breakTick > previous.breakTick) cue('break');
+          if (now.empTick > previous.empTick) cue('power-cell');
+          else if (now.breakTick > previous.breakTick) cue('break');
           if (now.capture && previous.capture && now.captureSeconds < previous.captureSeconds) cue('countdown');
           if (now.blasts.some(id => !previous.blasts.includes(id))) cue('blast');
           if (now.vy < -3 && previous.vy >= 0) cue('jump');

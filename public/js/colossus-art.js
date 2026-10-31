@@ -25,8 +25,8 @@ export function drawColossusAttacks(c,w,player){
    else{for(let yy=y;yy<w.floorY;yy+=12){r(c,x,yy,2,7,color);r(c,x+52,yy,2,7,color);}r(c,x,w.floorY-3,54,3,color);text(c,'FIST - MOVE!',x-5,w.floorY-55);}
   }else{
    const y=w.floorY-(b.weapon==='low'?14:77);
-   if(strike){r(c,b.x+20,y,620,14,'#6e8796');r(c,b.x+20,y,620,3,color);for(let xx=b.x+25;xx<b.x+640;xx+=28){r(c,xx,y+4,17,7,'#2b495c');r(c,xx+3,y+5,2,2,'#b7c5be');}}
-   else for(let xx=b.x+20;xx<b.x+640;xx+=14)r(c,xx,y+5,8,2,color);
+   if(strike){r(c,b.x,y,640,14,'#6e8796');r(c,b.x,y,640,3,color);for(let xx=b.x+5;xx<b.x+640;xx+=28){r(c,xx,y+4,17,7,'#2b495c');r(c,xx+3,y+5,2,2,'#b7c5be');}}
+   else for(let xx=b.x;xx<b.x+640;xx+=14)r(c,xx,y+5,8,2,color);
    text(c,b.weapon==='low'?'LOW SWEEP - JUMP!':'HIGH SWEEP - STAY LOW!',player.x-35,y-7);
   }
  }

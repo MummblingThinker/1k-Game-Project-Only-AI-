@@ -31,7 +31,7 @@ export function stepColossus(run,api,onDefeat){
   }
   if(b.attack==='strike'){
     const hazard=b.weapon==='slam'?{x:b.attackX-27,y:w.floorY-160,w:54,h:160}:
-      {x:b.x+20,y:w.floorY-(b.weapon==='low'?14:77),w:620,h:14};
+      {x:b.x,y:w.floorY-(b.weapon==='low'?14:77),w:640,h:14};
     for(const p of people)if(overlaps(p,hazard))api.killPlayer(run,p,'Colossus '+b.weapon+' arm');
   }
   if(b.attack==='head-slam')for(const p of people)if(overlaps(p,{x:b.head.x,y:w.floorY-170,w:b.head.w,h:170}))api.killPlayer(run,p,'Falling Colossus head',true);

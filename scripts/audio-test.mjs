@@ -39,6 +39,7 @@ expectCue(()=>boss.attack='laser-warning',[620,620]);
 expectCue(()=>boss.attack='claw-warning',[840,840]);
 expectCue(()=>{boss.kind='chainsaw';boss.tree={phase:'upright'};},[]);
 expectCue(()=>boss.tree.phase='warning',[110,880,880]);
+expectCue(()=>world.breakEffects.push({kind:'emp',tick:1}),[900,500]);
 // Disabled/zero-volume audio cannot create oscillators, including boss cues.
 button.events.click();const muted=sounds.length;boss.tree.phase='falling';observe();boss.tree.phase='warning';observe();assert.equal(sounds.length,muted);
 assert.equal(JSON.parse(saved.get('tiny-teamwork-audio')).enabled,false);

@@ -43,3 +43,11 @@ for(const party of [1,2,4]){
  console.log('COLOSSUS ROUTE',JSON.stringify({party,phase:r.phase,ticks:r.tick,hp:r.world.boss.hp,deaths:r.deathEvents.map(e=>e.cause)}));
  assert.equal(r.phase,'victory','full level and final boss use ordinary inputs');
 }
+
+// Both legal arena boundaries must respect the sweep, while elevation remains safe.
+for(const offset of [0,1,7,8,20,628]){
+ const r=setup(),w=r.world,b=w.boss,p=r.players.get('p0');w.enemies=[];w.switches.forEach(s=>s.active=true);
+ b.phase='active';b.attack='strike';b.weapon='low';b.attackTimer=18;p.x=b.x+offset;p.y=w.floorY-p.h;p.invulnerability=0;
+ tick(r);assert.equal(r.hearts,2,'low sweep covers arena edge '+offset);assert.equal(r.deathEvents.at(-1).cause,'Colossus low arm');
+}
+console.log('COLOSSUS PASS: no idle-safe strip at either arena boundary; jumping/climbing remains the escape.');

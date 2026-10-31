@@ -51,6 +51,10 @@ export function driveRevision(state,p,memo={}){
   }
   // React only to visible, fixed warning markers; no immunity or hidden-state edits.
   if(b?.kind==='climber'&&!b.solved&&b.phase!=='waiting'){
+    if(b.crushY-p.y-p.h<65&&(b.attack==='rest'||b.attack?.endsWith('warning')&&b.attackTimer>35)){
+      const escape=w.ladders.filter(l=>l.x>=b.x&&l.y<p.y+p.h-3&&l.y+l.h>=p.y+p.h-5).sort((a,c)=>Math.abs(a.x-p.x)-Math.abs(c.x-p.x))[0];
+      if(escape){if(Math.abs(p.x-escape.x)<13)return{input:{up:true}};return{input:{left:p.x>escape.x,right:p.x<escape.x,jump:false}};}
+    }
     if(b.attack==='laser-strike'||b.attack==='laser-warning'){
       const line=b.attackY;
       if(p.climbing)return {input: p.y>line+8?{}:{up:true}};
@@ -62,7 +66,7 @@ export function driveRevision(state,p,memo={}){
         const ceiling=[...w.platforms.filter(s=>!s.oneWay),...w.crates.filter(c=>!c.used&&!c.carriedBy)]
           .find(s=>s.x<p.x+p.w+5&&s.x+s.w>p.x-5&&s.y+s.h<p.y+2&&s.y+s.h>p.y-65);
         if(ceiling&&b.attack==='laser-warning'&&b.attackTimer>25){
-          const choices=[ceiling.x-p.w-12,ceiling.x+ceiling.w+12].filter(x=>x>=b.x+35&&x+p.w<=b.x+380&&w.platforms.some(s=>s.x<=x&&s.x+s.w>=x+p.w&&Math.abs(s.y-p.y-p.h)<3));
+          const choices=[ceiling.x-p.w-12,ceiling.x+ceiling.w+12].filter(x=>x>=b.x+35&&x+p.w<=b.x+380&&w.platforms.some(s=>s.x<=x&&s.x+s.w>=x+p.w&&s.y>=p.y+p.h-3&&s.y<=p.y+p.h+100&&s.y<b.crushY-12));
           const x=choices.sort((a,c)=>Math.abs(a-p.x)-Math.abs(c-p.x))[0];
           if(x!=null)return{input:{left:p.x>x,right:p.x<x}};
         }

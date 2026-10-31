@@ -1,3 +1,4 @@
+import {dischargePowerCell} from './power-cells.js';
 import {stepColossus,hitColossusHead} from './colossus.js';
 import { stepPlayer, updateCrates, overlaps } from './physics.js';
 import { supply, addClimbTier, buildRevisionLevel } from './revision-world.js';
@@ -25,7 +26,7 @@ export function interactRevision(run,id,action,{detach,playersOf}){
   }
   const teammate=action==='carry'&&playersOf(run).find(o=>o.id!==id&&o.alive&&!o.carriedBy&&!o.carryId&&near(p,o,25));
   const c=teammate||w.crates.filter(c=>!c.used&&!c.carriedBy&&near(p,c,27)).sort((a,b)=>Number(b.durable)-Number(a.durable)||Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
-  if(c){c.carriedBy=id;c.flightTicks=0;p.carryId=c.id;run.notice=teammate?'Teammate lifted. F throws; Q sets down.':'Object lifted. E/F throws; Q sets down. Yellow weights never break.';return true;}
+  if(c){c.carriedBy=id;c.flightTicks=0;p.carryId=c.id;run.notice=teammate?'Teammate lifted. F throws; Q sets down.':c.kind==='battery'?'Power cell lifted. E/F throws a short-circuit burst; Q sets it down safely.':'Object lifted. E/F throws; Q sets down. Yellow weights never break.';return true;}
   return false;
 }
 
@@ -75,14 +76,14 @@ function projectiles(run){
     c.flightTicks--;
     const hit=w.enemies.find(e=>!e.dead&&overlaps(c,{x:e.x-3,y:e.y-3,w:e.w+6,h:e.h+6}));
     const headHit=b?.kind==='foundry'&&b.attack==='exposed'&&b.head&&overlaps(c,b.head);
-    if(headHit&&hitColossusHead(run)){c.flightTicks=0;if(!c.durable&&!c.animal)c.used=true;effect(w,c.x,c.y,run.tick);if(b.hp<=0)deadBoss(run);continue;}
+    if(headHit&&hitColossusHead(run)){c.flightTicks=0;if(!c.durable&&!c.animal)c.used=true;effect(w,c.x,c.y,run.tick);dischargePowerCell(run,c);if(b.hp<=0)deadBoss(run);continue;}
     const bossHit=b?.kind==='climber'&&!b.solved&&b.phase!=='waiting'&&b.bodyY<w.floorY-130&&overlaps(c,{x:b.bodyX,y:b.bodyY,w:b.bodyW,h:b.bodyH});
     const barrier=w.platforms.find(s=>s.kind==='breakable'&&overlaps(c,{x:s.x-3,y:s.y-3,w:s.w+6,h:s.h+6}));
-    if(barrier){breakBlock(run,barrier);c.flightTicks=0;if(!c.durable&&!c.animal){c.used=true;effect(w,c.x,c.y,run.tick);}}
+    if(barrier){breakBlock(run,barrier);c.flightTicks=0;if(!c.durable&&!c.animal){c.used=true;effect(w,c.x,c.y,run.tick);dischargePowerCell(run,c);}}
     if(hit){hit.stunned=hit.size==='big'?100:120;hit.hp-=hit.size==='big'?0:1;if(hit.hp<=0){hit.dead=true;hit.deathTick=run.tick;effect(w,hit.x,hit.y,run.tick,'robot');}c.flightTicks=0;run.notice=hit.dead?'Robot destroyed!':hit.size==='big'?'Heavy armor! Briefly stunned—keep moving.':'Robot stunned. Another hit can finish it.';}
     if(bossHit){b.hp--;b.hitTick=run.tick;c.flightTicks=0;run.notice=`Climb Warden damaged: ${b.hp}/${b.maxHp}`;if(b.hp<=0){deadBoss(run);const y=b.tierTop??w.floorY-80*(b.highestTier+1);w.platforms.push({x:b.x+30,y:y-60,w:400,h:10,kind:'exit-floor',essential:true});w.ladders.push({id:'final-ladder',x:b.x+290,y:y-60,w:12,h:140});w.finish={x:b.x+350,y:y-90,w:28,h:30,locked:false};run.notice='WARDEN DESTROYED! Climb the final ladder to the exit.';}}
-    if(hit||bossHit){if(!c.durable&&!c.animal){c.used=true;effect(w,c.x,c.y,run.tick);}else{c.vx*=-.3;c.vy=-2;}}
-    if(!hit&&!bossHit&&c.flightTicks<96&&c.vy===0){if(!c.durable&&!c.animal){c.used=true;effect(w,c.x,c.y,run.tick);}c.flightTicks=0;}
+    if(hit||bossHit){if(!c.durable&&!c.animal){c.used=true;effect(w,c.x,c.y,run.tick);dischargePowerCell(run,c);}else{c.vx*=-.3;c.vy=-2;}}
+    if(!hit&&!bossHit&&c.flightTicks<96&&c.vy===0){if(!c.durable&&!c.animal){c.used=true;effect(w,c.x,c.y,run.tick);dischargePowerCell(run,c);}c.flightTicks=0;}
   }
 }
 function bossStep(run,api){

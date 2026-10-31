@@ -43,6 +43,8 @@ try {
  assert.deepEqual(result.find(x=>x.attack==='head-warning').tones,[110,880,880]);
  assert.deepEqual(result.find(x=>x.attack==='exposed').tones,[330,495,660]);
  assert.ok(result.filter(x=>x.attack==='repeat').every(x=>x.tones.length===0));
+ await new Promise(r=>setTimeout(r,650));
+ assert.deepEqual(await page.evaluate(()=>{window.__observe();window.__fixture.world.breakEffects.push({kind:'emp',tick:1});window.__tones=[];window.__observe();return window.__tones;}),[900,500]);
  await page.locator('#audio').click();
  assert.deepEqual(await page.evaluate(()=>{window.__fixture.boss.attack='head-warning';window.__tones=[];window.__observe();return window.__tones;}),[]);
  await page.locator('#volume').focus();await page.keyboard.press('Home');await page.locator('#audio').click();

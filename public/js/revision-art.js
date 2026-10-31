@@ -1,3 +1,4 @@
+import {POWER_CELL_RADIUS} from './power-cells.js';
 import {drawColossusBackground,drawColossusAttacks} from './colossus-art.js';
 import { drawLandscape, drawFacade, drawSurface } from './environment-art.js';
 const rect=(c,x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.max(1,Math.round(w)),Math.max(1,Math.round(h)));};
@@ -75,7 +76,8 @@ function prop(c,o,t){
   else if(k==='log'){rect(c,x,y+2,12,9,'#815e3e');rect(c,x+1,y+3,3,7,'#d4ac77');rect(c,x+5,y+4,6,1,'#5c4935');}
   else if(k==='mushroom'||k==='acorn'){rect(c,x+5,y+5,3,7,'#d5c198');rect(c,x+1,y+2,10,5,k==='mushroom'?'#c57d6f':'#aa8050');}
   else if(k==='gear'||k==='coil'){rect(c,x+2,y+2,8,8,'#a6afb3');rect(c,x+4,y+4,4,4,'#374656');for(let a=0;a<4;a++)rect(c,x+(a%2)*9,y+Math.floor(a/2)*9,3,3,'#6b8792');}
-  else if(k==='battery'||k==='monitor'){rect(c,x+1,y+1,10,10,'#647b83');rect(c,x+3,y+3,6,5,'#80d8be');rect(c,x+4,y,4,2,'#c8cbc0');}
+  else if(k==='battery'){rect(c,x+1,y+1,10,11,'#486b79');rect(c,x+3,y+2,6,9,'#85e7d6');rect(c,x+4,y,4,2,'#d3efe8');rect(c,x+6,y+3,2,3,'#f1ffe2');rect(c,x+4,y+5,3,2,'#f1ffe2');rect(c,x+4,y+7,2,3,'#f1ffe2');}
+  else if(k==='monitor'){rect(c,x+1,y+1,10,10,'#647b83');rect(c,x+3,y+3,6,5,'#80d8be');rect(c,x+4,y,4,2,'#c8cbc0');}
   else if(k==='aircon'||k==='antenna'){rect(c,x,y+2,12,10,'#76878f');for(let a=0;a<4;a++)rect(c,x+2,y+4+a*2,8,1,'#364a59');}
   else if(k==='pipe'){rect(c,x,y+4,12,5,'#9e9c91');rect(c,x+1,y+2,2,9,'#666d6e');}
   else{rect(c,x,y+3,12,9,k==='brick'?'#b78269':'#8f9692');rect(c,x+2,y+4,8,2,'#c0b399');rect(c,x+7,y+7,1,4,'#5f6260');}
@@ -87,6 +89,7 @@ function robot(c,e,t){
     rect(c,x+4,y+2,14,10,'#8ca0ae');rect(c,x,y,5,8,'#465d75');rect(c,x+18,y,5,8,'#465d75');rect(c,x+9,y+8,5,5,eye);
     rect(c,x-3,y-2,11,1,'#adbdc3');rect(c,x+16,y-2,11,1,'#adbdc3');
     if(e.phase==='warning'||e.phase==='attack'){const tx=e.targetX+6;rect(c,tx-14,e.y+14,28,Math.min(150,e.groundY-e.y),e.phase==='attack'?'#f6d780':'#633d49');rect(c,tx-1,e.y+14,2,150,eye);label(c,e.phase==='warning'?'SCAN':'FIRE',tx-10,e.y+22);}
+    if(e.stunned)label(c,'* *',x+3,y-6,'#97e5df');
     return;
   }
   c.save();c.translate(x+(dir<0?e.w:0),y);c.scale(dir,1);
@@ -198,7 +201,15 @@ export function drawRevision(c,w,player,peers,cameraX,state,drawSurvivor){
   for(const p of [player,...peers])if(p.alive){drawSurvivor(c,p,p.x,t,state.reducedMotion);label(c,'P'+((p.slot??p.colorIndex??0)+1),p.x,p.y-9,['#f8ce83','#9ee4de','#f1b0c2','#bdc7ff'][(p.slot||0)%4]);if(p.carryId)label(c,'THROW',p.x-5,p.y-21);}
   const g=w.giant;if(g.x>cameraX-100&&g.x<cameraX+350){rect(c,g.x,w.floorY-190,65,190,'#526577');rect(c,g.x-10,w.floorY-180,85,48,'#7a8e99');rect(c,g.x+40,w.floorY-166,23,7,'#ef9e7e');for(let j=0;j<3;j++)rect(c,g.x+8+j*17,w.floorY-116,8,65,'#253b50');}
   const f=w.finish;rect(c,f.x,f.y,f.w,f.h,f.locked?'#705552':'#4b8c83');rect(c,f.x+4,f.y+4,f.w-8,f.h-4,'#193d48');rect(c,f.x+6,f.y+5,f.w-12,3,f.locked?'#d48b70':'#a4e6c0');label(c,f.locked?'LOCKED':'EXIT',f.x,f.y-6);
-  for(const e of state.reducedEffects||state.reducedMotion?[]:w.breakEffects){const age=tick-e.tick,count=e.kind==='boss'?48:12;for(let i=0;i<count;i++){const a=i*2.4,speed=1+i%5*.35,dx=Math.cos(a)*age*speed*.45,dy=Math.sin(a)*age*.7+age*age*.012;rect(c,e.x+dx,e.y+dy,e.kind==='boss'?4:2,e.kind==='boss'?4:2,['#d6b57b','#8ba2ad','#e5845f','#f3d69d'][i%4]);}}
+  // A quiet outline remains in reduced-effects mode because it explains the stun.
+  for(const e of w.breakEffects.filter(e=>e.kind==='emp')){
+    const age=tick-e.tick,radius=state.reducedMotion?POWER_CELL_RADIUS:Math.min(POWER_CELL_RADIUS,8+age*2);
+    c.save();c.globalAlpha=Math.max(0,1-age/45);c.strokeStyle='#a9f4e5';c.lineWidth=1;
+    c.beginPath();c.arc(e.x,e.y,radius,0,Math.PI*2);c.stroke();
+    if(!state.reducedEffects&&!state.reducedMotion)for(let i=0;i<8;i++){const a=i*Math.PI/4;rect(c,e.x+Math.cos(a)*radius-1,e.y+Math.sin(a)*radius-1,3,3,'#d6fff1');}
+    c.restore();
+  }
+  for(const e of state.reducedEffects||state.reducedMotion?[]:w.breakEffects.filter(e=>e.kind!=='emp')){const age=tick-e.tick,count=e.kind==='boss'?48:12;for(let i=0;i<count;i++){const a=i*2.4,speed=1+i%5*.35,dx=Math.cos(a)*age*speed*.45,dy=Math.sin(a)*age*.7+age*age*.012;rect(c,e.x+dx,e.y+dy,e.kind==='boss'?4:2,e.kind==='boss'?4:2,['#d6b57b','#8ba2ad','#e5845f','#f3d69d'][i%4]);}}
   c.restore();
   drawBossDeath(c,w,state);
   if(b&&b.kind==='chainsaw'&&!b.solved&&b.phase!=='waiting'){rect(c,95,5,130,10,'#182637');if(b.kind==='climber'){rect(c,98,8,124*b.hp/b.maxHp,4,'#de8772');label(c,'WARDEN',139,22);}else label(c,b.kind==='chainsaw'?'CHAINSAW — RUN >':b.phase==='escape'?'< RUN LEFT':'RISING LAVA — CLIMB',103,12);}
