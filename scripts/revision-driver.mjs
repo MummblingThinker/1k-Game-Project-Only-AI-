@@ -74,13 +74,13 @@ export function driveRevision(state,p,memo={}){
       return{input:{}};
     }
     const dodge=(x,duration)=>{
-      const goLeft=p.x+p.w/2<x || Math.abs(p.x+p.w/2-x)<6&&x>b.x+220;
+      const goLeft=x+65>b.x+370 || (x-65>=b.x+45&&(p.x+p.w/2<x || Math.abs(p.x+p.w/2-x)<6&&x>b.x+220));
       memo.evadeX=Math.max(b.x+45,Math.min(b.x+370,x+(goLeft?-65:65)));
       memo.evadeUntil=t+duration;
       return{input:{left:p.x>memo.evadeX+3,right:p.x<memo.evadeX-3,jump:!!p.climbing}};
     };
-    if(memo.evadeUntil>t)return{input:{left:p.x>memo.evadeX+3,right:p.x<memo.evadeX-3,jump:!!p.climbing}};
     if(b.attack?.startsWith('claw')&&Math.abs(p.x+p.w/2-b.attackX)<45&&Math.abs(p.y+p.h/2-b.attackY)<48)return dodge(b.attackX,b.attackTimer+(b.attack.endsWith('warning')?18:0)+8);
+    if(memo.evadeUntil>t)return{input:{left:p.x>memo.evadeX+3,right:p.x<memo.evadeX-3,jump:!!p.climbing}};
     if(b.attack==='laser-warning'&&b.attackTimer<=20&&Math.abs(p.y+p.h/2-b.attackY)<30){
       if(p.climbing)return{input:{up:true}};
       if(p.onGround)return{input:{jump:true}};

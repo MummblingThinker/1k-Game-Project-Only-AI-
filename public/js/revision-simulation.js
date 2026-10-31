@@ -116,7 +116,7 @@ function bossStep(run,api){
       if(b.attack==='rest'){
         b.attack=b.attackCount%2===0?'laser-warning':'claw-warning';
         b.attackX=target.x+target.w/2;b.attackY=target.y+target.h/2;
-        b.attackTimer=b.hp<=b.maxHp/2?66:84;
+        b.attackTimer=b.hp<=b.maxHp/2?66:84;b.attackDuration=b.attackTimer;
         run.notice=b.attack==='laser-warning'?'WARDEN LASER! Climb or jump out of the red line.':'CLAW LOCKED! Move away from the marked square.';
       }else if(b.attack.endsWith('-warning')){
         b.attack=b.attack.replace('-warning','-strike');b.attackTimer=18;

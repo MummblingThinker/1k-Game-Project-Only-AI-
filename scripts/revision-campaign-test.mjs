@@ -9,7 +9,7 @@ const party=Number(process.env.TEST_PARTY||2),first=Number(process.env.TEST_FIRS
 assert.ok([1,2,3,4].includes(party)&&first>=1&&last<=15&&first<=last);
 const base=process.env.BROWSER_BASE_URL||'http://127.0.0.1:4198',sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const server=process.env.BROWSER_BASE_URL?null:spawn(process.execPath,['server/server.js'],{env:{...process.env,PORT:'4198'},stdio:'inherit'});
-let browser,createdRoom,bossShots=new Set();const peers=[],errors=[],results=[],losses=[];
+let browser,createdRoom,bossShots=new Set(),timingShots=new Set();const peers=[],errors=[],results=[],losses=[];
 const consistency=snapshotAudit(party,message=>errors.push(message));
 async function until(test,label,timeout=10000){const end=Date.now()+timeout;while(Date.now()<end){if(await test())return;await sleep(40);}throw Error('Timed out: '+label);}
 async function input(peer,intent){
@@ -100,6 +100,16 @@ try {
         await Promise.all(peers.map(p=>input(p,routeIntent(p.state))));
         await sleep(35);
         await sample();
+        const activeBoss=host.state.world.boss;
+        if([5,15].includes(level)&&!timingShots.has(level)&&activeBoss.attack?.includes('warning')&&activeBoss.attackTimer>25&&activeBoss.attackTimer<55){
+          const timing=host.page.locator('#boss-timing');assert.ok(await timing.isVisible(),'announced boss attack has visible timing bar');
+          const meter=await timing.evaluate(e=>({value:e.value,max:e.max,label:e.getAttribute('aria-label')}));
+          assert.equal(meter.max,1);assert.ok(meter.value>0&&meter.value<1);assert.match(meter.label,/strikes|lands/);
+          assert.match(await host.page.locator('#boss-hp').getAttribute('aria-label'),level===5?/Warden/:/Colossus/);
+          timingShots.add(level);
+          const timingImage=await host.page.locator('.screen-frame').screenshot({path:`artifacts/browser-campaign/boss-timing-${level}.jpg`,type:'jpeg',quality:85});
+          console.log(`BOSS_TIMING_${level}_BASE64_BEGIN`+timingImage.toString('base64')+`BOSS_TIMING_${level}_BASE64_END`);
+        }
         if([5,15].includes(level)&&!bossShots.has(level)&&host.state.world.boss.hp<host.state.world.boss.maxHp&&host.state.phase==='playing'){
           assert.ok(await host.page.locator('#boss-hud').isVisible(),'damaged boss has visible native health bar');
           const hp=await host.page.locator('#boss-hp').evaluate(e=>({value:e.value,max:e.max}));
@@ -125,6 +135,7 @@ try {
     assert.equal(host.state.phase,'victory',JSON.stringify({level,hearts:host.state.hearts,notice:host.state.notice,boss:host.state.world.boss,players:host.state.players}));
     await until(()=>peers.every(p=>p.state.phase==='victory'),'shared victory');
     assert.ok(peers.every(p=>p.state.hearts===host.state.hearts),'shared hearts');
+    if([5,15].includes(level))assert.ok(timingShots.has(level),'boss attack timing shown during real play');
     if(party>1)assert.ok(consistency.count(level)>100,'complete shared-world snapshots agree throughout stage '+level);
     assert.deepEqual(errors,[]);
     const result={level,attempts:attempt,seconds:Math.round((Date.now()-stageStarted)/1000),hearts:host.state.hearts,matchedSnapshots:consistency.count(level)};results.push(result);

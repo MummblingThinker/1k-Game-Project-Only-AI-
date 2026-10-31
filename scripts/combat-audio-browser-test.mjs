@@ -26,7 +26,9 @@ try {
  });
  assert.equal(await page.evaluate(()=>window.__contexts.length),0);
  // A gesture unlocks sound, without toggling its enabled setting.
- await page.locator('#volume').click();await page.waitForFunction(()=>window.__contexts[0]?.state==='running');
+ await page.locator('#volume').click();await page.keyboard.press('ArrowRight');
+ console.log('Audio unlock diagnostic:',await page.evaluate(()=>({contexts:window.__contexts.map(c=>c.state),button:document.querySelector('#audio').dataset.audioState})));
+ await page.waitForFunction(()=>window.__contexts[0]?.state==='running');
  const result=[];
  for(const [attack,weapon] of [['warning','low'],['recover'],['warning','high'],['recover'],['warning','slam'],['head-warning'],['exposed']]){
   await new Promise(r=>setTimeout(r,650));

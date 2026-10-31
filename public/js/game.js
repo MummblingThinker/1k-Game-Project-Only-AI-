@@ -1,3 +1,4 @@
+import { bossTiming } from './boss-timing.js';
 import { createTitleMenu } from './title-menu.js';
 import { CAMPAIGN, getLevel, STORY_BEATS } from './campaign.js';
 import { buildLevel } from './world.js';
@@ -377,6 +378,9 @@ function syncTextUI() {
     $('boss-hp').max=warden.maxHp;$('boss-hp').value=Math.max(0,warden.hp);
     $('boss-hp-text').textContent=`${Math.max(0,warden.hp)} / ${warden.maxHp}`;
     const attack=warden.attack||'rest';bossHud.dataset.attack=attack;
+    const timing=bossTiming(warden),meter=$('boss-timing');meter.hidden=!timing;
+    if(timing){meter.value=timing.value;meter.dataset.mood=timing.mood;meter.setAttribute('aria-label',timing.label);meter.setAttribute('aria-valuetext',timing.label);}
+    $('boss-hp').setAttribute('aria-label',(warden.kind==='foundry'?'Colossus':'Warden')+' remaining health');
     $('boss-name').textContent=warden.kind==='foundry'?'IRON COLOSSUS':'CLIMB WARDEN';bossHud.setAttribute('aria-label',warden.kind==='foundry'?'Colossus health':'Warden health');
     $('boss-attack-hint').textContent=warden.kind==='foundry'?
       attack==='exposed'?'CORE OPEN - throw an object or stomp its head':attack==='head-warning'||attack==='head-slam'?'FALLING HEAD - move out of its shadow':

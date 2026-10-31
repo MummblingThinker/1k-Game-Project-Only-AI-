@@ -2,7 +2,7 @@ name: Combat polish acceptance
 on:
   workflow_dispatch:
   push:
-    paths: ['public/js/audio.js', 'scripts/audio-test.mjs', 'scripts/combat-audio-browser-test.mjs', 'scripts/boss-stress-test.mjs', '.github/workflows/combat-polish.yml']
+    paths: ['public/js/boss-timing.js', 'public/js/audio.js', 'scripts/audio-test.mjs', 'scripts/combat-audio-browser-test.mjs', 'scripts/boss-stress-test.mjs', '.github/workflows/combat-polish.yml']
 permissions:
   contents: read
 jobs:
@@ -36,6 +36,12 @@ jobs:
       - run: npm ci
       - run: npm install --no-save --package-lock=false playwright
       - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Provide a virtual audio output for headless browser engines
+        run: |
+          sudo apt-get install -y pulseaudio
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=qa_audio
+          pactl set-default-sink qa_audio
       - run: node scripts/combat-audio-browser-test.mjs
         env:
           TEST_BROWSER: ${{ matrix.browser }}
