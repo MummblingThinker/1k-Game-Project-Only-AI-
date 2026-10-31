@@ -2,7 +2,7 @@
 export function createTitleMenu({pause, resume, release, readState, quit}) {
   const $=id=>document.getElementById(id), root=document.createElement('section');
   root.id='title-menu';root.setAttribute('aria-label','Game menu');
-  root.innerHTML=`<div class="menu-brand"><p class="panel-kicker">ONE SMALL SPARK IN A MACHINE WORLD</p><h2>Tiny Teamwork<span>The Last Spark</span></h2></div>
+  root.innerHTML=`<div class="menu-brand"><p class="panel-kicker">ONE SMALL SPARK IN A MACHINE WORLD</p><h2>AI Take Over</h2></div>
     <div class="menu-home" data-menu-view="home"><button id="menu-single" class="primary-button">Single Player</button><button id="menu-multi" class="secondary-button">Multiplayer</button><button id="menu-settings" class="secondary-button">Settings</button><p>City rooftops. Forest trails. A factory that never sleeps.</p></div>
     <div class="menu-page" data-menu-view="solo" hidden><h3>Single Player</h3><div id="solo-controls"></div></div>
     <div class="menu-page" data-menu-view="multi" hidden><h3>Multiplayer</h3><div id="multi-controls"></div><div id="host-controls"></div></div>

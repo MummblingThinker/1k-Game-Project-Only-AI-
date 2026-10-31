@@ -1,4 +1,4 @@
-# Tiny Teamwork: The Last Spark
+# AI Take Over
 
 A solo or 2–4-player browser platformer across 15 stages: escape the city, cross the forest, and destroy the factory. Original pixel gameplay and 33 distinct anime comic illustrations.
 
@@ -12,7 +12,7 @@ Node.js 22+ (tested with 24.20.0): run `npm ci`, then `npm start`, and open http
 
 ## Controls and co-op
 
-The title screen opens Single Player (story/resume/stage select), Multiplayer (create/join/ready/stage select) or Settings. Recessed facades are walkable scenery; bright outlined walls are solid. Highlighted roof/platform edges support players.
+A short new illustrated robot chase opens each page load; skip with Enter, Space, Escape or the on-screen button. It respects reduced motion and cannot block the menu if its image fails. The title screen opens Single Player (story/resume/stage select), Multiplayer (create/join/ready/stage select) or Settings. Recessed facades are walkable scenery; bright outlined walls are solid. Highlighted roof/platform edges support players.
 
 | Action | Keyboard |
 | --- | --- |

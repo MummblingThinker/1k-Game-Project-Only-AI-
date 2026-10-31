@@ -15,6 +15,8 @@ try{
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/?debug=1');
   await page.locator('#opening-intro.opening-ready').waitFor();
+  assert.equal(await page.title(), 'AI Take Over');
+  assert.equal(await page.locator('.menu-brand h2').textContent(), 'AI Take Over');
   assert.equal(await page.locator('.opening-art').evaluate(e=>getComputedStyle(e).objectFit),'contain','title artwork stays within frame');
   const opening=await page.locator('.screen-frame').screenshot({path:'artifacts/revision/concept-opening.jpg',type:'jpeg',quality:85});
   console.log('OPENING_BASE64_BEGIN'+opening.toString('base64')+'OPENING_BASE64_END');

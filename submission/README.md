@@ -1,6 +1,6 @@
 # Submission package - personal review and submission remain
 
-Title: Tiny Teamwork: The Last Spark
+Title: AI Take Over
 
 Description (463/500 characters):
 

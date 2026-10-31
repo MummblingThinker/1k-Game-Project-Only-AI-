@@ -24,11 +24,11 @@ export function createTextUI() {
     text('scene-retry',roomCode&&!isHost?'Waiting for host':'Retry stage');
     text('scene-menu',roomCode?'Leave room':'Return to title');
     const copy = {
-      title: ['A CO-OP PIXEL PLATFORMER', 'Tiny Teamwork', 'The Last Spark', 'Outrun the machines. Reach the exit together.', 'Press Enter or choose Start Story'],
+      title: ['A CO-OP PIXEL PLATFORMER', 'AI Take Over', 'Stay together.', 'Outrun the machines. Reach the exit together.', 'Press Enter or choose Start Story'],
       lobby: ['YOUR CO-OP ROOM', roomCode || '', 'Share the code with your team.', 'Everyone joins before the host starts the run.', isHost ? 'Choose Start co-op run or press Enter' : 'Waiting for the host to start'],
       paused: ['TAKE A BREATHER', 'Paused', '', 'Your solo run is paused.', 'Esc to resume / R to restart'],
       gameover: ['THE MACHINES ARE STILL OUT THERE', 'Run over', '', 'Your team is down. Try the escape again.', roomCode ? (isHost ? 'R to restart the room / Enter to leave' : 'Wait for the host to restart / Enter to leave') : 'R to try again / Enter for title'],
-        ending: ['THE LAST SPARK', 'The factory is silent.', '', 'The survivors never see the red lights awaken behind them. Then, darkness.', 'Press Enter to return to title'],
+        ending: ['AI TAKE OVER', 'The factory is silent.', '', 'The survivors never see the red lights awaken behind them. Then, darkness.', 'Press Enter to return to title'],
     }[state];
     if (copy) {
       ['scene-kicker', 'scene-title', 'scene-subtitle', 'scene-body', 'scene-hint'].forEach((id, index) => text(id, copy[index]));

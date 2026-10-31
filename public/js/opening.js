@@ -4,7 +4,7 @@ const intro = document.createElement('section');
 intro.id = 'opening-intro';
 intro.setAttribute('role', 'dialog');
 intro.setAttribute('aria-modal', 'true');
-intro.setAttribute('aria-label', 'Tiny Teamwork illustrated opening');
+intro.setAttribute('aria-label', 'AI Take Over illustrated opening');
 intro.innerHTML = `<img class="opening-art" src="/assets/key-art.jpg" alt="Three survivors flee across ruined rooftops as red-eyed robots and an enormous machine pursue them.">
   <div class="opening-shade"></div><p class="opening-caption" aria-live="polite">The machines were built to protect us.</p>
   <button class="opening-skip" type="button">Enter game / Skip intro</button>`;

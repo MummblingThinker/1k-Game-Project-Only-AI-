@@ -28,7 +28,7 @@ export function regionForLevel(id) {
 
 export const STORY_BEATS = {
   opening: {
-    title: 'THE LAST SPARK',
+    title: 'AI TAKE OVER',
     panels: [
       { heading: 'THE CITY FALLS', caption: 'The machines built to protect humanity have turned against it.', visual: 'invasion' },
       { heading: 'RUN!', caption: 'Tiny survivors race through the streets as the robot army closes in.', visual: 'chase' },
@@ -57,7 +57,7 @@ export const STORY_BEATS = {
     ],
   },
   after15: {
-    title: 'THE LAST SPARK',
+    title: 'AI TAKE OVER',
     panels: [
       { heading: 'WE DID IT', caption: 'The factory heart goes dark. For one breath, the survivors believe it is over.', visual: 'celebration' },
       { heading: 'NOT ALL OF THEM', caption: 'The robots attack the celebrating humans. The picture cuts sharply to black.', visual: 'darkTwist' },

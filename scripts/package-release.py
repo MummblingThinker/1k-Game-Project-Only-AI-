@@ -30,7 +30,7 @@ files = sorted(set(files))
 files = [p for p in files if not any(part in {'__pycache__', 'node_modules', '.npm-cache', '.git'}
                                    for part in p.relative_to(root).parts)
          and p.name != '.env' and not p.name.startswith('.env.') and p.suffix not in {'.log', '.pyc'}]
-archive = output / 'TinyTeamwork-source.zip'
+archive = output / 'AI-Take-Over-source.zip'
 manifest = []
 with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as bundle:
     for path in files:
