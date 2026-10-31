@@ -30,3 +30,8 @@ Optional ?debug=1 reports contain a bounded stage-event history and no participa
 Older jitter/abuse/rescue/large-room soak scripts and evidence are retained for historical transport behavior; they are not new acceptance of replaced shelter or enemy contracts. Exact source revisions, all failures/replays and final results are in QA_LOG.md; deployment is in PROJECT_STATUS.md. Physical-device/network and human balance/audio acceptance remain deferred.
 
 Giant contact uses the living count at the start of the catch batch. At most two living survivors ends the run atomically with zero hearts; at least three spends one per caught survivor and returns them after 90 ticks if hearts remain. This avoids iteration-order-dependent team wipes. Ordinary flag/wipe recovery remains separate.
+
+
+## Submission snapshot protocol
+
+Current browser clients request `auth.sharedSnapshots: true`. The server sends one common authoritative roomState packet to those recipients through Socket.IO's normal broadcast adapter, encoding the world once. NetworkClient derives playerId/you using the identity received in roomJoined. Legacy clients without this opt-in continue receiving personalized roomState packets. Mixed old/new clients and new-only 16-client soak are tested. No gameplay state is predicted or trusted from clients; full per-client network bytes remain similar. Connect timeout is ten seconds; reconnect still requires a new lobby.

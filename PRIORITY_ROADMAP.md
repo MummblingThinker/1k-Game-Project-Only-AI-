@@ -1,10 +1,14 @@
+## Current submission status
+
+The owner resumed after historical cutoffs and waived physical multiplayer testing. SUBMIT-01 and MVP preparation gates are verified by automated evidence: full 1/2/3/4 CI campaigns and full public two/four campaigns pass, with one recorded public four-player Level 10 replay. Physical tests remain unperformed, not a request for owner work. Personal eligibility review and final submission remain separate. See docs/PROJECT_STATUS.md and QA_LOG.md for exact evidence. No new autonomous feature expansion is needed for this submission.
+
 # Priority Roadmap — Make the Contest Build Work First
 
 **Purpose:** Stretch limited ChatGPT/Codex usage. Complete the smallest real, testable, public multiplayer game first. Do not spend the remaining budget completing all 15 levels or polishing every animation before the game is deployed and externally verified.
 
 ## Rule of work
 
-User override, 2026-10-29: continue campaign implementation and remaining MVP materials while physical-device testing is deferred. See AGENTS.md, User-directed campaign expansion. Do not mark deferred acceptance verified. Release 0.3.0 now implements the expanded campaign, co-op/life systems, original comic presentation and release materials; CAMP-01 is verified after full local/public campaigns. The historical sequence below explains the original gates, not a direction to revert completed work. Next human acceptance remains MVP-03's separate-device/network session and MVP-04's review/submission. Exact current evidence and the current 13:00 America/New_York October 30 owner cutoff are in CODEX_START_HERE.md and docs/PROJECT_STATUS.md.
+User override, 2026-10-29: continue campaign implementation and remaining MVP materials while physical-device testing is deferred. See AGENTS.md, User-directed campaign expansion. Do not mark deferred acceptance verified. Release 0.3.0 now implements the expanded campaign, co-op/life systems, original comic presentation and release materials; CAMP-01 is verified after full local/public campaigns. The historical sequence below explains the original gates, not a direction to revert completed work. The current owner waiver supersedes the old physical-test preparation gate; personal eligibility review and submission remain owner actions. Exact current evidence and the evening submission authorization are in CODEX_START_HERE.md and docs/PROJECT_STATUS.md; historical cutoffs are superseded.
 
 1. Run `npm test` first. If it fails, diagnose the earliest failing check before adding features.
 2. Work top-to-bottom through the **mandatory submission path**. Do not jump to lower-priority work because it is more fun.

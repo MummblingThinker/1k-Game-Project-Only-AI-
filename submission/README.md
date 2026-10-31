@@ -8,7 +8,7 @@ Tiny survivors. Giant machines. Escape together. A solo or 2-4-player browser ad
 
 Play: https://tiny-teamwork-last-spark.onrender.com
 
-The source and game now include all 15 stages, solo and up to four-player co-op, shared hearts/rescue, three milestone encounters and original anime comic chapters. Automated full browser campaigns passed at 1/2/3/4 players; see QA_LOG.md for exact revisions. Physical-device/network acceptance and human difficulty review remain pending.
+The source and game now include all 15 stages, solo and up to four-player co-op, shared hearts/rescue, three milestone encounters and original anime comic chapters. Final automated full browser campaigns passed at 1/2/3/4 players (CI 41152714415), plus complete hosted two/four campaigns (41152714553). The public four-player run needed one Level 10 replay; the other final full runs completed first attempts. See QA_LOG.md for exact evidence. Physical-device/network testing and human difficulty review are unperformed; the owner waived the physical-test preparation gate.
 
 An actual public solo Warden fight (source 4c032443, run 41152105724/job 124391143773) is saved at submission/cover.jpg (1440 by 960, 3:2). The source archive is generated at release/TinyTeamwork-source.zip with a SHA256 manifest. No contest entry has been submitted.
 
@@ -22,4 +22,4 @@ The free host may need time to wake. Rooms are lost on server restart; a disconn
 
 The official rules rechecked October 30 specify October 30, 2026 at 11:59 PM Pacific (October 31 at 2:59 AM Eastern). The earlier mission page showed October 31; use the earlier official deadline. Source links remain in entry.json. Required entry fields are title, cover, description and URL; judges give equal weight to execution, creativity, value and polish.
 
-Continue from docs/PROJECT_STATUS.md and AGENTS.md. The owner authorized campaign/art/testing expansion while deferring physical testing; the older single-level-only scope is superseded for this session.
+Continue from docs/PROJECT_STATUS.md and AGENTS.md. The owner authorized campaign/art/testing expansion while waiving owner physical testing; the older single-level-only scope is superseded for this session.

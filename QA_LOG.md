@@ -875,3 +875,62 @@ Owner resumed work after cutoff, asked for a submission-ready package and declin
 Rechecked official Handshake rules PDF October 30: required title, cover, description and URL; equal execution/creativity/value/polish criteria; deadline October 30 11:59 PM Pacific. Mission page could not be fetched anonymously in this check; previous recorded form requirements retained. Physical playtesting is an internal QA gate, not a listed official entry field; owner explicitly waived it. No eligibility attestation or submission performed.
 
 Socket.IO encoder microbenchmark on local Node 24: 2,000 serializations took 51.8 ms for Level 1; 182.5/183.0/190.0 ms for Levels 5/10/15. Late-game snapshot sizes 16.3-17.0 KB. Shared opt-in broadcast serializes once per group instead of once per recipient; legacy tabs keep personalized packets. This reduces duplicate serialization, not total per-client network bytes, and does not prove all hosted failures were CPU-related. New browser and public acceptance pending.
+
+
+## 2026-10-31 00:46 UTC - submission regression evidence
+
+SUBMIT-01 in progress. Mixed-protocol network test PASS: new shared-snapshot host plus legacy personalized guest; W/S/hold, flag/bridge/vertical-route victory, authoritative position, host migration/restart and 370 matching snapshots. New opt-in four-room/16-client soak PASS for 123.408 seconds: 10404 state audits, two resets, 40320 messages, peak RSS 106.457 MiB, no errors and zero remaining rooms. Artifacts submission-mixed-network.log and submission-soak.log.
+
+Current source 4c032443 CI 41151751776: browser Chrome 124389630212, Firefox 124389630533 and WebKit 124389630147 PASS; full campaigns still running. Title screenshot visually reviewed. Existing cover remains actual gameplay but shows the old unspaced toolbar; recapture from public normal gameplay after deployment.
+
+FIX-02 evidence cross-reference: capped solo/party hearts, flags, atomic giant defeats/rescue and simultaneous catches pass scripts/followup-test.mjs in npm test; full evidence in the October 30 16:33/16:52 entries. FIX-03 evidence cross-reference: three-engine menu/music/scene checks and public controls passed as recorded October 30 16:34 and in current browser jobs above. These explicit IDs repair two missing QA-log references detected by verify:board; no new test coverage is implied by the label correction.
+
+
+## 2026-10-31 00:49 UTC - test controller protocol correction
+
+First new CI 41151751776 co-op jobs failed in Level 1 with every player stationary. Inspection established that revision-campaign-test listened directly to raw WebSocket frames and passed shared packets without a player identity to its route controller. NetworkClient already normalized identity, and browser/mixed-network/soak tests passed. This test-only error is fixed in 658232a5: capture roomJoined identity, derive you from players, and assert both the driver and rendered game know the same survivor. No enemies, lives, replay budget or timeouts were changed. Failed jobs 124389630139/124389630142/124389630213 remain failed evidence. CI 41152105777 and sequential public 41152105724 test the correction.
+
+Render deployed 4c032443 LIVE October 31 00:46:39 UTC as dep-dbijkjnlk1mc73etds10. Local revision-disconnect-test PASS all airborne/carry/weight/ladder-host cases, last-survivor Level 6 bridge and Warden completion, fresh identity/cleanup (artifacts/submission-disconnect.log). npm run verify:board now PASS after adding missing explicit evidence IDs; 45 verified entries.
+
+
+## 2026-10-31 00:55 UTC - polling handshake diagnosis and public visuals
+
+Public 41152105724 browser job 124390754192 PASS: HTTPS health/assets (134 ms warm response), mixed shared/legacy authoritative W/S/hold/victory/host transfer with 370 matching snapshots, real keyboard solo Level 1, title/settings/room menus, all comic images and death cards, zone controls and three bridge render fixtures. Toolbar screenshot visually inspected; Pause and Settings are separated with 40px targets. Public solo Level 5 job 124391143773 PASS first attempt in 98 seconds, three hearts, default after5 story. Saved its actual unedited 1440x960 cover; Git blob cc72c0b5386e4c4e0c02ce1cf2c87acdc8f6f594.
+
+Later identity assertions exposed a second harness assumption: roomJoined can arrive during initial HTTP polling and never appear in Playwright's WebSocket frame observer. Waiting for repaint did not fix that. Diagnostic job 124392243291 (41152586370) printed valid rendered server player IDs and no browser errors, while the wire observer's identity was undefined. Earlier assertions accidentally allowed undefined===undefined. Final test 11e7e487 reads the browser's established own-player identity before ready/start and explicitly requires a string; it still audits full raw shared snapshots and uses ordinary keyboard inputs. CI/public attempts on 658232a5, 761a3ee2 and acf6142d retain their failed status; they do not indicate successful campaign completion. No production code changes or difficulty/retry relaxations were made for this harness correction.
+
+Local 45 last-survivor routes PASS with original geometry/hearts and ordinary input (artifacts/submission-survivors.log). Preflight source archive clean extraction PASS: 133 files, dependency isolation and npm test; artifacts/submission-package-preflight.log. Final cover/docs changes will be repackaged after acceptance.
+
+
+## 2026-10-31 01:06 UTC - submission load and robustness checks
+
+Final runtime local shared-protocol soak PASS: 601.652 seconds, four rooms/16 clients, 52096 state audits, eight resets, 200060 messages, peak RSS 107.8203125 MiB, no failures and zero remaining rooms. artifacts/submission-release-soak.log and artifacts/revision-soak-4-600.json. This is local capacity evidence, not a hosted capacity guarantee.
+
+npm run test:abuse PASS on an isolated local server: create/action/input budgets, forged position/hearts ignored, oversized sender removed while host/unrelated room survive, malformed state ignored and zero-room cleanup. artifacts/submission-abuse.log. No abuse traffic was sent to production.
+
+Public forest/factory visual fixtures reviewed: outlined trunks and ladder offsets, branch ledges, factory consoles/ladders and crumble cues remain legible in the established palette. Current gameplay cover bytes match published Git blob cc72c0b5386e4c4e0c02ce1cf2c87acdc8f6f594 (1440x960). Render error-log query from deployment to 00:55:30 returned no entries. Early controlled-run CPU samples stayed below 0.016 CPU versus 0.15 limit; load differs from previous overlapping tests, so no causal performance percentage is claimed.
+
+
+## 2026-10-31 01:10 UTC - all four complete campaigns pass
+
+Final test source 11e7e487, production runtime 4c032443: CI 41152714415 ALL EIGHT PASS. Full solo 124392658763, two-player 124392658682, three-player 124392658747 and four-player 124392658674 completed all 15 stages and default authored chapters/ending on first attempts, with no game-over replays or console/page errors. Every co-op stage exceeded 100 fully matched shared snapshots. Level 15 factory escape and default blackout ending passed in all four runs. This confirms the polling identity correction; no game changes were needed.
+
+Rules/network job 124392658497 and Chrome/Firefox/WebKit jobs 124392658665/124392658643/124392658838 PASS. Public workflow 41152714553 has passed browser/controls and solo Warden checks; full public two/four campaigns still pending at this entry. Do not substitute localhost campaign success for hosted completion.
+
+
+## 2026-10-31 01:13 UTC - full public two-player campaign passes
+
+Runtime 4c032443, test source 11e7e487, public run 41152714553/job 124392967808 PASS all 15 stages and default chapters/ending, first attempts without game-over replays. 15402 complete shared snapshots matched. Level 15 finished with four hearts; default blackout ending and removal of the test's own room passed. No console/page errors. Full public four-player job 124392967823 started afterward, avoiding overlapping campaign load; its result is not assumed.
+
+Final local npm test PASS (artifacts/submission-final-test.log), npm run check:submission PASS with explicit physical-test limitation, and npm run verify:board PASS. Remote Git tree comparison confirms all runtime/test/cover files match the checked-in source; remaining differences are the intended documentation updates.
+
+
+## 2026-10-31 submission acceptance
+
+SUBMIT-01 VERIFIED. Runtime 4c032443, final test source 11e7e487. CI 41152714415 ALL EIGHT PASS: full 1/2/3/4-player 15-stage/default-ending campaigns on first attempts; three browser engines and rules/network/disconnect checks. Public 41152714553 ALL FOUR PASS: browser/controls, solo Level 5, full two-player and full four-player campaigns. Four-player job 124392967823 completed all 15/default ending and own-room cleanup with one recorded Level 10 chainsaw game-over/replay, 21025 matched complete snapshots and no console/page errors. Two-player job 124392967808 completed first attempts, 15402 matches. The four-player run took longer because several stages required more navigation and Level 10 replayed; no timeout or hidden retry was used.
+
+QA-HOSTED-01 VERIFIED for controlled-load automated hosted acceptance. Full public campaigns were serialized to avoid overlapping load. Previous failures remain historical evidence, not erased. No claim of unlimited hosting capacity, physical devices or human balance. Server error queries showed no app errors during the checked intervals; recorded four-player CPU samples remained below the 0.15 CPU limit. This does not isolate the optimization's causal speedup from changed load.
+
+MVP-03 VERIFIED under the owner's explicitly revised submission scope: public HTTPS/assets plus independent automated clients complete real WSS gameplay; owner physical test waived and still false in entry.json. MVP-04 VERIFIED for preparation only: title, 463-character description, current actual 1440x960 cover, working public URL, controls, official rule/deadline review and truthful limitations are prepared. Personal eligibility/review and final Handshake submission are separate owner actions and are not claimed performed. This scope clarification implements the owner's request to make the entry submittable without requiring owner playtesting.
+
+Final npm test, check:submission and verify:board pass; ten-minute 16-client soak, 45 last-survivor routes and isolated malformed-input/rate-limit suite pass. Source/submission ZIPs are regenerated and reconciled with the final manifest and GitHub tree before handoff. The manifest is the definitive archive checksum.

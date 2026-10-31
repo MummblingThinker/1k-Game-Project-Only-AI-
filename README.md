@@ -4,7 +4,7 @@ A solo or 2–4-player browser platformer across 15 stages: escape the city, cro
 
 Play: https://tiny-teamwork-last-spark.onrender.com
 
-The October 30 gameplay revision replaces the old shelters and boss rules. See [current status](docs/PROJECT_STATUS.md) for the exact deployed commit and acceptance evidence. Physical-device and human difficulty testing remain deferred by the owner.
+The October 30 gameplay revision replaces the old shelters and boss rules. See [current status](docs/PROJECT_STATUS.md) for the exact deployed commit and acceptance evidence. The owner waived physical multiplayer testing; automated evidence and known limits are recorded honestly. Submission assets and copy are in [submission/README.md](submission/README.md).
 
 ## Run locally
 
@@ -53,8 +53,8 @@ Historical tests for shelters and indestructible bosses are retained as historic
 
 Title Settings contains sound/zone music, volume and visual options. In-game Settings pauses solo and offers Return to title; multiplayer continues and offers Leave room. City, forest and factory use different original synthesized music/ambient layers. Sound and visual options save locally. Reduced motion follows device preference by default; fewer effects reduces decorative drones and particles without removing warnings. Add `?debug=1` for a local downloadable stage report. Reports are not uploaded automatically.
 
-The free Render service may need time to wake. One Node process hosts rooms; server restart clears them. Physical-device/network acceptance and contest review/submission remain pending. Nothing has been submitted.
+The free Render service may need time to wake. One Node process hosts rooms; server restart clears them. Physical-device testing was waived by the owner and remains unperformed. Personal eligibility review and contest submission remain owner actions. Nothing has been submitted.
 
 ## Handoff
 
-Read [AGENTS.md](AGENTS.md), [TASK_LIST.md](TASK_LIST.md), [QA_LOG.md](QA_LOG.md), and [PROJECT_STATUS.md](docs/PROJECT_STATUS.md). [Practice guide](docs/PRACTICE_GUIDE.md) explains play. [Art provenance](docs/OCTOBER_REVISION_ART.md) records the original comic assets. Source packaging is under `release/` and submission drafts under `submission/`.
+Read [AGENTS.md](AGENTS.md), [TASK_LIST.md](TASK_LIST.md), [QA_LOG.md](QA_LOG.md), and [PROJECT_STATUS.md](docs/PROJECT_STATUS.md). [Practice guide](docs/PRACTICE_GUIDE.md) explains play. [Art provenance](docs/OCTOBER_REVISION_ART.md) records the original comic assets. Source packaging is under `release/` and submission materials under `submission/`.
