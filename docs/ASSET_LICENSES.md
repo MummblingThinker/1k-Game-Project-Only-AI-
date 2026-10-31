@@ -17,3 +17,5 @@ The 1 PM follow-up adds original procedural environment artwork in public/js/env
 
 
 ART-04: submission/cover-concept.png is newly generated original concept art, created with the built-in image-generation tool for the owner's October 30 evening request. It depicts three survivors fleeing robots and a giant machine through a ruined city. It is not a gameplay screenshot or a reused story panel. public/assets/key-art.jpg is the same composition converted to JPEG at original 1536x1024 dimensions for web delivery. The prior actual gameplay cover remains submission/cover.jpg.
+
+The owner renamed the game AI Take Over. The concept image title was regenerated to match; the active PNG and JPEG use the new title. Existing gameplay screenshot cover.jpg is a historical alternative.

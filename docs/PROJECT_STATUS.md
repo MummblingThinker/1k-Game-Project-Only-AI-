@@ -1,4 +1,4 @@
-# Submission release handoff
+# AI Take Over release handoff
 
 Play: https://tiny-teamwork-last-spark.onrender.com
 
@@ -37,3 +37,9 @@ submission/README.md contains the title, 463-character description, game URL, co
 The owner waived physical testing as a preparation gate. Eligibility review and actual submission remain personal actions, not automated test results. Official rules rechecked October 30 specify October 30 at 11:59 PM Pacific (October 31 at 2:59 AM Eastern); use this earlier deadline despite the old mission-page discrepancy.
 
 Free hosting can take time to wake. Rooms are in one process and vanish on restart; disconnect needs a new lobby. Solo storage resumes a stage, not a saved flag after reload. Physical mobile/audio experience and human difficulty balance are unverified. No native gamepad support or cloud save. Historical evidence and failures remain in QA_LOG.md; do not restore superseded shelters or indestructible boss rules.
+
+## AI Take Over branding and concept opening
+
+Owner requested a fresh concept chase illustration and separate short opening, then renamed the game AI Take Over. Runtime 84dd904b is live via deploy dep-dbiktb4s728c73fjmrqg. New concept cover is submission/cover-concept.png; opening uses public/assets/key-art.jpg, captions, slow camera drift, keyboard/button skip and reduced-motion support. Three browser engines passed. Existing game URL and storage keys remain intact. Source/submission archives use AI-Take-Over filenames. See QA_LOG.md for public validation and network-test timing correction.
+
+Final public art/branding acceptance: 41159249101 / 124412880251 PASS. Entry validated; renamed source/submission archives regenerated. No contest entry submitted.

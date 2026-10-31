@@ -12,7 +12,7 @@ The source and game now include all 15 stages, solo and up to four-player co-op,
 
 The requested concept cover is submission/cover-concept.png (1536 by 1024, 3:2), an original anime/comic chase illustration also used in the short game opening. It is concept art, not a gameplay screenshot.
 
-An alternative actual public solo Warden fight (source 4c032443, run 41152105724/job 124391143773) is saved at submission/cover.jpg (1440 by 960, 3:2). The source archive is generated at release/TinyTeamwork-source.zip with a SHA256 manifest. No contest entry has been submitted.
+An alternative actual public solo Warden fight (source 4c032443, run 41152105724/job 124391143773) is saved at submission/cover.jpg (1440 by 960, 3:2). The source archive is generated at release/AI-Take-Over-source.zip with a SHA256 manifest. No contest entry has been submitted.
 
 The owner explicitly waived physical multiplayer testing as a preparation requirement. It remains unperformed, not a required task for the owner. Run npm run check:submission to validate preparation assets and automated evidence. Review the description/link/cover and your personal eligibility, then submit through your own Handshake account. Do not set humanReviewed, humanSubmitted or physical-playtest fields based on automated tests.
 

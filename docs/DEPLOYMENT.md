@@ -10,7 +10,7 @@ Status: campaign release 0.3.0 deployed on Render; physical-device/network accep
 - Service: `srv-dbhnfcm1egvs73817n4g`; https://dashboard.render.com/web/srv-dbhnfcm1egvs73817n4g
 - Free Node service, Virginia, one instance, manual deploys. Build `npm ci && npm test`; start `npm start`; Node 24.20.0; NODE_ENV=production. No database or secrets.
 - Initial live deploy: `dep-dbhnfde1egvs73817pj0`, runtime source `269fc0e4384ebd9cf44bdd6cb6caaa81dcc0c776`. Logs confirm assigned PORT=10000.
-- Current submission runtime: `4c0324439632370d5912157926ae1093ef7cc55f`, deploy `dep-dbijkjnlk1mc73etds10`, LIVE October 31 at 00:46:39 UTC. Test source 11e7e487 and later handoff updates have identical production code and need no redeploy.
+- Previous submission runtime: `4c0324439632370d5912157926ae1093ef7cc55f`, deploy `dep-dbijkjnlk1mc73etds10`, LIVE October 31 at 00:46:39 UTC. Test source 11e7e487 and later handoff updates have identical production code and need no redeploy.
 - Direct MCP creation uses Render's default TCP readiness checks; its limited tool cannot set `healthCheckPath`. The existing `/health` HTTP endpoint is independently tested below. To enable provider HTTP checks, set `/health` in Dashboard Settings; the supplied Blueprint already requests it.
 
 The repository also contains a Public multiplayer smoke GitHub Actions workflow. It tests this deployed URL from an Ubuntu runner, without a ChatGPT login. It is automated acceptance; the optional physical-device procedure below is not a remaining owner requirement after the explicit waiver.
@@ -66,3 +66,5 @@ Sources checked October 28, 2026:
 - https://render.com/docs/websocket
 - https://render.com/docs/free
 - https://render.com/docs/blueprint-spec
+
+AI Take Over art/branding runtime: 84dd904baafa999e90b19ba5c57cf4c6972d2a87, deploy dep-dbiktb4s728c73fjmrqg, LIVE October 31 at 02:13:35 UTC. Existing URL and save/settings identifiers preserved.
