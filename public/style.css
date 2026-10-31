@@ -276,14 +276,14 @@ body[data-menu-open="true"] .quick-controls,body[data-menu-open="true"] .mobile-
 
 /* One continuous new illustration, separate from the authored comic chapters. */
 #opening-intro { position:absolute; inset:0; z-index:80; overflow:hidden; background:#08131e; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; isolation:isolate; }
-.opening-art { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; z-index:-2; image-rendering:auto; }
+.opening-art { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center; z-index:-2; image-rendering:auto; }
 .opening-ready .opening-art { animation:opening-drift 8s ease-out both; }
 .opening-shade { position:absolute; inset:0; z-index:-1; background:linear-gradient(transparent 54%,#07131ddd 100%); }
 .opening-caption { max-width:85%; margin:0 20px 18px; color:#fff0cd; font:bold clamp(17px,2.3vw,29px)/1.3 Georgia,serif; text-align:center; text-shadow:0 2px 8px #000; }
 .opening-skip { margin:0 16px 18px; min-height:44px; padding:10px 18px; border:1px solid #e5bc77; border-radius:4px; background:#102532eb; color:#f8e4bb; cursor:pointer; }
 .opening-skip:focus-visible { outline:3px solid #fff0cb; outline-offset:4px; }
 #opening-intro[data-beat="chase"] .opening-caption { color:#ffd1a8; }
-@keyframes opening-drift { from { transform:scale(1.07) translateY(1%); } to { transform:scale(1); } }
+@keyframes opening-drift { from { transform:scale(1.025); } to { transform:scale(1); } }
 body[data-motion="reduced"] .opening-art { animation:none; }
 @media(prefers-reduced-motion:reduce) { .opening-ready .opening-art { animation:none; } }
 @media(max-width:700px) { .opening-art { object-fit:contain; background:#08131e; } .opening-shade { background:linear-gradient(transparent 65%,#07131d 100%); } .opening-caption { font-size:19px; } }
