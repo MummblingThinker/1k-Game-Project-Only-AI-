@@ -1,0 +1,30 @@
+name: Boss artwork review
+on:
+  workflow_dispatch:
+  push:
+    paths: ['public/js/colossus-art.js', 'scripts/boss-art-browser-test.mjs', '.github/workflows/boss-art.yml']
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 24, cache: npm}
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: node scripts/boss-art-browser-test.mjs
+        env:
+          TEST_BROWSER: ${{ matrix.browser }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: boss-art-${{ matrix.browser }}
+          path: artifacts/boss-art/
