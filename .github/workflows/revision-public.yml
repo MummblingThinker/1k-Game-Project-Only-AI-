@@ -1,6 +1,6 @@
 name: October revision public acceptance
-# Push verifies final public controls. Manual dispatch also runs the focused
-# encounters below; prior full/focused campaign failures remain in QA_LOG.md.
+# Public controls first, then campaigns one at a time to avoid overlapping load.
+# Prior failures remain in QA_LOG.md. Solo Level 5 captures an actual cover.
 on:
   workflow_dispatch:
   push:
@@ -11,16 +11,17 @@ env:
   BROWSER_BASE_URL: https://tiny-teamwork-last-spark.onrender.com
 jobs:
   public-campaign:
-    if: github.event_name == 'workflow_dispatch'
+    needs: public-browser
     runs-on: ubuntu-latest
     timeout-minutes: 35
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
-          - {party: 2, first: 8, last: 10}
-          - {party: 4, first: 5, last: 5}
-          - {party: 4, first: 15, last: 15}
+          - {party: 1, first: 5, last: 5}
+          - {party: 2, first: 1, last: 15}
+          - {party: 4, first: 1, last: 15}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -76,6 +77,12 @@ jobs:
             const page=await browser.newPage({viewport:{width:960,height:540}});
             await page.goto(process.env.BROWSER_BASE_URL);
             await page.locator('#menu-single').waitFor();
+            await page.locator('#menu-single').click();
+            await page.locator('#play-selected').click();
+            const pause=await page.locator('#pause-game').boundingBox(),settings=await page.locator('#open-settings').boundingBox();
+            if(!pause||!settings||settings.x<pause.x+pause.width+8||settings.height<40) throw Error('Game toolbar overlaps or touch target is too small');
+            const toolbar=await page.locator('.play-toolbar').screenshot({type:'png'});
+            console.log('TOOLBAR_BASE64_BEGIN'+toolbar.toString('base64')+'TOOLBAR_BASE64_END');
             for(const level of [2,7,12]) {
               await page.evaluate(async level=>{
                 const {buildLevel}=await import('/js/world.js'),{drawGame}=await import('/js/art.js'),{createPlayer}=await import('/js/physics.js');

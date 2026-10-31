@@ -34,8 +34,13 @@ try {
     page.on('websocket',socket=>socket.on('framereceived',({payload})=>{
       const frame=String(payload);if(!frame.startsWith('42'))return;
       const [event,value]=JSON.parse(frame.slice(2));
-      if(event==='roomState'){peer.state=value;consistency.observe(i,value);}
-      if(event==='roomJoined')peer.state=value.state;
+      if(event==='roomState'){
+        // The wire packet is shared; recover this browser's identity exactly as
+        // NetworkClient does before choosing ordinary keyboard input.
+        peer.state={...value,playerId:peer.id,you:value.players.find(p=>p.id===peer.id)||null};
+        consistency.observe(i,peer.state);
+      }
+      if(event==='roomJoined'){peer.id=value.playerId;peer.state=value.state;}
       if(event==='roomError')peer.roomErrors.push(value);
     }));
     await page.goto(base+(i===0?'/?debug=1':''));
@@ -76,6 +81,11 @@ try {
     await until(async()=>{await sample();return peers.every(p=>p.state?.level===level&&p.state.phase==='playing');},'stage '+level);
     await Promise.all(peers.map(async p=>{p.held={};await p.page.locator('#title-menu').waitFor({state:'hidden'});await p.page.locator('#game').focus();}));
     const stageStarted=Date.now();let attempt=0;
+    if(party>1)for(const p of peers){
+      assert.ok(p.state.you?.id===p.id,'driver must identify its own survivor');
+      const shown=JSON.parse(await p.page.locator('#game').getAttribute('data-players'));
+      assert.ok(shown.some(s=>s.id===p.id),'actual game also knows this survivor');
+    }
     assert.ok(peers.every(p=>p.state.hearts===(party===1?3:party===4?5:4)),'fresh stage heart pool');
     while(true){
       attempt++;const end=Date.now()+260000;
