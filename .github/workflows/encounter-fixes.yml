@@ -1,0 +1,49 @@
+name: Encounter fixes acceptance
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/encounter-fixes.yml']
+permissions:
+  contents: read
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 24, cache: npm}
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:encounters
+  encounters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {party: 1, first: 5, last: 5}
+          - {party: 2, first: 5, last: 5}
+          - {party: 4, first: 5, last: 5}
+          - {party: 1, first: 15, last: 15}
+          - {party: 2, first: 15, last: 15}
+          - {party: 4, first: 15, last: 15}
+          - {party: 1, first: 10, last: 11}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 24, cache: npm}
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/revision-campaign-test.mjs
+        env:
+          TEST_PARTY: ${{ matrix.party }}
+          TEST_FIRST_LEVEL: ${{ matrix.first }}
+          TEST_LAST_LEVEL: ${{ matrix.last }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: encounter-${{ matrix.party }}-${{ matrix.first }}
+          path: artifacts/browser-campaign/

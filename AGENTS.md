@@ -1,3 +1,7 @@
+## Current owner encounter corrections, October 30 evening
+
+The owner requested an active Level 5 Warden with visible health, varied/random climbing and debris, and pursuing scanner drones; solid Level 10 tree pillars and solo respawn atop the fallen tree when hearts remain; gradual Level 11 forest/city/factory scenery through an enclosed windowed corridor; and throwable animals. The Level 15 lava/console/bulldozer design is explicitly superseded: keep a robot in the background, three telegraphed arm attacks per round, a lethal falling head, then a tired exposed head damaged once by a throw or stomp. Three successful openings defeat it. Test real-input solo/co-op and publish working changes. Keep the cleaned page below controls. No contest submission or physical-device claim is authorized.
+
 ## Current owner authorization: submission preparation, October 30
 
 The owner resumed after the historical 1 PM cutoff and asked to make the game submittable, with automated QA in place of owner multiplayer testing. Do not ask the owner to playtest. Preserve truthful physical-device/human-review fields; these are limitations, not a veto on preparing the entry. Prioritize stable hosting, clear controls, presentation and complete entry assets. No contest submission has been requested. Acceptance for SUBMIT-01: regression/browser/public controls pass, submission files validate, official requirements reviewed, and release packaged with known limitations.

@@ -310,3 +310,15 @@ body[data-motion="reduced"] .opening-art { animation:none; }
  #title-menu .menu-brand { padding-bottom:12px; }
  #title-menu .menu-page { padding:12px; }
 }
+
+/* Boss health is a native screen-space overlay, clear of the level/heart HUD. */
+#boss-hud { position:absolute; z-index:1; bottom:12px; left:50%; transform:translateX(-50%); width:min(330px,80%); padding:9px 12px; background:#091624ed; border:1px solid #c59465; border-radius:4px; color:#fff0cf; pointer-events:none; font-size:12px; }
+#boss-hud[hidden] { display:none; }
+#boss-hud > div { display:flex; justify-content:space-between; gap:12px; }
+#boss-hud progress { display:block; width:100%; height:10px; margin:5px 0; accent-color:#f39d76; }
+#boss-hud progress::-webkit-progress-bar { background:#342e3b; }
+#boss-hud progress::-webkit-progress-value { background:#f39d76; }
+#boss-hud progress::-moz-progress-bar { background:#f39d76; }
+#boss-attack-hint { font-size:11px; }
+#boss-hud[data-attack$="warning"] { border-color:#ffcf6f; color:#ffe5a6; }
+@media(max-width:700px) { #boss-hud { bottom:8px; padding:6px 9px; font-size:10px; } #boss-attack-hint { font-size:9px; } }

@@ -17,7 +17,7 @@ export function startLevel(run, level = 1, resetRun = false) {
   run.level = level;
   run.heartMax = heartMaximum(run.partySize);
   run.hearts = run.heartMax;
-  run.world = buildLevel(level, run.partySize);
+  run.world = buildLevel(level, run.partySize, level===5 ? Math.floor(Math.random()*0x100000000) : undefined);
   run.phase = 'playing';
   run.tick = 0;
   run.objectiveVersion = 0;

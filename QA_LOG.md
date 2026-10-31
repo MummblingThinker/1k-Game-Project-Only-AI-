@@ -959,3 +959,13 @@ TITLE-ART-01 final PASS: browser run 41160397782 Chromium 124416466524, Firefox 
 ## PAGE-CLEANUP-01
 
 Owner requested keeping controls below the game while removing unnecessary details underneath. Removed the three promotional/detail cards and footer. Hid the below-controls memory archive while retaining its storage/render target so collected progress and game initialization continue working. Keyboard and touch controls are unchanged; diagnostics remain opt-in with debug=1. Local npm test and HTTP/module smoke PASS. Live deployment verification follows.
+
+## Evening owner encounter changes (in progress)
+
+Page cleanup runtime 7f62c7dd LIVE via dep-dbila3ks728c73fkoii0 at 02:41:10 UTC. Direct local HTTPS fetch and web fetch were unavailable; do not count those attempts as public smoke passes. New browser checks explicitly assert controls remain, promo/footer nodes are absent and memory archive is hidden.
+
+Warden: seeded per-run tower choices, varied heights/ladder positions/debris, visible fixed native health overlay, charged laser/claw attacks, pursuing scanner drones with throwable vulnerability. Drone warnings pause during boss marked attacks then resume with reaction time; earlier automated routes exposed overlapping-attack pressure and the controller now reacts to visible cues. All 24 tower geometry seeds have supported ladders; complete seeded route sweeps and browser checks in progress. No human playtest claimed.
+
+Tree pillars now resolve diagonal corner penetration after ladder jumps (144 timings pass). Solo falling-tree death with remaining hearts respawns on the defeated boss's log; zero hearts ends run. Animals are physical carry/throw objects that land intact and resume wandering. Level 11 uses blended forest/city/factory landscape layers and a windowed industrial corridor with increasing outside robot detail.
+
+Final boss fully replaced at owner's request: background-only chassis; low sweep, high sweep, aimed fist; after three attacks a lethal marked head drop and vulnerable recovery. Throw or stomp removes one of three health points; one hit per recovery window. Normal-input level/encounter routes pass at 1/2/4 players. Specific tests cover warning safety, arm damage, head crush, stomp bounce, thrown damage, hit lockout, exit unlock and shield/heart behavior. The YouTube reference could not be fetched; implementation follows the owner's detailed mechanics description. Old lava/console assertions were replaced because their behavior was explicitly superseded.

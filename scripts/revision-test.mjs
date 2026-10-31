@@ -88,36 +88,17 @@ section('every boss resets cleanly after all players die, retaining the approach
     killPlayer(r,p,'retry fixture',true);tick(r);assert.equal(p.alive,true);assert.equal(w.boss.phase,'waiting');assert.equal(w.boss.hp,w.boss.maxHp);assert.equal(r.respawnX,b.x-30);assert.ok(w.switches.every(s=>s.active));assert.ok(p.x>=b.x-20&&p.x<=b.x+30);
   }
 });
-section('foundry consoles escalate lava, retain ladder routes, switch to left escape, lava death unlocks exit',()=>{
-  const r=runAt(15),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);p.x=b.x+30;tick(r);const speed=b.lavaSpeed;
-  for(let i=0;i<3;i++){const s=b.pylons[i];p.x=s.x;p.y=s.y-4;p.invulnerability=1000;tick(r,12);assert.ok(interactRun(r,p.id));assert.equal(b.phaseIndex,i+1);assert.ok(b.lavaSpeed>speed);}
-  assert.equal(b.phase,'breach');assert.ok(b.bodyX<b.x);tick(r,120);assert.equal(b.phase,'escape');assert.ok(w.finish.x<b.x);assert.ok(w.ladders.length>=7);assert.ok(w.platforms.some(s=>s.kind==='escape-floor'));
-  p.x=w.finish.x+40;p.y=w.finish.y;tick(r);assert.equal(b.solved,true);assert.equal(w.finish.locked,false);
-});
-section('a nearby factory console takes priority over the next ladder',()=>{
-  const r=runAt(15),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);b.phase='active';const core=b.pylons[0];
-  p.x=core.x-25;p.y=core.y+core.h-p.h;p.onGround=true;
-  assert.ok(w.ladders.some(l=>Math.abs(p.x+p.w/2-l.x-l.w/2)<19&&p.y+p.h>l.y+4&&p.y<l.y+l.h+4),'fixture overlaps both interactions');
-  assert.ok(interactRun(r,p.id));assert.equal(core.active,true);assert.equal(p.climbing,null);
-});
-section('second factory attack warns before breaking a nearby platform, without removing any ladder or firing another laser',()=>{
-  const r=runAt(15),w=r.world,b=w.boss,p=p0(r);w.switches.forEach(s=>s.active=true);b.phase='active';b.phaseIndex=2;b.timer=1;
-  p.x=b.x+200;p.y=220-p.h;p.onGround=true;p.invulnerability=999;b.lavaY=900;
-  const ladders=JSON.stringify(w.ladders),tiers=w.platforms.filter(s=>s.kind==='boss-tier').length;tick(r);
-  assert.equal(b.phase,'warning');assert.ok(b.breakTarget);assert.ok(Math.abs(b.breakTarget.y-(p.y+p.h))<100,'target is near the visible player');
-  const target={...b.breakTarget};assert.ok(w.platforms.some(s=>s.x===target.x&&s.y===target.y),'warning keeps platform intact');
-  tick(r,100);assert.equal(b.phase,'attack');assert.ok(!w.platforms.some(s=>s.kind==='boss-step'&&s.x===target.x&&s.y===target.y));
-  assert.equal(JSON.stringify(w.ladders),ladders);assert.equal(w.platforms.filter(s=>s.kind==='boss-tier').length,tiers);assert.ok(!r.deathEvents.some(e=>e.cause==='Colossus laser'));
+section('background Colossus has three core hits, safe catwalk routes and no lava escape',()=>{
+ const w=buildLevel(15),b=w.boss;assert.equal(b.hp,3);assert.equal(b.maxHp,3);assert.equal(b.attack,'rest');assert.equal(b.head,null);
+ assert.equal(b.lavaY,undefined);assert.equal(b.pylons.length,0);assert.ok(w.platforms.filter(s=>s.kind==='arena-catwalk').length===3);
+ assert.ok(w.ladders.filter(l=>l.x>=b.x).length===3);assert.ok(w.finish.x>b.x+650);assert.ok(w.finish.locked);
 });
 section('giant remains outside boss zone and heart death is charged once',()=>{
   const r=runAt(5),p=p0(r),w=r.world;w.giant.x=w.boss.x-65;w.giant.wakeTicks=0;p.x=w.boss.x+10;p.invulnerability=1000;tick(r,300);assert.ok(w.giant.x+44<w.boss.x);assert.equal(p.alive,true);
   const h=r.hearts;killPlayer(r,p,'fixture',true);killPlayer(r,p,'duplicate',true);assert.equal(r.hearts,h-1);
 });
-section('the pursuer cannot enter the leftward factory escape corridor',()=>{
-  const r=runAt(15),w=r.world,b=w.boss,p=p0(r);b.phase='escape';b.phaseIndex=3;b.bodyX=b.x+800;
-  w.platforms.push({x:b.x-650,y:b.escapeY,w:1550,h:12,kind:'escape-floor',essential:true});
-  w.finish={x:b.x-610,y:b.escapeY-30,w:28,h:30,locked:true};p.x=b.x-350;p.y=b.escapeY-p.h;p.onGround=true;
-  w.giant.x=b.x-65;w.giant.wakeTicks=0;const hearts=r.hearts;tick(r,60);
-  assert.equal(p.alive,true);assert.equal(r.hearts,hearts);assert.equal(w.giant.x,b.x-65);
+section('the pursuer cannot enter the Colossus background arena',()=>{
+ const r=runAt(15),w=r.world,b=w.boss,p=p0(r);p.x=b.x+30;p.invulnerability=1000;w.giant.x=b.x-65;w.giant.wakeTicks=0;
+ const hearts=r.hearts;tick(r,60);assert.ok(p.alive);assert.equal(r.hearts,hearts);assert.equal(w.giant.x,b.x-65);
 });
 console.log('Current revision rule suite complete. Legacy shelter/indestructible-boss assertions are superseded, not counted as current evidence.');

@@ -16,6 +16,9 @@ try{
   await page.goto(base+'/?debug=1');
   await page.locator('#opening-intro.opening-ready').waitFor();
   assert.equal(await page.title(), 'AI Take Over');
+  assert.equal(await page.locator('.lower-grid,.footer-line').count(),0);
+  assert.ok(await page.locator('.quick-controls').isVisible());
+  assert.ok(!(await page.locator('#memory-archive').isVisible()));
   assert.equal(await page.locator('.menu-brand h2').textContent(), 'AI Take Over');
   assert.equal(await page.locator('.opening-art').evaluate(e=>getComputedStyle(e).objectFit),'contain','title artwork stays within frame');
   const opening=await page.locator('.screen-frame').screenshot({path:'artifacts/revision/concept-opening.jpg',type:'jpeg',quality:85});
@@ -72,13 +75,23 @@ try{
       const w=buildLevel(level,1),b=w.boss;
       const x=b?b.x+(level===10?272:300):level===11?w.coveredWay.x+60:700,y=b&&level!==10?w.floorY-220:w.floorY-22;
       const p=createPlayer('render',x,y,0);p.slot=0;p.onGround=true;
-      if(b){b.phase=level===15?'warning':'active';b.bodyX=b.x+425;b.bodyY=level===10?w.floorY-62:y;b.targetX=x+70;b.targetY=y;if(level===15){b.phaseIndex=2;b.lavaY=w.floorY-40;}}
+      if(b){b.phase=level===15?'warning':'active';b.bodyX=b.x+425;b.bodyY=level===10?w.floorY-62:y;b.targetX=x+70;b.targetY=y;if(level===15){b.phase='active';b.attack='exposed';b.roundAttacks=3;b.head={x:x+40,y:w.floorY-42,w:64,h:42};b.hp=2;}if(level===5){b.attack='claw-warning';b.attackX=x+65;b.attackY=y+11;}}
       const canvas=document.createElement('canvas');canvas.id='revision-preview';canvas.width=960;canvas.height=540;canvas.style.cssText='position:fixed;inset:0;z-index:99999;width:960px;height:540px;background:black;image-rendering:pixelated';document.querySelector('#revision-preview')?.remove();document.body.append(canvas);
       const ctx=canvas.getContext('2d');ctx.scale(3,3);ctx.imageSmoothingEnabled=false;drawGame(ctx,w,p,[],Math.max(0,x-100),{cameraY:y-95,clock:1200,tick:300});return{level,platforms:w.platforms.length,enemies:w.enemies.length};
     },level);
     const shot=await page.locator('#revision-preview').screenshot({path:`artifacts/revision/scene-${level}.png`});
     console.log('RENDER PASS',JSON.stringify(metadata));
     if([3,5,10,11,15].includes(level))console.log(`SCENE_${level}_BASE64_BEGIN`+shot.toString('base64')+`SCENE_${level}_BASE64_END`);
+  }
+  for(const fraction of [0,.3,.65,1]){
+    await page.evaluate(async fraction=>{
+      const {buildLevel}=await import('/js/world.js'),{drawGame}=await import('/js/art.js'),{createPlayer}=await import('/js/physics.js');
+      const w=buildLevel(11),x=w.coveredWay.x-320+fraction*(w.coveredWay.w+500),p=createPlayer('window-preview',x+100,w.floorY-22);
+      const canvas=document.querySelector('#revision-preview'),ctx=canvas.getContext('2d');
+      drawGame(ctx,w,p,[],x,{cameraY:w.floorY-150,clock:1200,tick:300});
+    },fraction);
+    const shot=await page.locator('#revision-preview').screenshot({path:`artifacts/revision/windows-${fraction}.jpg`,type:'jpeg',quality:85});
+    console.log(`WINDOW_${fraction}_BASE64_BEGIN`+shot.toString('base64')+`WINDOW_${fraction}_BASE64_END`);
   }
   for(const level of [5,10,15]){
     const frames=await page.evaluate(async level=>{

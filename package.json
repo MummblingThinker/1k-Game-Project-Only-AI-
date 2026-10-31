@@ -28,7 +28,8 @@
     "test:client": "node scripts/network-client-test.mjs",
     "check:submission": "node scripts/check-submission.mjs",
     "test:legacy-contracts": "npm run check && npm run test:rules && npm run test:systems && npm run test:campaign && npm run test:survivor && npm run smoke && npm run verify:board && npm run test:client && npm run test:multiplayer",
-    "test:revision": "node scripts/revision-test.mjs"
+    "test:revision": "node scripts/revision-test.mjs",
+    "test:encounters": "node scripts/encounter-fixes-test.mjs && node scripts/colossus-test.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",

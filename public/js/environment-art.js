@@ -2,7 +2,22 @@ const r=(c,x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(Math.round(x),Math.roun
 const line=(c,x,y,x2,y2,color,width=1)=>{c.strokeStyle=color;c.lineWidth=width;c.beginPath();c.moveTo(Math.round(x),Math.round(y));c.lineTo(Math.round(x2),Math.round(y2));c.stroke();};
 function crown(c,x,y,size,color){for(let i=0;i<5;i++){const dx=(i-2)*size*.22,dy=(i%2)*size*.1;r(c,x+dx-size*.3,y+dy,size*.6,size*.3,color);r(c,x+dx-size*.22,y+dy-size*.12,size*.44,size*.42,color);}}
 
+let transitionCanvas;
+const transitionPalettes={forest:['#102c33','#234840'],city:['#182239','#263c55'],factory:['#171f2e','#293949']};
 export function drawLandscape(c,w,biome,P,cameraX,cy,t,reduced){
+  if(w.id!==11||!w.coveredWay)return landscapeLayer(c,w,biome,P,cameraX,cy,t,reduced);
+  const passage=w.coveredWay,clamp=n=>Math.max(0,Math.min(1,n));
+  const city=clamp((cameraX-passage.x+400)/700),factory=clamp((cameraX-passage.x-150)/Math.max(1,passage.w-150));
+  landscapeLayer(c,w,'forest',transitionPalettes.forest,cameraX,cy,t,reduced);
+  transitionCanvas??=Object.assign(document.createElement('canvas'),{width:320,height:180});
+  const layer=transitionCanvas.getContext('2d');
+  for(const [zone,alpha] of [['city',city],['factory',factory]])if(alpha>0){
+    landscapeLayer(layer,w,zone,transitionPalettes[zone],cameraX,cy,t,reduced);
+    c.save();c.globalAlpha=alpha;c.drawImage(transitionCanvas,0,0);c.restore();
+  }
+}
+
+function landscapeLayer(c,w,biome,P,cameraX,cy,t,reduced){
   const sky=c.createLinearGradient(0,0,0,180);sky.addColorStop(0,P[0]);sky.addColorStop(.65,biome==='forest'?'#496360':'#3c5260');sky.addColorStop(1,'#a08a6c');c.fillStyle=sky;c.fillRect(0,0,320,180);
   // Warm sky openings echo the comic palette without recycling its pictures.
   c.globalAlpha=.18;r(c,220-cameraX*.015,21,35,35,'#eed49d');r(c,216-cameraX*.015,27,43,23,'#eed49d');c.globalAlpha=1;

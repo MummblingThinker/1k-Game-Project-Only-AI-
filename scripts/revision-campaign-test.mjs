@@ -9,7 +9,7 @@ const party=Number(process.env.TEST_PARTY||2),first=Number(process.env.TEST_FIRS
 assert.ok([1,2,3,4].includes(party)&&first>=1&&last<=15&&first<=last);
 const base=process.env.BROWSER_BASE_URL||'http://127.0.0.1:4198',sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const server=process.env.BROWSER_BASE_URL?null:spawn(process.execPath,['server/server.js'],{env:{...process.env,PORT:'4198'},stdio:'inherit'});
-let browser,createdRoom,coverTaken=false;const peers=[],errors=[],results=[],losses=[];
+let browser,createdRoom,bossShots=new Set();const peers=[],errors=[],results=[],losses=[];
 const consistency=snapshotAudit(party,message=>errors.push(message));
 async function until(test,label,timeout=10000){const end=Date.now()+timeout;while(Date.now()<end){if(await test())return;await sleep(40);}throw Error('Timed out: '+label);}
 async function input(peer,intent){
@@ -100,9 +100,12 @@ try {
         await Promise.all(peers.map(p=>input(p,routeIntent(p.state))));
         await sleep(35);
         await sample();
-        if(party===1&&level===5&&!coverTaken&&host.state.world.boss.hp<=6&&host.state.phase==='playing'){
-          coverTaken=true;const cover=await host.page.screenshot({path:'artifacts/browser-campaign/revision-cover.jpg',type:'jpeg',quality:88});
-          console.log('LIVE_COVER_BASE64_BEGIN'+cover.toString('base64')+'LIVE_COVER_BASE64_END');
+        if([5,15].includes(level)&&!bossShots.has(level)&&host.state.world.boss.hp<host.state.world.boss.maxHp&&host.state.phase==='playing'){
+          assert.ok(await host.page.locator('#boss-hud').isVisible(),'damaged boss has visible native health bar');
+          const hp=await host.page.locator('#boss-hp').evaluate(e=>({value:e.value,max:e.max}));
+          assert.ok(hp.value<hp.max&&hp.value>=0);assert.equal(hp.max,level===5?8:3);
+          bossShots.add(level);const cover=await host.page.screenshot({path:`artifacts/browser-campaign/boss-hud-${level}.jpg`,type:'jpeg',quality:88});
+          console.log(`BOSS_HUD_${level}_BASE64_BEGIN`+cover.toString('base64')+`BOSS_HUD_${level}_BASE64_END`);
         }
       }
       await Promise.all(peers.map(p=>input(p,{input:{},interact:false})));

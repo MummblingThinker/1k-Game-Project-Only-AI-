@@ -11,7 +11,7 @@ for(let level=1;level<=15;level++){
    if(stuck>1800)break;
    if(process.env.APPROACH_ONLY&&r.world.boss&&p.x>=r.world.boss.x)break;
  }
- const result={level,phase:r.phase,tick:r.tick,x:Math.round(p.x),y:Math.round(p.y),hearts:r.hearts,deaths:r.deathEvents.map(e=>e.cause),boss:r.world.boss&&{phase:r.world.boss.phase,hp:r.world.boss.hp,cycle:r.world.boss.cycle},stuck};
+ const result={level,seed:r.world.seed,phase:r.phase,tick:r.tick,x:Math.round(p.x),y:Math.round(p.y),hearts:r.hearts,deaths:r.deathEvents.map(e=>e.cause),boss:r.world.boss&&{phase:r.world.boss.phase,hp:r.world.boss.hp,cycle:r.world.boss.cycle},stuck};
  results.push(result);console.log(JSON.stringify(result));
 }
 if(!process.env.DIAGNOSTIC_ROUTES&&!process.env.APPROACH_ONLY)assert.ok(results.every(r=>r.phase==='victory'),'Every real-input route must finish');

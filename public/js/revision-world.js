@@ -22,7 +22,30 @@ export function supply(w,x,y,kind, durable=false) {
 export function addLadder(w,x,bottom,top) {
   w.ladders.push({id:`ladder-${w.nextLadder++}`,x,y:top,w:12,h:bottom-top});
 }
+// Stateless seeded choices: the authority builds the tower and shares it with peers.
+function towerChoice(seed,index,salt,count) {
+  let n=(seed ^ Math.imul(index+1,0x45d9f3b) ^ Math.imul(salt+1,0x27d4eb2d))>>>0;
+  n=Math.imul(n^(n>>>16),0x45d9f3b);n^=n>>>16;return (n>>>0)%count;
+}
 export function addClimbTier(w,b,index) {
+  if(b.kind==='climber') {
+    const pick=(salt,count)=>towerChoice(w.seed,index,salt,count);
+    const bottom=b.tierTop??w.floorY, rise=[72,88,104][pick(0,3)], y=bottom-rise;
+    const lanes=[88,150,238,310];let lane=pick(1,lanes.length);
+    if(lanes[lane]===b.lastLadderX)lane=(lane+1+pick(2,3))%lanes.length;
+    const ladderX=lanes[lane], inset=pick(3,3)*8;
+    w.platforms.push({x:b.x+35+inset,y,w:350-inset,h:9,kind:'boss-tier',essential:true,tier:index,oneWay:true});
+    addLadder(w,b.x+ladderX,bottom,y);
+    const stepX=ladderX<200?b.x+255:b.x+95;
+    w.platforms.push({x:stepX,y:y+rise/2,w:36+pick(4,3)*10,h:8,kind:'boss-step',essential:true,oneWay:true});
+    // Optional raised ledges offer a jump route and varied throwing positions.
+    if(pick(5,2))w.platforms.push({x:b.x+185,y:y-24,w:45,h:8,kind:'boss-step',essential:false,oneWay:true});
+    const debris=['brick','bottle','aircon','antenna','trashcan','mailbox'];
+    for(let j=0;j<3;j++)supply(w,b.x+60+j*105+pick(6+j,32),y,debris[pick(10+j,debris.length)]);
+    b.tierTop=y;b.lastLadderX=ladderX;b.highestTier=index;w.topY=Math.min(w.topY,y-120);
+    return {x:b.x+ladderX-65,y};
+  }
+
   const y=w.floorY-80*(index+1), left=index%2===0;
   const x=b.x+(left?35:210);
   w.platforms.push({x:b.x+35,y,w:350,h:9,kind:'boss-tier',essential:true,tier:index,oneWay:true});
@@ -34,11 +57,11 @@ export function addClimbTier(w,b,index) {
   w.topY=Math.min(w.topY,y-120); b.highestTier=index;
   return {x,y};
 }
-export function buildRevisionLevel(levelId=1,partySize=1) {
+export function buildRevisionLevel(levelId=1,partySize=1,seed=0x51a7c0de) {
   const level=getLevel(levelId), id=level.id, milestone=id%5===0;
   const width=id===1?960:milestone?(id===5?5280:id===10?5760:6240):2880;
   const floorY=540, route=ROUTES[id], bossX=milestone?width-(id===10?1550:950):null;
-  const w={revision:2,id,title:level.title,region:level.palette,summary:level.summary,goal:level.goal,width,height:610,topY:120,floorY,partySize,
+  const w={revision:2,seed:seed>>>0,id,title:level.title,region:level.palette,summary:level.summary,goal:level.goal,width,height:610,topY:120,floorY,partySize,
     floors:[],platforms:[],facades:[],pits:[],crates:[],enemies:[],checkpoints:[],switches:[],plates:[],ladders:[],terrain:[],scenery:[],animals:[],districts:[],breakEffects:[],nextProp:0,nextLadder:0,
     finish:{x:width-55,y:floorY-30,w:28,h:30,locked:true},giant:{x:-180,y:floorY-120,speed:(2880+114)/7200,wakeTicks:id===1?1200:720}};
   const routeEnd=bossX??(width-100), cell=(routeEnd-100)/route.length;
@@ -77,8 +100,8 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
     if(type==='water')w.terrain.push({kind:'water',x:x+35,y:y-5,w:cell-70,h:12});
     if(type==='furnace'||type==='assembly')w.terrain.push({kind:'conveyor',x:x+40,y:y-4,w:cell-80,h:8,direction:type==='furnace'?-1:1});
     if(type==='covered'){
-      w.coveredWay??={x,y:y-68,w:0,h:10,drones:100};w.coveredWay.w+=cell;
-      w.platforms.push({x,y:y-68,w:cell,h:10,kind:'covered-roof',essential:true});
+      w.coveredWay??={x,y:y-96,w:0,h:10,drones:100};w.coveredWay.w+=cell;
+      w.platforms.push({x,y:y-96,w:cell,h:10,kind:'covered-roof',essential:true});
     }
     const props=biome==='city'?['trashcan','mailbox','brick','bottle','aircon','antenna']:biome==='forest'?['stick','bone','log','acorn','stone','mushroom']:['gear','battery','pipe','scrap','monitor','coil'];
     if(!['bridge','weight','covered'].includes(type)) {
@@ -99,18 +122,25 @@ export function buildRevisionLevel(levelId=1,partySize=1) {
       }
     }
     for(let j=0;j<5;j++)w.scenery.push({x:x+j*cell/5,y:deckY,w:20+(j*17%32),h:15+(i*13+j*11)%45,kind:biome==='city'?['lamp','sign','rubble','vent','wires'][(j+id)%5]:biome==='forest'?['tree','fern','bones','stump','flowers'][(j+id)%5]:['pipe','tank','piston','cables','cratepile'][(j+id)%5]});
-    if(biome==='forest'&&!['bridge','weight','covered'].includes(type))w.animals.push({x:x+90,y:deckY-8,homeX:x+90,kind:(id+i)%2?'rabbit':'deer',dir:1});
+    if(biome==='forest'&&!['bridge','weight','covered'].includes(type)){const animal=supply(w,x+110,deckY,(id+i)%2?'rabbit':'deer');animal.animal=true;animal.dir=1;animal.roamX=animal.x;}
     if(i>0&&(i%2===1||i===route.length-1))w.checkpoints.push({x:x+20,y:y-34,w:12,h:34,active:false,kind:'flag'});
   });
   let cursor=0;for(const gap of gaps.sort((a,b)=>a.x-b.x)){w.floors.push({x:cursor,y:floorY,w:gap.x-cursor,h:70});cursor=gap.x+gap.w;}w.floors.push({x:cursor,y:floorY,w:width-cursor,h:70});w.pits=gaps;
   w.memory=id===1?null:{x:112,y:floorY-25,read:false};
   if(milestone){
-    const b=w.boss={kind:id===5?'climber':id===10?'chainsaw':'foundry',x:bossX,w:width-bossX,phase:'waiting',solved:false,elapsed:0,timer:120,hp:id===5?8:1,maxHp:id===5?8:1,pylons:[],cycle:0,activeRelay:0,highestTier:-1,bodyX:bossX+70,bodyY:floorY-62,bodyW:58,bodyH:62,crushY:floorY+70};
+    const b=w.boss={kind:id===5?'climber':id===10?'chainsaw':'foundry',x:bossX,w:width-bossX,phase:'waiting',solved:false,elapsed:0,timer:120,hp:id===5?8:id===15?3:1,maxHp:id===5?8:id===15?3:1,pylons:[],cycle:0,activeRelay:0,highestTier:-1,bodyX:bossX+70,bodyY:floorY-62,bodyW:58,bodyH:62,crushY:floorY+70};
     w.checkpoints.push({x:bossX-30,y:floorY-34,w:12,h:34,active:false,kind:'flag'});
-    if(id===5||id===15){
-      for(let tier=0;tier<7;tier++){const p=addClimbTier(w,b,tier);if(id===15&&[1,3,5].includes(tier))b.pylons.push({id:`core-${tier}`,x:p.x+100,y:p.y-18,w:14,h:18,active:false});}
-      if(id===15){b.lavaY=floorY+95;b.lavaSpeed=.16;b.phaseIndex=0;b.escapeY=floorY-560;}
-      w.finish={x:bossX+350,y:floorY-590,w:28,h:30,locked:true};
+    if(id===5){
+      for(let tier=0;tier<7;tier++)addClimbTier(w,b,tier);
+      b.attack='rest';b.attackTimer=100;b.attackCount=0;b.droneSerial=0;
+      w.finish={x:bossX+350,y:b.tierTop-30,w:28,h:30,locked:true};
+    }else if(id===15){
+      b.attack='rest';b.attackTimer=100;b.roundAttacks=0;b.droneSerial=0;b.head=null;
+      b.bodyX=bossX+700;b.bodyY=floorY-230;
+      for(const [x,y,pw] of [[55,54,160],[310,54,220],[175,108,220]])w.platforms.push({x:bossX+x,y:floorY-y,w:pw,h:8,kind:'arena-catwalk',essential:true,oneWay:true});
+      addLadder(w,bossX+100,floorY,floorY-54);addLadder(w,bossX+465,floorY,floorY-54);addLadder(w,bossX+340,floorY,floorY-108);
+      for(const [i,kind] of ['gear','battery','pipe','scrap','coil','monitor'].entries())supply(w,bossX+65+i*95,floorY,kind);
+      w.finish={x:bossX+810,y:floorY-30,w:28,h:30,locked:true};
     }else{
       // Alternating trunks force climbs and descents through an actual tree maze.
       for(let j=0;j<9;j++){

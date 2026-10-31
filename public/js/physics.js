@@ -124,7 +124,7 @@ export function stepPlayer(player, input, world, dt = 1) {
   // Wall/block contacts do not let the player clip through crate-sized props.
   for (const block of world.platforms) {
     if(block.oneWay)continue;
-    if (overlaps(p, block) && p.y + p.h > block.y + 3) {
+    if (overlaps(p, block) && p.y + p.h > block.y + (block.kind==='maze-tree'?0:3)) {
       if (oldX + p.w <= block.x) p.x = block.x - p.w;
       else if (oldX >= block.x + block.w) p.x = block.x + block.w;
       p.vx = 0;
@@ -161,6 +161,13 @@ export function stepPlayer(player, input, world, dt = 1) {
       p.y = solid.y + solid.h;
       p.vy = 0;
     }
+  }
+  // Resolve diagonal corner entries too: a ladder jump must never leave a
+  // survivor embedded in a solid trunk after the separate X/Y sweeps.
+  for(const trunk of world.platforms.filter(s=>s.kind==='maze-tree'))if(overlaps(p,trunk)){
+    if(previousBottom<=trunk.y+.01&&p.vy>=0){p.y=trunk.y-p.h;p.vy=0;p.onGround=true;}
+    else if(oldX+p.w<=trunk.x+.01||oldX<trunk.x&&oldX<trunk.x+trunk.w/2){p.x=trunk.x-p.w;p.vx=0;}
+    else {p.x=trunk.x+trunk.w;p.vx=0;}
   }
   if (p.invulnerability > 0) p.invulnerability -= dt;
   return p;

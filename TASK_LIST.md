@@ -183,3 +183,7 @@ Never mark a gate `VERIFIED` while any acceptance criterion remains untested. Ke
 - [x] `TITLE-ART-01` - Dedicated detailed city/giant-robot title background, readable menu contrast, polished buttons and narrow-screen settings. Status: VERIFIED; Chromium, Firefox and WebKit run 41160397782 and public run 41160227831 pass.
 
 - [x] `PAGE-CLEANUP-01` - Remove details/cards/footer beneath controls; keep keyboard and touch controls. Implemented; local regression and HTTP/module smoke PASS.
+
+- [ ] `ENCOUNTER-02` - Active randomized Warden, native boss health bars, pursuing vulnerable drones. Implemented; randomized/real-input and browser verification in progress.
+- [ ] `ENCOUNTER-03` - Solid tree jump collision, remaining-heart respawn on fallen log, windowed gradual Level 11 transition, throwable animals. Implemented; focused collision/respawn/throw tests PASS; browser verification pending.
+- [ ] `ENCOUNTER-04` - Background Colossus: three arm attacks, lethal head drop, exhausted head throw/stomp opening, three successful hits. Supersedes lava/console/bulldozer sequence. Rules and ordinary-input 1/2/4-player routes PASS; browser/public verification pending.

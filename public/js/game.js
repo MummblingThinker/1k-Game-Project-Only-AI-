@@ -371,6 +371,20 @@ function syncTextUI() {
   const watchText=spectating?(player.pursuerRecovery>0?`CAUGHT BY THE GIANT • Returning to the team in ${Math.ceil(player.pursuerRecovery/60)}s.`:`YOU ARE DOWN • Watching Survivor ${viewed.slot+1}. A flag can revive the longest-down teammate.`):'';
   if($('spectator-status').textContent!==watchText)$('spectator-status').textContent=watchText;
   const inArena = world.boss && viewed.x >= world.boss.x;
+  const warden=world.boss, bossHud=$('boss-hud');
+  bossHud.hidden=!(['climber','foundry'].includes(warden?.kind)&&!warden.solved&&warden.phase!=='waiting'&&['playing','paused'].includes(gameState));
+  if(!bossHud.hidden){
+    $('boss-hp').max=warden.maxHp;$('boss-hp').value=Math.max(0,warden.hp);
+    $('boss-hp-text').textContent=`${Math.max(0,warden.hp)} / ${warden.maxHp}`;
+    const attack=warden.attack||'rest';bossHud.dataset.attack=attack;
+    $('boss-name').textContent=warden.kind==='foundry'?'IRON COLOSSUS':'CLIMB WARDEN';bossHud.setAttribute('aria-label',warden.kind==='foundry'?'Colossus health':'Warden health');
+    $('boss-attack-hint').textContent=warden.kind==='foundry'?
+      attack==='exposed'?'CORE OPEN - throw an object or stomp its head':attack==='head-warning'||attack==='head-slam'?'FALLING HEAD - move out of its shadow':
+      attack==='warning'||attack==='strike'?warden.weapon==='low'?'LOW ARM - jump or climb':warden.weapon==='high'?'HIGH ARM - stay low or descend':'FIST SLAM - move away from the marker':`Dodge three attacks (${Math.min(3,warden.roundAttacks)}/3)`:
+      attack.startsWith('laser')?'LASER - climb or jump off the red line':attack.startsWith('claw')?'CLAW - move out of the marked square':warden.hp<=warden.maxHp/2?'OVERDRIVE - throw debris while it recovers':'Throw debris at its glowing core';
+
+  }
+
   const wakeSeconds = Math.ceil((world.giant.wakeTicks || 0) / 60);
   const secondsBehind = Math.max(0, Math.ceil((viewed.x + 4 - world.giant.x - 44) / world.giant.speed / 60)) + wakeSeconds;
   const threat = inArena ? 'BLAST DOOR • The roaming giant cannot enter this arena.'
