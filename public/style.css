@@ -300,7 +300,7 @@ body[data-motion="reduced"] .opening-art { animation:none; }
 #title-menu .menu-home { width:min(100%,350px); gap:12px; }
 #title-menu .menu-home button { padding:13px 20px; box-shadow:0 4px 16px #0005; border-left-width:3px; }
 #title-menu .menu-home .secondary-button { background:#0b2433df; }
-#title-menu .menu-home button:hover { border-color:#ffe1a3; background:#244452; color:#fff2d7; }
+#title-menu .menu-home button:hover { transform:none; border-color:#ffe1a3; background:#244452; color:#fff2d7; }
 #title-menu .menu-home .primary-button:hover { background:#f1d09a; color:#152b34; }
 #title-menu .menu-home button:focus-visible { outline:2px solid #fff0c9; outline-offset:4px; }
 #title-menu .menu-home p { color:#d0dcd9; text-shadow:0 2px 6px #000; }

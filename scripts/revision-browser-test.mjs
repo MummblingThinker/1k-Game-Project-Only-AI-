@@ -100,7 +100,7 @@ try{
   });
   assert.equal(new Set(art.scenes).size,11);assert.ok(art.loaded.every(i=>i.width>1500&&i.height>500),JSON.stringify(art));
   for(const [level,zone] of [[1,'city'],[6,'forest'],[12,'factory']]){
-    await page.goto(base+'/?debug=1');await page.locator('#menu-single').click();await page.locator('#level-select').selectOption(String(level));await page.locator('#play-selected').click();
+    await page.goto(base+'/?debug=1');await page.locator('#opening-intro').waitFor({state:'detached'});await page.locator('#menu-single').click();await page.locator('#level-select').selectOption(String(level));await page.locator('#play-selected').click();
     await page.waitForFunction(zone=>document.querySelector('#sound-toggle').dataset.audioZone===zone,zone);
     await page.locator('#open-settings').click();await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='paused');
     if(process.env.TEST_BROWSER!=='firefox')await page.waitForFunction(()=>document.querySelector('#sound-toggle').dataset.audioState==='running');
@@ -110,18 +110,18 @@ try{
     assert.equal(await page.evaluate(()=>document.activeElement.id),'game','returning from Settings restores keyboard control');
   }
   console.log('ZONE CONTROLS PASS: city/forest/factory selection, mute and settings pause/resume. AudioContext state logged separately; physical listening not claimed.');
-  await page.goto(base+'/?debug=1');await page.locator('#menu-single').click();await page.locator('#start-story').click();await sleep(1800);
+  await page.goto(base+'/?debug=1');await page.locator('#opening-intro').waitFor({state:'detached'});await page.locator('#menu-single').click();await page.locator('#start-story').click();await sleep(1800);
   const story=await page.locator('#story-panel').screenshot({path:'artifacts/revision/comic-desktop.jpg',type:'jpeg',quality:80});console.log('COMIC_BASE64_BEGIN'+story.toString('base64')+'COMIC_BASE64_END');
   const positions=await page.locator('.comic-original').evaluateAll(es=>es.map(e=>getComputedStyle(e).backgroundPosition));assert.equal(new Set(positions).size,3);
   await page.setViewportSize({width:430,height:932});await sleep(300);await page.screenshot({path:'artifacts/revision/comic-mobile.png'});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no mobile horizontal overflow');
   console.log('COMIC PASS: 11 unique triptychs / 33 distinct illustrations; desktop and mobile layouts.');
-  await page.goto(base+'/?debug=1');await page.locator('#menu-settings').click();
+  await page.goto(base+'/?debug=1');await page.locator('#opening-intro').waitFor({state:'detached'});await page.locator('#menu-settings').click();
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'mobile settings fit width');
   await page.locator('#menu-back').click();await page.locator('#menu-multi').click();await page.locator('#create-room').click();
   await page.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);
   const code=await page.locator('#game').getAttribute('data-room');
-  const guest=await context.newPage();await guest.goto(base+'/?room='+code);await guest.locator('#join-room').click();
+  const guest=await context.newPage();await guest.goto(base+'/?room='+code);await guest.locator('#opening-intro').waitFor({state:'detached'});await guest.locator('#join-room').click();
   await guest.waitForFunction(()=>document.querySelector('#game').dataset.room.length===6);await guest.locator('#room-ready').click();
   await page.locator('#start-story').click();await page.waitForFunction(()=>document.querySelector('#game').dataset.state==='playing');
   await page.locator('#open-settings').click();await sleep(100);assert.equal(await page.locator('#game').getAttribute('data-state'),'playing','online Settings must not pause the room');
