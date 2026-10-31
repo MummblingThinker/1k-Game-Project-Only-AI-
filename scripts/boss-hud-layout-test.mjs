@@ -24,6 +24,7 @@ try{
    const box=e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};};
    return {canvas:box(canvas),hud:box(hud),meter:box(meter),appearance:getComputedStyle(meter).appearance,scroll:document.documentElement.scrollWidth};
   });
+  console.log('BOSS HUD MEASURE:',width,JSON.stringify(boxes));
   assert.ok(boxes.hud.x>=boxes.canvas.x-1&&boxes.hud.right<=boxes.canvas.right+1,'HUD fits game width');
   assert.ok(boxes.hud.y>=boxes.canvas.y+boxes.canvas.h*116/180-1,'HUD stays below the playable floor at width '+width);
   assert.ok(boxes.hud.bottom<=boxes.canvas.bottom+1);assert.ok(boxes.meter.h>=4);assert.equal(boxes.appearance,'none');assert.ok(boxes.scroll<=width+1);

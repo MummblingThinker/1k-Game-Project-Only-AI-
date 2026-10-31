@@ -336,7 +336,7 @@ body[data-motion="reduced"] .opening-art { animation:none; }
 #boss-hud #boss-timing[data-mood="danger"]::-moz-progress-bar { background:#ff866f; }
 
 @media(max-width:420px) {
-  #boss-hud { bottom:3px; padding:4px 7px; font-size:10px; }
+  #boss-hud { bottom:8px; padding:4px 7px; font-size:10px; }
   #boss-hud #boss-hp { height:6px; margin:3px 0; }
   #boss-hud #boss-timing { height:4px; margin:2px 0 3px; }
   #boss-attack-hint { font-size:9px; }
